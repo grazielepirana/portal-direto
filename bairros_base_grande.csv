@@ -1,0 +1,217 @@
+city,neighborhood,state_code,label
+Rio Branco,Centro,AC,Rio Branco - Centro - AC
+Rio Branco,Bosque,AC,Rio Branco - Bosque - AC
+Rio Branco,Estacao Experimental,AC,Rio Branco - Estacao Experimental - AC
+Rio Branco,Cadeia Velha,AC,Rio Branco - Cadeia Velha - AC
+Rio Branco,Vila Ivonete,AC,Rio Branco - Vila Ivonete - AC
+Rio Branco,Aviario,AC,Rio Branco - Aviario - AC
+Rio Branco,Floresta,AC,Rio Branco - Floresta - AC
+Rio Branco,Conjunto Tucuma,AC,Rio Branco - Conjunto Tucuma - AC
+Maceio,Pajucara,AL,Maceio - Pajucara - AL
+Maceio,Ponta Verde,AL,Maceio - Ponta Verde - AL
+Maceio,Jatiuca,AL,Maceio - Jatiuca - AL
+Maceio,Farol,AL,Maceio - Farol - AL
+Maceio,Gruta de Lourdes,AL,Maceio - Gruta de Lourdes - AL
+Maceio,Cruz das Almas,AL,Maceio - Cruz das Almas - AL
+Maceio,Jaragua,AL,Maceio - Jaragua - AL
+Maceio,Bebedouro,AL,Maceio - Bebedouro - AL
+Macapa,Central,AP,Macapa - Central - AP
+Macapa,Trem,AP,Macapa - Trem - AP
+Macapa,Pacoval,AP,Macapa - Pacoval - AP
+Macapa,Buritizal,AP,Macapa - Buritizal - AP
+Macapa,Infraero,AP,Macapa - Infraero - AP
+Macapa,Universidade,AP,Macapa - Universidade - AP
+Macapa,Novo Horizonte,AP,Macapa - Novo Horizonte - AP
+Macapa,Santa Rita,AP,Macapa - Santa Rita - AP
+Manaus,Centro,AM,Manaus - Centro - AM
+Manaus,Adrianopolis,AM,Manaus - Adrianopolis - AM
+Manaus,Nossa Senhora das Gracas,AM,Manaus - Nossa Senhora das Gracas - AM
+Manaus,Parque 10 de Novembro,AM,Manaus - Parque 10 de Novembro - AM
+Manaus,Dom Pedro,AM,Manaus - Dom Pedro - AM
+Manaus,Alvorada,AM,Manaus - Alvorada - AM
+Manaus,Compensa,AM,Manaus - Compensa - AM
+Manaus,Cidade Nova,AM,Manaus - Cidade Nova - AM
+Salvador,Barra,BA,Salvador - Barra - BA
+Salvador,Graça,BA,Salvador - Graça - BA
+Salvador,Pituba,BA,Salvador - Pituba - BA
+Salvador,Caminho das Arvores,BA,Salvador - Caminho das Arvores - BA
+Salvador,Itaigara,BA,Salvador - Itaigara - BA
+Salvador,Rio Vermelho,BA,Salvador - Rio Vermelho - BA
+Salvador,Ondina,BA,Salvador - Ondina - BA
+Salvador,Brotas,BA,Salvador - Brotas - BA
+Fortaleza,Aldeota,CE,Fortaleza - Aldeota - CE
+Fortaleza,Meireles,CE,Fortaleza - Meireles - CE
+Fortaleza,Cocó,CE,Fortaleza - Cocó - CE
+Fortaleza,Dionisio Torres,CE,Fortaleza - Dionisio Torres - CE
+Fortaleza,Varjota,CE,Fortaleza - Varjota - CE
+Fortaleza,Papicu,CE,Fortaleza - Papicu - CE
+Fortaleza,Centro,CE,Fortaleza - Centro - CE
+Fortaleza,Fatima,CE,Fortaleza - Fatima - CE
+Brasilia,Asa Sul,DF,Brasilia - Asa Sul - DF
+Brasilia,Asa Norte,DF,Brasilia - Asa Norte - DF
+Brasilia,Lago Sul,DF,Brasilia - Lago Sul - DF
+Brasilia,Lago Norte,DF,Brasilia - Lago Norte - DF
+Brasilia,Sudoeste,DF,Brasilia - Sudoeste - DF
+Brasilia,Octogonal,DF,Brasilia - Octogonal - DF
+Brasilia,Noroeste,DF,Brasilia - Noroeste - DF
+Brasilia,Guara,DF,Brasilia - Guara - DF
+Vitoria,Praia do Canto,ES,Vitoria - Praia do Canto - ES
+Vitoria,Jardim da Penha,ES,Vitoria - Jardim da Penha - ES
+Vitoria,Jardim Camburi,ES,Vitoria - Jardim Camburi - ES
+Vitoria,Bento Ferreira,ES,Vitoria - Bento Ferreira - ES
+Vitoria,Mata da Praia,ES,Vitoria - Mata da Praia - ES
+Vitoria,Enseada do Sua,ES,Vitoria - Enseada do Sua - ES
+Vitoria,Centro,ES,Vitoria - Centro - ES
+Vitoria,Santa Lucia,ES,Vitoria - Santa Lucia - ES
+Goiania,Setor Bueno,GO,Goiania - Setor Bueno - GO
+Goiania,Setor Marista,GO,Goiania - Setor Marista - GO
+Goiania,Jardim Goias,GO,Goiania - Jardim Goias - GO
+Goiania,Setor Oeste,GO,Goiania - Setor Oeste - GO
+Goiania,Setor Sul,GO,Goiania - Setor Sul - GO
+Goiania,Centro,GO,Goiania - Centro - GO
+Goiania,Setor Nova Suica,GO,Goiania - Setor Nova Suica - GO
+Goiania,Parque Amazônia,GO,Goiania - Parque Amazônia - GO
+Sao Luis,Renascenca,MA,Sao Luis - Renascenca - MA
+Sao Luis,Ponta d Areia,MA,Sao Luis - Ponta d Areia - MA
+Sao Luis,Cohama,MA,Sao Luis - Cohama - MA
+Sao Luis,Vinhais,MA,Sao Luis - Vinhais - MA
+Sao Luis,Centro,MA,Sao Luis - Centro - MA
+Sao Luis,Turu,MA,Sao Luis - Turu - MA
+Sao Luis,Calhau,MA,Sao Luis - Calhau - MA
+Sao Luis,Olho d Agua,MA,Sao Luis - Olho d Agua - MA
+Cuiaba,Goiabeiras,MT,Cuiaba - Goiabeiras - MT
+Cuiaba,Duque de Caxias,MT,Cuiaba - Duque de Caxias - MT
+Cuiaba,Jardim das Americas,MT,Cuiaba - Jardim das Americas - MT
+Cuiaba,Boa Esperanca,MT,Cuiaba - Boa Esperanca - MT
+Cuiaba,Centro Norte,MT,Cuiaba - Centro Norte - MT
+Cuiaba,Alvorada,MT,Cuiaba - Alvorada - MT
+Cuiaba,CPA I,MT,Cuiaba - CPA I - MT
+Cuiaba,Despraiado,MT,Cuiaba - Despraiado - MT
+Campo Grande,Chacara Cachoeira,MS,Campo Grande - Chacara Cachoeira - MS
+Campo Grande,Jardim dos Estados,MS,Campo Grande - Jardim dos Estados - MS
+Campo Grande,Centro,MS,Campo Grande - Centro - MS
+Campo Grande,Carlota,MS,Campo Grande - Carlota - MS
+Campo Grande,Itanhanga,MS,Campo Grande - Itanhanga - MS
+Campo Grande,Monte Castelo,MS,Campo Grande - Monte Castelo - MS
+Campo Grande,Vila Nasser,MS,Campo Grande - Vila Nasser - MS
+Campo Grande,Coophavila II,MS,Campo Grande - Coophavila II - MS
+Belo Horizonte,Savassi,MG,Belo Horizonte - Savassi - MG
+Belo Horizonte,Lourdes,MG,Belo Horizonte - Lourdes - MG
+Belo Horizonte,Funcionarios,MG,Belo Horizonte - Funcionarios - MG
+Belo Horizonte,Belvedere,MG,Belo Horizonte - Belvedere - MG
+Belo Horizonte,Santa Efigenia,MG,Belo Horizonte - Santa Efigenia - MG
+Belo Horizonte,Buritis,MG,Belo Horizonte - Buritis - MG
+Belo Horizonte,Centro,MG,Belo Horizonte - Centro - MG
+Belo Horizonte,Cidade Nova,MG,Belo Horizonte - Cidade Nova - MG
+Belem,Nazare,PA,Belem - Nazare - PA
+Belem,Umarizal,PA,Belem - Umarizal - PA
+Belem,Batista Campos,PA,Belem - Batista Campos - PA
+Belem,Marco,PA,Belem - Marco - PA
+Belem,Campina,PA,Belem - Campina - PA
+Belem,Souza,PA,Belem - Souza - PA
+Belem,Pedreira,PA,Belem - Pedreira - PA
+Belem,Jurunas,PA,Belem - Jurunas - PA
+Joao Pessoa,Tambau,PB,Joao Pessoa - Tambau - PB
+Joao Pessoa,Cabo Branco,PB,Joao Pessoa - Cabo Branco - PB
+Joao Pessoa,Altiplano Cabo Branco,PB,Joao Pessoa - Altiplano Cabo Branco - PB
+Joao Pessoa,Manaira,PB,Joao Pessoa - Manaira - PB
+Joao Pessoa,Bessa,PB,Joao Pessoa - Bessa - PB
+Joao Pessoa,Centro,PB,Joao Pessoa - Centro - PB
+Joao Pessoa,Miramar,PB,Joao Pessoa - Miramar - PB
+Joao Pessoa,Expedicionarios,PB,Joao Pessoa - Expedicionarios - PB
+Curitiba,Batel,PR,Curitiba - Batel - PR
+Curitiba,Agua Verde,PR,Curitiba - Agua Verde - PR
+Curitiba,Bigorrilho,PR,Curitiba - Bigorrilho - PR
+Curitiba,Centro,PR,Curitiba - Centro - PR
+Curitiba,Cabral,PR,Curitiba - Cabral - PR
+Curitiba,Ecoville,PR,Curitiba - Ecoville - PR
+Curitiba,Portao,PR,Curitiba - Portao - PR
+Curitiba,Reboucas,PR,Curitiba - Reboucas - PR
+Recife,Boa Viagem,PE,Recife - Boa Viagem - PE
+Recife,Pina,PE,Recife - Pina - PE
+Recife,Graças,PE,Recife - Graças - PE
+Recife,Espinheiro,PE,Recife - Espinheiro - PE
+Recife,Aflitos,PE,Recife - Aflitos - PE
+Recife,Casa Forte,PE,Recife - Casa Forte - PE
+Recife,Derby,PE,Recife - Derby - PE
+Recife,Madale na,PE,Recife - Madale na - PE
+Teresina,Ininga,PI,Teresina - Ininga - PI
+Teresina,Jockey,PI,Teresina - Jockey - PI
+Teresina,Noivos,PI,Teresina - Noivos - PI
+Teresina,Fatima,PI,Teresina - Fatima - PI
+Teresina,Centro,PI,Teresina - Centro - PI
+Teresina,Ilhotas,PI,Teresina - Ilhotas - PI
+Teresina,Piçarra,PI,Teresina - Piçarra - PI
+Teresina,Dirceu,PI,Teresina - Dirceu - PI
+Rio de Janeiro,Barra da Tijuca,RJ,Rio de Janeiro - Barra da Tijuca - RJ
+Rio de Janeiro,Recreio dos Bandeirantes,RJ,Rio de Janeiro - Recreio dos Bandeirantes - RJ
+Rio de Janeiro,Copacabana,RJ,Rio de Janeiro - Copacabana - RJ
+Rio de Janeiro,Ipanema,RJ,Rio de Janeiro - Ipanema - RJ
+Rio de Janeiro,Leblon,RJ,Rio de Janeiro - Leblon - RJ
+Rio de Janeiro,Tijuca,RJ,Rio de Janeiro - Tijuca - RJ
+Rio de Janeiro,Botafogo,RJ,Rio de Janeiro - Botafogo - RJ
+Rio de Janeiro,Flamengo,RJ,Rio de Janeiro - Flamengo - RJ
+Natal,Ponta Negra,RN,Natal - Ponta Negra - RN
+Natal,Tirol,RN,Natal - Tirol - RN
+Natal,Petropolis,RN,Natal - Petropolis - RN
+Natal,Capim Macio,RN,Natal - Capim Macio - RN
+Natal,Lagoa Nova,RN,Natal - Lagoa Nova - RN
+Natal,Neopolis,RN,Natal - Neopolis - RN
+Natal,Alecrim,RN,Natal - Alecrim - RN
+Natal,Ribeira,RN,Natal - Ribeira - RN
+Porto Alegre,Moinhos de Vento,RS,Porto Alegre - Moinhos de Vento - RS
+Porto Alegre,Bela Vista,RS,Porto Alegre - Bela Vista - RS
+Porto Alegre,Mont Serrat,RS,Porto Alegre - Mont Serrat - RS
+Porto Alegre,Auxiliadora,RS,Porto Alegre - Auxiliadora - RS
+Porto Alegre,Centro Historico,RS,Porto Alegre - Centro Historico - RS
+Porto Alegre,Cidade Baixa,RS,Porto Alegre - Cidade Baixa - RS
+Porto Alegre,Menino Deus,RS,Porto Alegre - Menino Deus - RS
+Porto Alegre,Tristeza,RS,Porto Alegre - Tristeza - RS
+Porto Velho,Olaria,RO,Porto Velho - Olaria - RO
+Porto Velho,Caiari,RO,Porto Velho - Caiari - RO
+Porto Velho,Centro,RO,Porto Velho - Centro - RO
+Porto Velho,Nova Porto Velho,RO,Porto Velho - Nova Porto Velho - RO
+Porto Velho,Embratel,RO,Porto Velho - Embratel - RO
+Porto Velho,Flodoaldo Pontes Pinto,RO,Porto Velho - Flodoaldo Pontes Pinto - RO
+Porto Velho,Industrial,RO,Porto Velho - Industrial - RO
+Porto Velho,Areal,RO,Porto Velho - Areal - RO
+Boa Vista,Caçari,RR,Boa Vista - Caçari - RR
+Boa Vista,Centro,RR,Boa Vista - Centro - RR
+Boa Vista,Paraviana,RR,Boa Vista - Paraviana - RR
+Boa Vista,Sao Francisco,RR,Boa Vista - Sao Francisco - RR
+Boa Vista,Mecejana,RR,Boa Vista - Mecejana - RR
+Boa Vista,Pintolandia,RR,Boa Vista - Pintolandia - RR
+Boa Vista,Asa Branca,RR,Boa Vista - Asa Branca - RR
+Boa Vista,31 de Marco,RR,Boa Vista - 31 de Marco - RR
+Florianopolis,Centro,SC,Florianopolis - Centro - SC
+Florianopolis,Trindade,SC,Florianopolis - Trindade - SC
+Florianopolis,Agronomica,SC,Florianopolis - Agronomica - SC
+Florianopolis,Campeche,SC,Florianopolis - Campeche - SC
+Florianopolis,Ingleses,SC,Florianopolis - Ingleses - SC
+Florianopolis,Lagoa da Conceicao,SC,Florianopolis - Lagoa da Conceicao - SC
+Florianopolis,Itacorubi,SC,Florianopolis - Itacorubi - SC
+Florianopolis,Coqueiros,SC,Florianopolis - Coqueiros - SC
+Sao Paulo,Moema,SP,Sao Paulo - Moema - SP
+Sao Paulo,Vila Mariana,SP,Sao Paulo - Vila Mariana - SP
+Sao Paulo,Pinheiros,SP,Sao Paulo - Pinheiros - SP
+Sao Paulo,Itaim Bibi,SP,Sao Paulo - Itaim Bibi - SP
+Sao Paulo,Perdizes,SP,Sao Paulo - Perdizes - SP
+Sao Paulo,Ipiranga,SP,Sao Paulo - Ipiranga - SP
+Sao Paulo,Saude,SP,Sao Paulo - Saude - SP
+Sao Paulo,Tatuape,SP,Sao Paulo - Tatuape - SP
+Aracaju,Atalaia,SE,Aracaju - Atalaia - SE
+Aracaju,Jardins,SE,Aracaju - Jardins - SE
+Aracaju,13 de Julho,SE,Aracaju - 13 de Julho - SE
+Aracaju,Farolandia,SE,Aracaju - Farolandia - SE
+Aracaju,Centro,SE,Aracaju - Centro - SE
+Aracaju,Suissa,SE,Aracaju - Suissa - SE
+Aracaju,Salgado Filho,SE,Aracaju - Salgado Filho - SE
+Aracaju,Grageru,SE,Aracaju - Grageru - SE
+Palmas,Plano Diretor Sul,TO,Palmas - Plano Diretor Sul - TO
+Palmas,Plano Diretor Norte,TO,Palmas - Plano Diretor Norte - TO
+Palmas,Taquaralto,TO,Palmas - Taquaralto - TO
+Palmas,Aureny III,TO,Palmas - Aureny III - TO
+Palmas,Aureny IV,TO,Palmas - Aureny IV - TO
+Palmas,Centro,TO,Palmas - Centro - TO
+Palmas,Jardim Aureny I,TO,Palmas - Jardim Aureny I - TO
+Palmas,Arso 24,TO,Palmas - Arso 24 - TO
