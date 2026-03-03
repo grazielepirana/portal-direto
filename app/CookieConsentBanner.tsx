@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-const CONSENT_KEY = "portal_cookie_consent_v1";
+const CONSENT_KEY = "portal_cookie_consent_v2";
 const PREFERENCES_COOKIE = "portal_cookie_preferences";
 const ONE_YEAR_SECONDS = 60 * 60 * 24 * 365;
 
