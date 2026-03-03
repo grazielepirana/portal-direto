@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import AuthButton from "./AuthButton";
 import SiteThemeSync from "./SiteThemeSync";
+import SiteFaviconSync from "./SiteFaviconSync";
 import SiteBrand from "./SiteBrand";
 import SiteFooter from "./SiteFooter";
 import CookieBanner from "./CookieBanner";
@@ -21,6 +22,7 @@ export default function RootLayout({
     <html lang="pt-BR">
       <body className="bg-gray-100 text-gray-900">
         <SiteThemeSync />
+        <SiteFaviconSync />
 
         <header className="site-header sticky top-0 z-40 border-b border-slate-200/70 backdrop-blur-md bg-white/85">
           <div className="max-w-[1200px] mx-auto px-6 py-4 flex justify-between items-center">

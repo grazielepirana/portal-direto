@@ -42,7 +42,7 @@ function clampPercentage(value: number) {
   return Math.min(100, Math.max(0, value));
 }
 
-async function uploadSiteAsset(file: File, folder: "logo" | "hero" | "home-blocks") {
+async function uploadSiteAsset(file: File, folder: "logo" | "hero" | "home-blocks" | "favicon") {
   const safeName = sanitizeFileName(file.name);
   const path = `${folder}/${Date.now()}-${crypto.randomUUID()}-${safeName}`;
 
@@ -103,6 +103,17 @@ export default function AdminPage() {
       setMsg("Logo enviada com sucesso.");
     } catch (err: unknown) {
       setMsg(err instanceof Error ? err.message : "Erro ao enviar logo.");
+    }
+  }
+
+  async function handleFaviconUpload(file: File | null) {
+    if (!file) return;
+    try {
+      const url = await uploadSiteAsset(file, "favicon");
+      setSettings((prev) => ({ ...prev, favicon_url: url }));
+      setMsg("Favicon enviado com sucesso.");
+    } catch (err: unknown) {
+      setMsg(err instanceof Error ? err.message : "Erro ao enviar favicon.");
     }
   }
 
@@ -597,6 +608,33 @@ export default function AdminPage() {
             <>
               <div className="border border-slate-300 rounded-xl p-4">
                 <h2 className="text-xl font-bold mb-3">Imagens do site</h2>
+                <label className="block font-semibold mb-2">Favicon do site</label>
+                <input
+                  type="file"
+                  accept="image/x-icon,image/png,image/svg+xml"
+                  onChange={(e) => handleFaviconUpload(e.target.files?.[0] ?? null)}
+                />
+                <input
+                  className="mt-3 w-full border border-slate-400 text-slate-950 placeholder:text-slate-700 p-2 rounded-lg"
+                  placeholder="URL do favicon (opcional)"
+                  value={settings.favicon_url}
+                  onChange={(e) => setSettings((p) => ({ ...p, favicon_url: e.target.value }))}
+                />
+                <p className="mt-1 text-xs text-slate-600">
+                  Recomendado: PNG 32x32 ou ICO.
+                </p>
+                {settings.favicon_url ? (
+                  <div className="mt-3 inline-flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                    <img
+                      src={settings.favicon_url}
+                      alt="Preview do favicon"
+                      className="h-8 w-8 rounded object-contain"
+                    />
+                    <span className="text-sm text-slate-700">Preview do favicon</span>
+                  </div>
+                ) : null}
+
+                <div className="mt-4 border-t border-slate-200 pt-4">
                 <label className="block font-semibold mb-2">Logo do site</label>
                 <input
                   type="file"
@@ -632,6 +670,7 @@ export default function AdminPage() {
                     style={{ height: `${settings.logo_height_px}px` }}
                   />
                 ) : null}
+                </div>
               </div>
 
               <div className="border border-slate-300 rounded-xl p-4">
