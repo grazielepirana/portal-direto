@@ -4,6 +4,8 @@ import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { DEFAULT_SITE_SETTINGS, loadSiteSettings, type SiteSettings } from "../../lib/site-settings";
 
+const DEFAULT_SUPPORT_EMAIL = "contato@portaldiretoimoveis.com.br";
+
 const FAQ_ITEMS = [
   {
     question: "Como cadastrar um imóvel?",
@@ -49,16 +51,16 @@ export default function CentralDeAjudaPage() {
       .catch(() => setSettings(DEFAULT_SITE_SETTINGS));
   }, []);
 
-  const hasEmail = useMemo(() => Boolean(settings.support_email?.trim()), [settings.support_email]);
+  const supportEmail = useMemo(
+    () => settings.support_email?.trim() || DEFAULT_SUPPORT_EMAIL,
+    [settings.support_email]
+  );
 
   function sendEmail(e: FormEvent) {
     e.preventDefault();
-    if (!hasEmail) return;
-
-    const to = settings.support_email.trim();
     const mailSubject = encodeURIComponent(subject || "Contato pelo site");
     const mailBody = encodeURIComponent(message || "Olá, gostaria de mais informações.");
-    window.location.href = `mailto:${to}?subject=${mailSubject}&body=${mailBody}`;
+    window.location.href = `mailto:${supportEmail}?subject=${mailSubject}&body=${mailBody}`;
   }
 
   return (
@@ -130,7 +132,6 @@ export default function CentralDeAjudaPage() {
               <div className="flex flex-col items-stretch gap-2 sm:items-end">
                 <button
                   type="submit"
-                  disabled={!hasEmail}
                   className="cta-primary h-11 w-full rounded-xl px-5 text-sm font-semibold sm:w-auto disabled:opacity-40"
                 >
                   Enviar e-mail
@@ -175,13 +176,9 @@ export default function CentralDeAjudaPage() {
               <div className="mt-3 space-y-3 text-sm text-slate-700">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">E-mail</p>
-                  {hasEmail ? (
-                    <a href={`mailto:${settings.support_email.trim()}`} className="font-semibold text-slate-800 hover:text-red-600 break-all">
-                      {settings.support_email}
-                    </a>
-                  ) : (
-                    <p className="text-slate-500">E-mail de suporte não cadastrado</p>
-                  )}
+                  <a href={`mailto:${supportEmail}`} className="font-semibold text-slate-800 hover:text-red-600 break-all">
+                    {supportEmail}
+                  </a>
                 </div>
 
                 <div className="rounded-xl bg-slate-50 p-3">
