@@ -231,8 +231,8 @@ export default function Home() {
     <main className="min-h-screen bg-[#F8FAFC] px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-[1200px] space-y-10">
         <div
-          className="relative overflow-hidden rounded-[24px]"
-          style={{ minHeight: `${Math.max(420, Math.min(heroHeightPx + 220, 680))}px` }}
+          className="relative left-1/2 w-screen -translate-x-1/2 overflow-hidden"
+          style={{ minHeight: `${Math.max(420, Math.min(heroHeightPx + 240, 760))}px` }}
         >
           {heroImageUrl ? (
             <>
@@ -250,7 +250,7 @@ export default function Home() {
           ) : null}
           <div className="pointer-events-none absolute -top-16 -left-20 h-64 w-64 rounded-full bg-gradient-to-br from-sky-200/55 to-transparent blur-2xl" />
           <div className="pointer-events-none absolute -bottom-20 -right-12 h-72 w-72 rounded-full bg-gradient-to-tr from-indigo-200/45 to-transparent blur-2xl" />
-          <div className="relative grid grid-cols-1 gap-8 items-stretch lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.85fr)]">
+          <div className="mx-auto grid w-full max-w-[1200px] grid-cols-1 items-stretch gap-8 px-4 sm:px-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,0.65fr)] lg:px-8">
           <section
             className="!mt-0 rounded-[24px] p-8 sm:p-10 flex flex-col justify-between"
           >
@@ -301,7 +301,7 @@ export default function Home() {
 
           <section
             id="home-search"
-            className="!mt-0 rounded-[24px] bg-white/95 p-7 backdrop-blur-sm lg:p-6"
+            className="!mt-0 rounded-[24px] bg-white/95 p-5 backdrop-blur-sm lg:ml-auto lg:max-w-[430px]"
             style={{ boxShadow: "0 12px 40px rgba(15,23,42,0.08)" }}
           >
             <h2 className="text-2xl font-bold text-slate-900 mb-2">Busque por localização, tipo e preço</h2>
