@@ -112,7 +112,14 @@ export default async function ImovelPage({
 
   const imageUrls = normalizeImageUrls(listing.image_urls);
   const condoAmenities = normalizeStringArray(listing.condo_amenities);
+  const propertyFeatures = normalizeStringArray(listing.property_features);
   const condoAmenitiesOther = String(listing.condo_amenities_other ?? "").trim();
+  const acceptsTrade = listing.accepts_trade === true;
+  const tradeType = String(listing.trade_type ?? "").trim();
+  const tradeValue =
+    listing.trade_value != null && Number.isFinite(Number(listing.trade_value))
+      ? Number(listing.trade_value)
+      : null;
   const shouldShowCondoAmenities =
     listing.condo_is_in === true || condoAmenities.length > 0 || condoAmenitiesOther.length > 0;
   const mapQuery = [
@@ -281,6 +288,31 @@ export default async function ImovelPage({
                     </span>
                   ) : null}
                 </div>
+              </div>
+            ) : null}
+
+            {propertyFeatures.length > 0 ? (
+              <div className="mb-3">
+                <p className="text-slate-800 font-semibold mb-2">Detalhes do imóvel</p>
+                <div className="flex flex-wrap gap-2">
+                  {propertyFeatures.map((item) => (
+                    <span key={item} className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-800">
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {acceptsTrade ? (
+              <div className="mb-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <p className="text-slate-900 font-semibold">Aceita permuta</p>
+                {tradeType ? <p className="text-sm text-slate-700 mt-1">Tipo: {tradeType}</p> : null}
+                {tradeValue != null ? (
+                  <p className="text-sm text-slate-700 mt-1">
+                    Valor estimado: R$ {tradeValue.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </p>
+                ) : null}
               </div>
             ) : null}
 

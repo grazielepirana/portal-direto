@@ -21,13 +21,32 @@ const MAX_FILE_SIZE_BYTES = 8 * 1024 * 1024;
 const CONDO_AMENITY_OPTIONS = [
   "Piscina",
   "Churrasqueira",
-  "Quadra",
+  "Quadra poliesportiva",
+  "Salão de jogos",
+  "Playground",
+  "Sauna",
+  "Espaço gourmet",
+  "Quadra de beach tênis",
+  "Quadra de tênis",
+  "Home cinema",
+  "Sala de massagem",
+  "Garage band",
+  "Academia",
+  "Hidromassagem",
   "Salão de festas",
   "Piscina aquecida",
   "Área pet",
   "Brinquedoteca",
   "Portaria 24h",
   "Outros",
+];
+
+const PROPERTY_DETAIL_OPTIONS = [
+  "Ar condicionado",
+  "Sol da manhã",
+  "Sol da tarde",
+  "Mobiliado",
+  "Varanda gourmet",
 ];
 
 function sanitizeFileName(fileName: string) {
@@ -137,6 +156,10 @@ type Listing = {
   description?: string | null;
   image_urls?: unknown;
   plan_id?: string | null;
+  property_features?: unknown;
+  accepts_trade?: boolean | null;
+  trade_type?: string | null;
+  trade_value?: number | null;
 };
 
 export default function EditarImovelPage({
@@ -145,7 +168,7 @@ export default function EditarImovelPage({
   params: Promise<{ id: string }>;
 }) {
   const fieldClassName =
-    "border border-slate-400 text-slate-950 placeholder:text-slate-700 p-3 rounded-lg";
+    "h-12 w-full rounded-xl border border-slate-300 bg-white px-3 text-slate-900 placeholder:text-slate-500";
 
   const [loadingPage, setLoadingPage] = useState(true);
   const [loadingCep, setLoadingCep] = useState(false);
@@ -178,10 +201,25 @@ export default function EditarImovelPage({
   const [code, setCode] = useState("");
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
+  const [propertyDetails, setPropertyDetails] = useState<string[]>([]);
+  const [acceptsTrade, setAcceptsTrade] = useState<"sim" | "nao">("nao");
+  const [tradeType, setTradeType] = useState("");
+  const [tradeValue, setTradeValue] = useState("");
   const [photoItems, setPhotoItems] = useState<PhotoItem[]>([]);
   const [plans, setPlans] = useState<ListingPlan[]>(DEFAULT_LISTING_PLANS);
   const [selectedPlanId, setSelectedPlanId] = useState("free-120");
+  const [currentStep, setCurrentStep] = useState(1);
+  const [showMobileSummary, setShowMobileSummary] = useState(false);
   const createdPreviewUrlsRef = useRef<Set<string>>(new Set());
+
+  const steps = [
+    { id: 1, title: "Tipo & Plano" },
+    { id: 2, title: "Endereço" },
+    { id: 3, title: "Valores & Detalhes" },
+    { id: 4, title: "Fotos & Salvar" },
+  ];
+
+  const selectedPlan = plans.find((plan) => plan.id === selectedPlanId) ?? plans[0];
 
   useEffect(() => {
     (async () => {
@@ -242,6 +280,10 @@ export default function EditarImovelPage({
       setCode(listing.code ?? "");
       setPrice(formatCurrencyFromNumber(listing.price));
       setDescription(listing.description ?? "");
+      setPropertyDetails(normalizeStringArray(listing.property_features));
+      setAcceptsTrade(listing.accepts_trade === true ? "sim" : "nao");
+      setTradeType(listing.trade_type ?? "");
+      setTradeValue(formatCurrencyFromNumber(listing.trade_value));
       const existingUrls = normalizeImageUrls(listing.image_urls);
       setPhotoItems(
         existingUrls.map((url, index) => ({
@@ -366,6 +408,11 @@ export default function EditarImovelPage({
         suites: typeof suites === "number" ? suites : null,
         area_sqm: typeof areaSqm === "number" ? areaSqm : null,
         parking_spots: typeof parkingSpots === "number" ? parkingSpots : null,
+        property_features: propertyDetails.length > 0 ? propertyDetails : null,
+        accepts_trade: acceptsTrade === "sim",
+        trade_type: acceptsTrade === "sim" ? tradeType.trim() || null : null,
+        trade_value:
+          acceptsTrade === "sim" ? parseCurrencyInputToNumber(tradeValue) : null,
         condo_name: isInCondo === "sim" ? condoName || null : null,
         condo_fee: isInCondo === "sim" ? parseCurrencyInputToNumber(condoFee) : null,
         iptu_fee: parseCurrencyInputToNumber(iptuFee),
@@ -403,7 +450,11 @@ export default function EditarImovelPage({
           text.includes("active_until") ||
           text.includes("condo_is_in") ||
           text.includes("condo_amenities") ||
-          text.includes("condo_amenities_other");
+          text.includes("condo_amenities_other") ||
+          text.includes("property_features") ||
+          text.includes("accepts_trade") ||
+          text.includes("trade_type") ||
+          text.includes("trade_value");
 
         if (maybeMissingColumns) {
           const retry = await supabase
@@ -520,6 +571,21 @@ export default function EditarImovelPage({
     );
   }
 
+  function togglePropertyDetail(value: string) {
+    setPropertyDetails((current) =>
+      current.includes(value) ? current.filter((item) => item !== value) : [...current, value]
+    );
+  }
+
+  function goToNextStep() {
+    setMsg(null);
+    setCurrentStep((prev) => Math.min(4, prev + 1));
+  }
+
+  function goToPreviousStep() {
+    setCurrentStep((prev) => Math.max(1, prev - 1));
+  }
+
   if (loadingPage) {
     return <main className="min-h-screen p-8">Carregando anúncio...</main>;
   }
@@ -538,314 +604,520 @@ export default function EditarImovelPage({
   }
 
   return (
-    <main className="min-h-screen bg-gray-100 p-6">
-      <div className="w-full max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-8">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-3xl font-bold">Editar anúncio</h1>
-          <Link className="underline font-semibold" href="/meus-imoveis">
+    <main className="min-h-screen bg-gray-100 px-4 py-8 lg:px-8">
+      <div className="mx-auto w-full max-w-7xl">
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-extrabold text-slate-950">Editar anúncio</h1>
+            <p className="mt-1 text-sm text-slate-600">Atualize as informações do seu imóvel.</p>
+          </div>
+          <Link href="/meus-imoveis" className="rounded-xl border border-slate-300 px-4 py-2 font-semibold text-slate-700 hover:bg-slate-50">
             Voltar
           </Link>
         </div>
 
-        <form onSubmit={handleSave} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <select className={fieldClassName} value={kind} onChange={(e) => setKind(e.target.value as "venda" | "locacao")}>
-            <option value="venda">Venda</option>
-            <option value="locacao">Locação</option>
-          </select>
-
-          <select className={fieldClassName} value={propertyType} onChange={(e) => setPropertyType(e.target.value)}>
-            <option>Apartamento</option>
-            <option>Casa</option>
-            <option>Terreno</option>
-            <option>Comercial</option>
-          </select>
-
-          <div className="md:col-span-2 border border-slate-300 rounded-xl p-3">
-            <label className="block font-semibold mb-2">Plano do anúncio</label>
-            <select
-              className={`${fieldClassName} w-full`}
-              value={selectedPlanId}
-              onChange={(e) => setSelectedPlanId(e.target.value)}
-            >
-              {plans.map((plan) => (
-                <option key={plan.id} value={plan.id}>
-                  {plan.name} - R$ {Number(plan.price).toLocaleString("pt-BR")} - {plan.days} dias
-                  {plan.is_featured ? " - Destaque" : ""}
-                </option>
-              ))}
-            </select>
+        <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="flex flex-wrap items-center gap-3">
+            {steps.map((step) => (
+              <button
+                key={step.id}
+                type="button"
+                onClick={() => setCurrentStep(step.id)}
+                className={`rounded-full px-4 py-2 text-sm font-semibold ${
+                  currentStep === step.id
+                    ? "bg-[#0F172A] text-white"
+                    : "border border-slate-300 text-slate-700 hover:bg-slate-50"
+                }`}
+              >
+                {step.id}. {step.title}
+              </button>
+            ))}
           </div>
+        </div>
 
-          <input className={fieldClassName} placeholder="Cidade *" value={city} onChange={(e) => setCity(e.target.value)} />
-          <input className={fieldClassName} placeholder="Bairro" value={neighborhood} onChange={(e) => setNeighborhood(e.target.value)} />
-          <input
-            className={fieldClassName}
-            placeholder="CEP"
-            value={cep}
-            onChange={(e) => setCep(formatCep(e.target.value))}
-            onBlur={autoFillFromCep}
-          />
-          <input className={fieldClassName} placeholder="Endereço" value={address} onChange={(e) => setAddress(e.target.value)} />
-          <input className={fieldClassName} placeholder="Número" value={addressNumber} onChange={(e) => setAddressNumber(e.target.value)} />
-          <div>
-            <label className="block text-sm font-semibold text-slate-800 mb-1">Fica em condomínio?</label>
-            <select
-              className={fieldClassName}
-              value={isInCondo}
-              onChange={(e) => {
-                const next = e.target.value as "sim" | "nao";
-                setIsInCondo(next);
-                if (next === "nao") {
-                  setCondoName("");
-                  setCondoFee("");
-                  setCondoAmenities([]);
-                  setCondoAmenitiesOther("");
-                }
-              }}
-            >
-              <option value="nao">Não</option>
-              <option value="sim">Sim</option>
-            </select>
-          </div>
-          {isInCondo === "sim" ? (
-            <input
-              className={fieldClassName}
-              placeholder="Nome do condomínio"
-              value={condoName}
-              onChange={(e) => setCondoName(e.target.value)}
-            />
-          ) : null}
-          <input
-            className={`${fieldClassName} md:col-span-2`}
-            placeholder="Complemento (bloco, apartamento, etc.)"
-            value={addressComplement}
-            onChange={(e) => setAddressComplement(e.target.value)}
-          />
-          {isInCondo === "sim" ? (
-            <div className="md:col-span-2 rounded-lg border border-slate-300 p-3">
-              <p className="text-sm font-semibold text-slate-900 mb-2">Lazer/estrutura do condomínio</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                {CONDO_AMENITY_OPTIONS.map((option) => (
-                  <label key={option} className="flex items-center gap-2 text-sm text-slate-800">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <form onSubmit={handleSave} className="space-y-6">
+            {currentStep === 1 ? (
+              <section className="!mt-0 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h2 className="text-xl font-bold text-slate-900">Tipo & Plano</h2>
+                <p className="mt-1 text-sm text-slate-600">Defina finalidade, tipo e plano do anúncio.</p>
+                <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-slate-800">Finalidade</label>
+                    <select className={fieldClassName} value={kind} onChange={(e) => setKind(e.target.value as "venda" | "locacao")}>
+                      <option value="venda">Venda</option>
+                      <option value="locacao">Locação</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-slate-800">Tipo de imóvel</label>
+                    <select className={fieldClassName} value={propertyType} onChange={(e) => setPropertyType(e.target.value)}>
+                      <option>Apartamento</option>
+                      <option>Casa</option>
+                      <option>Terreno</option>
+                      <option>Comercial</option>
+                    </select>
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="mb-2 block text-sm font-semibold text-slate-800">Plano do anúncio</label>
+                    <select
+                      className={fieldClassName}
+                      value={selectedPlanId}
+                      onChange={(e) => setSelectedPlanId(e.target.value)}
+                    >
+                      {plans.map((plan) => (
+                        <option key={plan.id} value={plan.id}>
+                          {plan.name} - R$ {Number(plan.price).toLocaleString("pt-BR")} - {plan.days} dias
+                          {plan.is_featured ? " - Destaque" : ""}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </section>
+            ) : null}
+
+            {currentStep === 2 ? (
+              <section className="!mt-0 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h2 className="text-xl font-bold text-slate-900">Endereço</h2>
+                <p className="mt-1 text-sm text-slate-600">Atualize localização e informações de condomínio.</p>
+                <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <input className={fieldClassName} placeholder="Cidade *" value={city} onChange={(e) => setCity(e.target.value)} />
+                  <input className={fieldClassName} placeholder="Bairro" value={neighborhood} onChange={(e) => setNeighborhood(e.target.value)} />
+                  <input
+                    className={fieldClassName}
+                    placeholder="CEP"
+                    value={cep}
+                    onChange={(e) => setCep(formatCep(e.target.value))}
+                    onBlur={autoFillFromCep}
+                  />
+                  <input className={fieldClassName} placeholder="Endereço" value={address} onChange={(e) => setAddress(e.target.value)} />
+                  <input className={fieldClassName} placeholder="Número" value={addressNumber} onChange={(e) => setAddressNumber(e.target.value)} />
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-slate-800">Fica em condomínio?</label>
+                    <select
+                      className={fieldClassName}
+                      value={isInCondo}
+                      onChange={(e) => {
+                        const next = e.target.value as "sim" | "nao";
+                        setIsInCondo(next);
+                        if (next === "nao") {
+                          setCondoName("");
+                          setCondoFee("");
+                          setCondoAmenities([]);
+                          setCondoAmenitiesOther("");
+                        }
+                      }}
+                    >
+                      <option value="nao">Não</option>
+                      <option value="sim">Sim</option>
+                    </select>
+                  </div>
+                  {isInCondo === "sim" ? (
                     <input
-                      type="checkbox"
-                      checked={condoAmenities.includes(option)}
-                      onChange={() => toggleCondoAmenity(option)}
+                      className={fieldClassName}
+                      placeholder="Nome do condomínio"
+                      value={condoName}
+                      onChange={(e) => setCondoName(e.target.value)}
                     />
-                    {option}
-                  </label>
-                ))}
-              </div>
-              {condoAmenities.includes("Outros") ? (
-                <input
-                  className={`${fieldClassName} mt-3`}
-                  placeholder="Outros itens do condomínio"
-                  value={condoAmenitiesOther}
-                  onChange={(e) => setCondoAmenitiesOther(e.target.value)}
-                />
-              ) : null}
-            </div>
-          ) : null}
-          {isInCondo === "sim" ? (
-            <input
-              className={fieldClassName}
-              type="text"
-              inputMode="numeric"
-              placeholder="Valor do condomínio"
-              value={condoFee}
-              onChange={(e) => setCondoFee(formatCurrencyInput(e.target.value))}
-              onBlur={(e) => setCondoFee(finalizeCurrencyInput(e.target.value))}
-            />
-          ) : null}
-          <input
-            className={fieldClassName}
-            type="text"
-            inputMode="numeric"
-            placeholder="Valor do IPTU"
-            value={iptuFee}
-            onChange={(e) => setIptuFee(formatCurrencyInput(e.target.value))}
-            onBlur={(e) => setIptuFee(finalizeCurrencyInput(e.target.value))}
-          />
-          <div className="md:col-span-2 -mt-2 text-sm text-gray-600">
-            {loadingCep
-              ? "Consultando CEP..."
-              : "Ao preencher o CEP, o sistema preenche rua e bairro automaticamente."}
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-slate-800 mb-1">Quartos</label>
-            <input
-              className={fieldClassName}
-              type="number"
-              min={0}
-              value={bedrooms}
-              onChange={(e) => setBedrooms(e.target.value === "" ? "" : Number(e.target.value))}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-slate-800 mb-1">Banheiros</label>
-            <input
-              className={fieldClassName}
-              type="number"
-              min={0}
-              value={bathrooms}
-              onChange={(e) => setBathrooms(e.target.value === "" ? "" : Number(e.target.value))}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-slate-800 mb-1">Suítes</label>
-            <input
-              className={fieldClassName}
-              type="number"
-              min={0}
-              value={suites}
-              onChange={(e) => setSuites(e.target.value === "" ? "" : Number(e.target.value))}
-            />
-          </div>
-
-          <input
-            className={fieldClassName}
-            type="number"
-            min={0}
-            step="0.01"
-            placeholder="Área (m²)"
-            value={areaSqm}
-            onChange={(e) => setAreaSqm(e.target.value === "" ? "" : Number(e.target.value))}
-          />
-
-          <input
-            className={fieldClassName}
-            type="number"
-            min={0}
-            placeholder="Vagas de garagem"
-            value={parkingSpots}
-            onChange={(e) => setParkingSpots(e.target.value === "" ? "" : Number(e.target.value))}
-          />
-
-          <input className={fieldClassName} placeholder="Código do imóvel" value={code} onChange={(e) => setCode(e.target.value)} />
-
-          <input
-            className={fieldClassName}
-            type="text"
-            inputMode="numeric"
-            placeholder={kind === "venda" ? "Preço de venda (R$)" : "Aluguel (R$)"}
-            value={price}
-            onChange={(e) => setPrice(formatCurrencyInput(e.target.value))}
-            onBlur={(e) => setPrice(finalizeCurrencyInput(e.target.value))}
-          />
-
-          <input
-            className={`${fieldClassName} md:col-span-2`}
-            placeholder="Título do imóvel"
-            value={listingTitle}
-            onChange={(e) => setListingTitle(e.target.value)}
-          />
-
-          <textarea
-            className={`${fieldClassName} md:col-span-2 min-h-28`}
-            placeholder="Descrição do imóvel"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-
-          <div className="md:col-span-2 border border-slate-400 rounded-lg p-3">
-            <label className="block font-semibold mb-2">
-              Fotos do imóvel (principal + miniaturas)
-            </label>
-            <label
-              htmlFor="edit-photo-upload-input"
-              className="inline-flex cursor-pointer items-center rounded-xl bg-black px-4 py-2 font-semibold text-white hover:bg-gray-800 transition"
-            >
-              Adicionar fotos
-            </label>
-            <input
-              id="edit-photo-upload-input"
-              className="mt-3 block w-full rounded-lg border border-slate-300 p-2"
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={(e) => {
-                const files = Array.from(e.target.files ?? []);
-                if (files.length === 0) return;
-                handleAddNewPhotos(files);
-                e.currentTarget.value = "";
-              }}
-            />
-            <p className="text-sm text-gray-600 mt-2">
-              Adicione novas fotos sem perder as antigas. Você pode escolher a foto
-              principal, mover ordem e excluir miniaturas.
-            </p>
-            <p className="text-sm text-gray-600 mt-1">
-              Total: {photoItems.length}/{MAX_PHOTOS}
-            </p>
-
-            {photoItems.length > 0 ? (
-              <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                {photoItems.map((photo, index) => (
-                  <div
-                    key={photo.id}
-                    className="border rounded-xl p-2 bg-white flex flex-col gap-2"
-                  >
-                    <img
-                      src={photo.url}
-                      alt={`Foto ${index + 1}`}
-                      className="w-full h-24 object-cover rounded-md"
-                    />
-                    <div className="text-xs text-slate-700">
-                      {index === 0 ? "Foto principal" : `Foto ${index + 1}`}
+                  ) : null}
+                  <input
+                    className={`${fieldClassName} md:col-span-2`}
+                    placeholder="Complemento (bloco, apartamento, etc.)"
+                    value={addressComplement}
+                    onChange={(e) => setAddressComplement(e.target.value)}
+                  />
+                  {isInCondo === "sim" ? (
+                    <div className="md:col-span-2 rounded-xl border border-slate-200 p-4">
+                      <p className="mb-3 text-sm font-semibold text-slate-900">Lazer/estrutura do condomínio</p>
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
+                        {CONDO_AMENITY_OPTIONS.map((option) => (
+                          <label key={option} className="flex items-center gap-2 text-sm text-slate-800">
+                            <input
+                              type="checkbox"
+                              checked={condoAmenities.includes(option)}
+                              onChange={() => toggleCondoAmenity(option)}
+                            />
+                            {option}
+                          </label>
+                        ))}
+                      </div>
+                      {condoAmenities.includes("Outros") ? (
+                        <input
+                          className={`${fieldClassName} mt-3`}
+                          placeholder="Outros itens do condomínio"
+                          value={condoAmenitiesOther}
+                          onChange={(e) => setCondoAmenitiesOther(e.target.value)}
+                        />
+                      ) : null}
                     </div>
-                    <div className="grid grid-cols-2 gap-1">
-                      <button
-                        type="button"
-                        className="text-xs border rounded px-2 py-1 hover:bg-gray-50"
-                        onClick={() => setAsPrimary(photo.id)}
-                        disabled={index === 0}
-                      >
-                        Principal
-                      </button>
-                      <button
-                        type="button"
-                        className="text-xs border rounded px-2 py-1 hover:bg-red-50 text-red-700"
-                        onClick={() => handleRemovePhoto(photo.id)}
-                      >
-                        Excluir
-                      </button>
-                      <button
-                        type="button"
-                        className="text-xs border rounded px-2 py-1 hover:bg-gray-50"
-                        onClick={() => movePhoto(photo.id, "left")}
-                        disabled={index === 0}
-                      >
-                        ←
-                      </button>
-                      <button
-                        type="button"
-                        className="text-xs border rounded px-2 py-1 hover:bg-gray-50"
-                        onClick={() => movePhoto(photo.id, "right")}
-                        disabled={index === photoItems.length - 1}
-                      >
-                        →
-                      </button>
+                  ) : null}
+                  {isInCondo === "sim" ? (
+                    <input
+                      className={fieldClassName}
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="Valor do condomínio"
+                      value={condoFee}
+                      onChange={(e) => setCondoFee(formatCurrencyInput(e.target.value))}
+                      onBlur={(e) => setCondoFee(finalizeCurrencyInput(e.target.value))}
+                    />
+                  ) : null}
+                  <input
+                    className={fieldClassName}
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="Valor do IPTU"
+                    value={iptuFee}
+                    onChange={(e) => setIptuFee(formatCurrencyInput(e.target.value))}
+                    onBlur={(e) => setIptuFee(finalizeCurrencyInput(e.target.value))}
+                  />
+                  <div className="md:col-span-2 text-sm text-slate-600">
+                    {loadingCep
+                      ? "Consultando CEP..."
+                      : "Ao preencher o CEP, o sistema preenche rua e bairro automaticamente."}
+                  </div>
+                </div>
+              </section>
+            ) : null}
+
+            {currentStep === 3 ? (
+              <section className="!mt-0 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h2 className="text-xl font-bold text-slate-900">Valores & Detalhes</h2>
+                <p className="mt-1 text-sm text-slate-600">Preencha dados e características do imóvel.</p>
+                <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-slate-800">Quartos</label>
+                    <input
+                      className={fieldClassName}
+                      type="number"
+                      min={0}
+                      value={bedrooms}
+                      onChange={(e) => setBedrooms(e.target.value === "" ? "" : Number(e.target.value))}
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-slate-800">Banheiros</label>
+                    <input
+                      className={fieldClassName}
+                      type="number"
+                      min={0}
+                      value={bathrooms}
+                      onChange={(e) => setBathrooms(e.target.value === "" ? "" : Number(e.target.value))}
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-slate-800">Suítes</label>
+                    <input
+                      className={fieldClassName}
+                      type="number"
+                      min={0}
+                      value={suites}
+                      onChange={(e) => setSuites(e.target.value === "" ? "" : Number(e.target.value))}
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-slate-800">Área (m²)</label>
+                    <input
+                      className={fieldClassName}
+                      type="number"
+                      min={0}
+                      step="0.01"
+                      value={areaSqm}
+                      onChange={(e) => setAreaSqm(e.target.value === "" ? "" : Number(e.target.value))}
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-slate-800">Vagas de garagem</label>
+                    <input
+                      className={fieldClassName}
+                      type="number"
+                      min={0}
+                      value={parkingSpots}
+                      onChange={(e) => setParkingSpots(e.target.value === "" ? "" : Number(e.target.value))}
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-slate-800">Código do imóvel</label>
+                    <input className={fieldClassName} value={code} onChange={(e) => setCode(e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-slate-800">
+                      {kind === "venda" ? "Preço de venda (R$)" : "Aluguel (R$)"}
+                    </label>
+                    <input
+                      className={fieldClassName}
+                      type="text"
+                      inputMode="numeric"
+                      value={price}
+                      onChange={(e) => setPrice(formatCurrencyInput(e.target.value))}
+                      onBlur={(e) => setPrice(finalizeCurrencyInput(e.target.value))}
+                    />
+                  </div>
+                  <input
+                    className={`${fieldClassName} md:col-span-2`}
+                    placeholder="Título do imóvel"
+                    value={listingTitle}
+                    onChange={(e) => setListingTitle(e.target.value)}
+                  />
+                  <textarea
+                    className="min-h-32 w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 placeholder:text-slate-500 md:col-span-2"
+                    placeholder="Descrição do imóvel"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                  />
+
+                  <div className="md:col-span-2 rounded-xl border border-slate-200 p-4">
+                    <p className="mb-3 text-sm font-semibold text-slate-900">
+                      Detalhes do imóvel
+                    </p>
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
+                      {PROPERTY_DETAIL_OPTIONS.map((option) => (
+                        <label key={option} className="flex items-center gap-2 text-sm text-slate-800">
+                          <input
+                            type="checkbox"
+                            checked={propertyDetails.includes(option)}
+                            onChange={() => togglePropertyDetail(option)}
+                          />
+                          {option}
+                        </label>
+                      ))}
                     </div>
                   </div>
-                ))}
+
+                  <div className="md:col-span-2 rounded-xl border border-slate-200 p-4">
+                    <p className="mb-3 text-sm font-semibold text-slate-900">Permuta</p>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      <div>
+                        <label className="mb-2 block text-sm font-semibold text-slate-800">
+                          Aceita permuta?
+                        </label>
+                        <select
+                          className={fieldClassName}
+                          value={acceptsTrade}
+                          onChange={(e) => {
+                            const next = e.target.value as "sim" | "nao";
+                            setAcceptsTrade(next);
+                            if (next === "nao") {
+                              setTradeType("");
+                              setTradeValue("");
+                            }
+                          }}
+                        >
+                          <option value="nao">Não</option>
+                          <option value="sim">Sim</option>
+                        </select>
+                      </div>
+                      {acceptsTrade === "sim" ? (
+                        <>
+                          <div>
+                            <label className="mb-2 block text-sm font-semibold text-slate-800">
+                              Tipo de permuta
+                            </label>
+                            <input
+                              className={fieldClassName}
+                              placeholder="Ex: carro, apartamento menor, terreno"
+                              value={tradeType}
+                              onChange={(e) => setTradeType(e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <label className="mb-2 block text-sm font-semibold text-slate-800">
+                              Valor estimado da permuta
+                            </label>
+                            <input
+                              className={fieldClassName}
+                              type="text"
+                              inputMode="numeric"
+                              placeholder="R$ 0,00"
+                              value={tradeValue}
+                              onChange={(e) => setTradeValue(formatCurrencyInput(e.target.value))}
+                              onBlur={(e) => setTradeValue(finalizeCurrencyInput(e.target.value))}
+                            />
+                          </div>
+                        </>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+              </section>
+            ) : null}
+
+            {currentStep === 4 ? (
+              <section className="!mt-0 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h2 className="text-xl font-bold text-slate-900">Fotos do imóvel</h2>
+                <p className="mt-1 text-sm text-slate-600">
+                  Adicione novas fotos sem perder as antigas. Defina capa, mova e exclua miniaturas.
+                </p>
+
+                <div className="mt-6 rounded-xl border border-slate-300 p-4">
+                  <label
+                    htmlFor="edit-photo-upload-input"
+                    className="inline-flex cursor-pointer items-center rounded-xl bg-black px-4 py-2 font-semibold text-white hover:bg-gray-800 transition"
+                  >
+                    Adicionar fotos
+                  </label>
+                  <input
+                    id="edit-photo-upload-input"
+                    className="mt-3 block w-full rounded-lg border border-slate-300 p-2"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files ?? []);
+                      if (files.length === 0) return;
+                      handleAddNewPhotos(files);
+                      e.currentTarget.value = "";
+                    }}
+                  />
+                  <p className="mt-2 text-sm text-slate-600">Total: {photoItems.length}/{MAX_PHOTOS}</p>
+
+                  {photoItems.length > 0 ? (
+                    <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+                      {photoItems.map((photo, index) => (
+                        <div key={photo.id} className="flex flex-col gap-2 rounded-xl border p-2 bg-white">
+                          <img
+                            src={photo.url}
+                            alt={`Foto ${index + 1}`}
+                            className="h-24 w-full rounded-md object-cover"
+                          />
+                          <div className="text-xs text-slate-700">
+                            {index === 0 ? "Foto principal" : `Foto ${index + 1}`}
+                          </div>
+                          <div className="grid grid-cols-2 gap-1">
+                            <button
+                              type="button"
+                              className="text-xs border rounded px-2 py-1 hover:bg-gray-50"
+                              onClick={() => setAsPrimary(photo.id)}
+                              disabled={index === 0}
+                            >
+                              Principal
+                            </button>
+                            <button
+                              type="button"
+                              className="text-xs border rounded px-2 py-1 hover:bg-gray-50"
+                              onClick={() => handleRemovePhoto(photo.id)}
+                            >
+                              Excluir
+                            </button>
+                            <button
+                              type="button"
+                              className="text-xs border rounded px-2 py-1 hover:bg-gray-50"
+                              onClick={() => movePhoto(photo.id, "left")}
+                              disabled={index === 0}
+                            >
+                              ←
+                            </button>
+                            <button
+                              type="button"
+                              className="text-xs border rounded px-2 py-1 hover:bg-gray-50"
+                              onClick={() => movePhoto(photo.id, "right")}
+                              disabled={index === photoItems.length - 1}
+                            >
+                              →
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="mt-3 text-sm text-slate-600">Nenhuma foto selecionada.</p>
+                  )}
+                </div>
+              </section>
+            ) : null}
+
+            {msg ? (
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">{msg}</div>
+            ) : null}
+
+            <div className="hidden items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:flex">
+              <button
+                type="button"
+                onClick={() => setCurrentStep((step) => Math.max(1, step - 1))}
+                disabled={currentStep === 1}
+                className="h-11 rounded-xl border border-slate-300 px-5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+              >
+                Voltar
+              </button>
+              {currentStep < 4 ? (
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep((step) => Math.min(4, step + 1))}
+                  className="h-11 rounded-xl bg-[#0F172A] px-5 text-sm font-semibold text-white hover:bg-slate-800"
+                >
+                  Próximo
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="cta-primary h-11 rounded-xl px-5 text-sm font-semibold disabled:opacity-60"
+                >
+                  {saving ? "Salvando..." : "Salvar alterações"}
+                </button>
+              )}
+            </div>
+          </form>
+
+          <aside className="space-y-4 self-start lg:sticky lg:top-24">
+            <button
+              type="button"
+              onClick={() => setShowMobileSummary((prev) => !prev)}
+              className="h-11 w-full rounded-xl border border-slate-300 bg-white px-4 text-left text-sm font-semibold text-slate-700 lg:hidden"
+            >
+              {showMobileSummary ? "Ocultar resumo" : "Mostrar resumo"}
+            </button>
+
+            <div className={`${showMobileSummary ? "block" : "hidden"} lg:block rounded-2xl border border-slate-200 bg-white p-4 shadow-sm`}>
+              <h3 className="text-base font-bold text-slate-900">Resumo do anúncio</h3>
+              <div className="mt-3 space-y-2 text-sm text-slate-700">
+                <p><span className="font-semibold text-slate-800">Finalidade:</span> {kind === "venda" ? "Venda" : "Locação"}</p>
+                <p><span className="font-semibold text-slate-800">Tipo:</span> {propertyType}</p>
+                <p><span className="font-semibold text-slate-800">Cidade/Bairro:</span> {[city, neighborhood].filter(Boolean).join(" - ") || "-"}</p>
+                <p><span className="font-semibold text-slate-800">Preço:</span> {price || "-"}</p>
+                <p><span className="font-semibold text-slate-800">Título:</span> {listingTitle || "-"}</p>
+                <p><span className="font-semibold text-slate-800">Fotos:</span> {photoItems.length}</p>
+                {selectedPlan ? (
+                  <p><span className="font-semibold text-slate-800">Plano:</span> {selectedPlan.name}</p>
+                ) : null}
               </div>
+            </div>
+          </aside>
+        </div>
+
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white p-3 md:hidden">
+          <div className="mx-auto flex w-full max-w-7xl items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setCurrentStep((step) => Math.max(1, step - 1))}
+              disabled={currentStep === 1}
+              className="h-11 flex-1 rounded-xl border border-slate-300 px-4 text-sm font-semibold text-slate-700 disabled:opacity-50"
+            >
+              Voltar
+            </button>
+            {currentStep < 4 ? (
+              <button
+                type="button"
+                onClick={() => setCurrentStep((step) => Math.min(4, step + 1))}
+                className="h-11 flex-1 rounded-xl bg-[#0F172A] px-4 text-sm font-semibold text-white"
+              >
+                Próximo
+              </button>
             ) : (
-              <p className="text-sm text-gray-600 mt-3">Nenhuma foto selecionada.</p>
+              <button
+                type="submit"
+                onClick={(e) => {
+                  (e.currentTarget.form as HTMLFormElement | null)?.requestSubmit();
+                }}
+                disabled={saving}
+                className="cta-primary h-11 flex-1 rounded-xl px-4 text-sm font-semibold disabled:opacity-60"
+              >
+                {saving ? "Salvando..." : "Salvar"}
+              </button>
             )}
           </div>
-
-          <button
-            disabled={saving}
-            className="cta-primary md:col-span-2 px-6 py-3 rounded-xl transition disabled:opacity-60"
-          >
-            {saving ? "Salvando..." : "Salvar alterações"}
-          </button>
-        </form>
-
-        {msg && <div className="mt-4 text-sm rounded-lg border p-3 bg-gray-50">{msg}</div>}
+        </div>
       </div>
     </main>
   );

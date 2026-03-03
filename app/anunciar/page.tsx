@@ -20,13 +20,32 @@ const MAX_FILE_SIZE_BYTES = 8 * 1024 * 1024;
 const CONDO_AMENITY_OPTIONS = [
   "Piscina",
   "Churrasqueira",
-  "Quadra",
+  "Quadra poliesportiva",
+  "Salão de jogos",
+  "Playground",
+  "Sauna",
+  "Espaço gourmet",
+  "Quadra de beach tênis",
+  "Quadra de tênis",
+  "Home cinema",
+  "Sala de massagem",
+  "Garage band",
+  "Academia",
+  "Hidromassagem",
   "Salão de festas",
   "Piscina aquecida",
   "Área pet",
   "Brinquedoteca",
   "Portaria 24h",
   "Outros",
+];
+
+const PROPERTY_DETAIL_OPTIONS = [
+  "Ar condicionado",
+  "Sol da manhã",
+  "Sol da tarde",
+  "Mobiliado",
+  "Varanda gourmet",
 ];
 
 function sanitizeFileName(fileName: string) {
@@ -97,6 +116,10 @@ function AnunciarPageContent() {
   const [code, setCode] = useState("");
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
+  const [propertyDetails, setPropertyDetails] = useState<string[]>([]);
+  const [acceptsTrade, setAcceptsTrade] = useState<"sim" | "nao">("nao");
+  const [tradeType, setTradeType] = useState("");
+  const [tradeValue, setTradeValue] = useState("");
   const [photoFiles, setPhotoFiles] = useState<File[]>([]);
   const [isDraggingPhotos, setIsDraggingPhotos] = useState(false);
   const [plans, setPlans] = useState<ListingPlan[]>(DEFAULT_LISTING_PLANS);
@@ -276,6 +299,11 @@ function AnunciarPageContent() {
         suites: typeof suites === "number" ? suites : null,
         area_sqm: typeof areaSqm === "number" ? areaSqm : null,
         parking_spots: typeof parkingSpots === "number" ? parkingSpots : null,
+        property_features: propertyDetails.length > 0 ? propertyDetails : null,
+        accepts_trade: acceptsTrade === "sim",
+        trade_type: acceptsTrade === "sim" ? tradeType.trim() || null : null,
+        trade_value:
+          acceptsTrade === "sim" ? parseCurrencyInputToNumber(tradeValue) : null,
         condo_name: isInCondo === "sim" ? condoName || null : null,
         condo_fee: isInCondo === "sim" ? parseCurrencyInputToNumber(condoFee) : null,
         iptu_fee: parseCurrencyInputToNumber(iptuFee),
@@ -324,7 +352,11 @@ function AnunciarPageContent() {
           text.includes("active_until") ||
           text.includes("condo_is_in") ||
           text.includes("condo_amenities") ||
-          text.includes("condo_amenities_other");
+          text.includes("condo_amenities_other") ||
+          text.includes("property_features") ||
+          text.includes("accepts_trade") ||
+          text.includes("trade_type") ||
+          text.includes("trade_value");
 
         if (missingNewColumns) {
           const fallbackPayload = {
@@ -395,6 +427,10 @@ function AnunciarPageContent() {
       setPrice("");
       setListingTitle("");
       setDescription("");
+      setPropertyDetails([]);
+      setAcceptsTrade("nao");
+      setTradeType("");
+      setTradeValue("");
       setPhotoFiles([]);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Erro ao criar anúncio.";
@@ -442,6 +478,12 @@ function AnunciarPageContent() {
 
   function toggleCondoAmenity(value: string) {
     setCondoAmenities((current) =>
+      current.includes(value) ? current.filter((item) => item !== value) : [...current, value]
+    );
+  }
+
+  function togglePropertyDetail(value: string) {
+    setPropertyDetails((current) =>
       current.includes(value) ? current.filter((item) => item !== value) : [...current, value]
     );
   }
@@ -751,6 +793,79 @@ function AnunciarPageContent() {
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                       />
+                    </div>
+
+                    <div className="md:col-span-2 rounded-xl border border-slate-200 p-4">
+                      <p className="mb-3 text-sm font-semibold text-slate-900">
+                        Detalhes do imóvel
+                      </p>
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
+                        {PROPERTY_DETAIL_OPTIONS.map((option) => (
+                          <label key={option} className="flex items-center gap-2 text-sm text-slate-800">
+                            <input
+                              type="checkbox"
+                              checked={propertyDetails.includes(option)}
+                              onChange={() => togglePropertyDetail(option)}
+                            />
+                            {option}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="md:col-span-2 rounded-xl border border-slate-200 p-4">
+                      <p className="mb-3 text-sm font-semibold text-slate-900">Permuta</p>
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div>
+                          <label className="mb-2 block text-sm font-semibold text-slate-800">
+                            Aceita permuta?
+                          </label>
+                          <select
+                            className={fieldClassName}
+                            value={acceptsTrade}
+                            onChange={(e) => {
+                              const next = e.target.value as "sim" | "nao";
+                              setAcceptsTrade(next);
+                              if (next === "nao") {
+                                setTradeType("");
+                                setTradeValue("");
+                              }
+                            }}
+                          >
+                            <option value="nao">Não</option>
+                            <option value="sim">Sim</option>
+                          </select>
+                        </div>
+                        {acceptsTrade === "sim" ? (
+                          <>
+                            <div>
+                              <label className="mb-2 block text-sm font-semibold text-slate-800">
+                                Tipo de permuta
+                              </label>
+                              <input
+                                className={fieldClassName}
+                                placeholder="Ex: carro, apartamento menor, terreno"
+                                value={tradeType}
+                                onChange={(e) => setTradeType(e.target.value)}
+                              />
+                            </div>
+                            <div>
+                              <label className="mb-2 block text-sm font-semibold text-slate-800">
+                                Valor estimado da permuta
+                              </label>
+                              <input
+                                className={fieldClassName}
+                                type="text"
+                                inputMode="numeric"
+                                placeholder="R$ 0,00"
+                                value={tradeValue}
+                                onChange={(e) => setTradeValue(formatCurrencyInput(e.target.value))}
+                                onBlur={(e) => setTradeValue(finalizeCurrencyInput(e.target.value))}
+                              />
+                            </div>
+                          </>
+                        ) : null}
+                      </div>
                     </div>
                   </div>
                 </section>
