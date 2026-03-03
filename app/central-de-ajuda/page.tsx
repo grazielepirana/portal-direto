@@ -44,6 +44,8 @@ export default function CentralDeAjudaPage() {
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [sending, setSending] = useState(false);
+  const [sendMsg, setSendMsg] = useState<string | null>(null);
 
   useEffect(() => {
     loadSiteSettings()
@@ -56,11 +58,39 @@ export default function CentralDeAjudaPage() {
     [settings.support_email]
   );
 
-  function sendEmail(e: FormEvent) {
+  async function sendEmail(e: FormEvent) {
     e.preventDefault();
-    const mailSubject = encodeURIComponent(subject || "Contato pelo site");
-    const mailBody = encodeURIComponent(message || "Olá, gostaria de mais informações.");
-    window.location.href = `mailto:${supportEmail}?subject=${mailSubject}&body=${mailBody}`;
+    setSendMsg(null);
+
+    if (!subject.trim() || !message.trim()) {
+      setSendMsg("Preencha assunto e mensagem.");
+      return;
+    }
+
+    try {
+      setSending(true);
+      const response = await fetch("/api/support/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          subject: subject.trim(),
+          message: message.trim(),
+        }),
+      });
+
+      const result = (await response.json()) as { ok?: boolean; error?: string };
+      if (!response.ok || !result.ok) {
+        throw new Error(result.error || "Não foi possível enviar agora.");
+      }
+
+      setSubject("");
+      setMessage("");
+      setSendMsg("✅ Mensagem enviada com sucesso para o suporte.");
+    } catch (err: unknown) {
+      setSendMsg(err instanceof Error ? err.message : "Erro ao enviar mensagem.");
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
@@ -132,12 +162,19 @@ export default function CentralDeAjudaPage() {
               <div className="flex flex-col items-stretch gap-2 sm:items-end">
                 <button
                   type="submit"
-                  className="cta-primary h-11 w-full rounded-xl px-5 text-sm font-semibold sm:w-auto disabled:opacity-40"
+                  disabled={sending}
+                  className="cta-primary h-11 w-full rounded-xl px-5 text-sm font-semibold sm:w-auto disabled:opacity-50"
                 >
-                  Enviar e-mail
+                  {sending ? "Enviando..." : "Enviar e-mail"}
                 </button>
                 <p className="text-xs text-slate-500">Respondemos em até 24h úteis.</p>
               </div>
+
+              {sendMsg ? (
+                <p className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">
+                  {sendMsg}
+                </p>
+              ) : null}
             </form>
           </article>
 
