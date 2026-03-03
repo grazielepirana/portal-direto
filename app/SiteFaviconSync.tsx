@@ -3,35 +3,6 @@
 import { useEffect } from "react";
 import { loadSiteSettings } from "../lib/site-settings";
 
-function clampFaviconScale(value: number) {
-  if (!Number.isFinite(value)) return 100;
-  return Math.min(220, Math.max(50, Math.round(value)));
-}
-
-function escapeXmlAttr(value: string) {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/"/g, "&quot;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/'/g, "&apos;");
-}
-
-function buildScaledFaviconDataUrl(iconUrl: string, scalePercent: number) {
-  const size = 64;
-  const scale = clampFaviconScale(scalePercent);
-  const scaledSize = (size * scale) / 100;
-  const offset = (size - scaledSize) / 2;
-  const safeIconUrl = escapeXmlAttr(iconUrl);
-
-  const svg = `
-<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-  <image href="${safeIconUrl}" x="${offset}" y="${offset}" width="${scaledSize}" height="${scaledSize}" preserveAspectRatio="xMidYMid meet" />
-</svg>`;
-
-  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
-}
-
 function upsertFaviconLink(rel: string, href: string) {
   const existing = document.head.querySelector(`link[rel='${rel}']`) as HTMLLinkElement | null;
   if (existing) {
@@ -54,14 +25,13 @@ export default function SiteFaviconSync() {
         if (!active) return;
         const faviconUrl = String(settings.favicon_url ?? "").trim();
         if (!faviconUrl) return;
-        const dataUrl = buildScaledFaviconDataUrl(
-          faviconUrl,
-          Number(settings.favicon_scale_percent ?? 100)
-        );
+        const directUrl = `${faviconUrl}${
+          faviconUrl.includes("?") ? "&" : "?"
+        }v=${Date.now()}`;
 
-        upsertFaviconLink("icon", dataUrl);
-        upsertFaviconLink("shortcut icon", dataUrl);
-        upsertFaviconLink("apple-touch-icon", dataUrl);
+        upsertFaviconLink("icon", directUrl);
+        upsertFaviconLink("shortcut icon", directUrl);
+        upsertFaviconLink("apple-touch-icon", directUrl);
       })
       .catch(() => {
         // Silencioso: mantém favicon padrão se falhar.
