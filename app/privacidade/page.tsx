@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Política de Privacidade | Portal Direto",
@@ -6,15 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function PrivacidadePage() {
-  return (
-    <main className="min-h-screen bg-[#F8FAFC] px-4 py-8 md:px-6 md:py-10">
-      <div className="mx-auto w-full max-w-4xl rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-950">
-          Política de Privacidade
-        </h1>
-        <p className="mt-4 text-sm leading-7 text-slate-700">Em atualização.</p>
-      </div>
-    </main>
-  );
+  redirect("/termos-e-privacidade");
 }
-
