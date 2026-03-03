@@ -28,6 +28,9 @@ export default function SiteFooter() {
         <section className="!mt-0">
           <h3 className="mb-2 text-base font-bold text-white">Institucional</h3>
           <div className="space-y-1">
+            <Link href="/sobre-nos" className="block text-sm text-[#E2E8F0] transition-colors hover:text-white">
+              Sobre nós
+            </Link>
             <Link href="/termos" className="block text-sm text-[#E2E8F0] transition-colors hover:text-white">
               Termos de Uso
             </Link>
