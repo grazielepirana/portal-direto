@@ -230,7 +230,10 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#F8FAFC] px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-[1200px] space-y-10">
-        <div className="relative overflow-hidden rounded-[24px]">
+        <div
+          className="relative overflow-hidden rounded-[24px]"
+          style={{ minHeight: `${Math.max(420, Math.min(heroHeightPx + 220, 680))}px` }}
+        >
           {heroImageUrl ? (
             <>
               <img
@@ -242,26 +245,23 @@ export default function Home() {
                   objectPosition: `${heroPositionX}% ${heroPositionY}%`,
                 }}
               />
-              <div className="pointer-events-none absolute inset-0 bg-slate-900/25" />
+              <div className="pointer-events-none absolute inset-0 bg-slate-900/38" />
             </>
           ) : null}
           <div className="pointer-events-none absolute -top-16 -left-20 h-64 w-64 rounded-full bg-gradient-to-br from-sky-200/55 to-transparent blur-2xl" />
           <div className="pointer-events-none absolute -bottom-20 -right-12 h-72 w-72 rounded-full bg-gradient-to-tr from-indigo-200/45 to-transparent blur-2xl" />
-          <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+          <div className="relative grid grid-cols-1 gap-8 items-stretch lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.85fr)]">
           <section
-            className={`!mt-0 rounded-[24px] p-8 sm:p-10 flex flex-col justify-between ${
-              heroImageUrl ? "bg-white/92 backdrop-blur-sm" : "bg-white"
-            }`}
-            style={{ boxShadow: "0 12px 40px rgba(15,23,42,0.08)" }}
+            className="!mt-0 rounded-[24px] p-8 sm:p-10 flex flex-col justify-between"
           >
             <div>
-              <h1 className="text-[44px] md:text-[52px] lg:text-[56px] leading-[1.05] font-extrabold tracking-tight text-slate-900">
+              <h1 className="text-[40px] md:text-[50px] lg:text-[56px] leading-[1.05] font-extrabold tracking-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]">
                 Venda ou compre imóvel direto com o proprietário
               </h1>
-              <p className="mt-5 text-lg text-slate-600 max-w-xl">
+              <p className="mt-5 text-lg text-slate-100 max-w-xl drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]">
                 Mais autonomia na negociação. Mais transparência na escolha.
               </p>
-              <p className="mt-3 text-sm font-medium text-slate-600">
+              <p className="mt-3 text-sm font-medium text-slate-200 drop-shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
                 Plataforma digital para conexão direta entre interessados.
               </p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -287,13 +287,13 @@ export default function Home() {
             </div>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <span className="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">
+              <span className="rounded-full bg-white/90 px-4 py-2 text-sm font-semibold text-slate-800">
                 Negociação direta
               </span>
-              <span className="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">
+              <span className="rounded-full bg-white/90 px-4 py-2 text-sm font-semibold text-slate-800">
                 Busca inteligente
               </span>
-              <span className="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">
+              <span className="rounded-full bg-white/90 px-4 py-2 text-sm font-semibold text-slate-800">
                 Anúncios verificados
               </span>
             </div>
@@ -301,9 +301,7 @@ export default function Home() {
 
           <section
             id="home-search"
-            className={`!mt-0 rounded-[24px] p-8 ${
-              heroImageUrl ? "bg-white/92 backdrop-blur-sm" : "bg-white"
-            }`}
+            className="!mt-0 rounded-[24px] bg-white/95 p-7 backdrop-blur-sm lg:p-6"
             style={{ boxShadow: "0 12px 40px rgba(15,23,42,0.08)" }}
           >
             <h2 className="text-2xl font-bold text-slate-900 mb-2">Busque por localização, tipo e preço</h2>
