@@ -37,10 +37,6 @@ const FAQ_ITEMS = [
   },
 ];
 
-function digitsOnly(value: string) {
-  return value.replace(/\D/g, "");
-}
-
 export default function CentralDeAjudaPage() {
   const [settings, setSettings] = useState<SiteSettings>(DEFAULT_SITE_SETTINGS);
   const [subject, setSubject] = useState("");
@@ -54,12 +50,6 @@ export default function CentralDeAjudaPage() {
   }, []);
 
   const hasEmail = useMemo(() => Boolean(settings.support_email?.trim()), [settings.support_email]);
-  const supportPhones = useMemo(
-    () => [settings.support_phone_1, settings.support_phone_2].map((item) => item.trim()).filter(Boolean),
-    [settings.support_phone_1, settings.support_phone_2]
-  );
-  const whatsappPhone = supportPhones[0] ?? "";
-  const whatsappUrl = whatsappPhone ? `https://wa.me/${digitsOnly(whatsappPhone)}` : "";
 
   function sendEmail(e: FormEvent) {
     e.preventDefault();
@@ -184,17 +174,6 @@ export default function CentralDeAjudaPage() {
 
               <div className="mt-3 space-y-3 text-sm text-slate-700">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">WhatsApp</p>
-                  {whatsappUrl ? (
-                    <a href={whatsappUrl} target="_blank" rel="noreferrer" className="font-semibold text-slate-800 hover:text-red-600">
-                      {whatsappPhone}
-                    </a>
-                  ) : (
-                    <p className="text-slate-500">Adicionar WhatsApp do suporte</p>
-                  )}
-                </div>
-
-                <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">E-mail</p>
                   {hasEmail ? (
                     <a href={`mailto:${settings.support_email.trim()}`} className="font-semibold text-slate-800 hover:text-red-600 break-all">
@@ -202,21 +181,6 @@ export default function CentralDeAjudaPage() {
                     </a>
                   ) : (
                     <p className="text-slate-500">E-mail de suporte não cadastrado</p>
-                  )}
-                </div>
-
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Telefones</p>
-                  {supportPhones.length > 0 ? (
-                    <div className="space-y-1">
-                      {supportPhones.map((phone) => (
-                        <a key={phone} href={`tel:${digitsOnly(phone)}`} className="block font-semibold text-slate-800 hover:text-red-600">
-                          {phone}
-                        </a>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-slate-500">Telefones não cadastrados</p>
                   )}
                 </div>
 

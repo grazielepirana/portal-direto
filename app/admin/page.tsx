@@ -136,17 +136,44 @@ export default function AdminPage() {
     setSaving(true);
     setMsg(null);
 
+    let settingsSaved = false;
+    let plansSaved = false;
+    let settingsError: string | null = null;
+    let plansError: string | null = null;
+
     try {
       await saveSiteSettings(settings);
-      await saveListingPlans(plans);
-      const reloaded = await loadSiteSettings();
-      setSettings(reloaded);
-      setMsg("✅ Configurações salvas e atualizadas no site.");
+      settingsSaved = true;
     } catch (err: unknown) {
+      settingsError = err instanceof Error ? err.message : "Falha ao salvar configurações do site.";
+    }
+
+    try {
+      await saveListingPlans(plans);
+      plansSaved = true;
+    } catch (err: unknown) {
+      plansError = err instanceof Error ? err.message : "Falha ao salvar planos.";
+    }
+
+    if (settingsSaved && plansSaved) {
+      setMsg("✅ Configurações salvas e atualizadas no site.");
+    } else if (settingsSaved && !plansSaved) {
       setMsg(
-        err instanceof Error
-          ? `${err.message}. Se necessário, crie as tabelas site_settings e listing_plans no Supabase.`
-          : "Erro ao salvar configurações."
+        `✅ Configurações do site salvas. ⚠️ Os planos não foram salvos agora${
+          plansError ? ` (${plansError})` : "."
+        }`
+      );
+    } else if (!settingsSaved && plansSaved) {
+      setMsg(
+        `⚠️ Planos salvos, mas as configurações do site falharam${
+          settingsError ? ` (${settingsError})` : "."
+        }`
+      );
+    } else {
+      setMsg(
+        `Erro ao salvar configurações.${
+          settingsError ? ` Site: ${settingsError}.` : ""
+        }${plansError ? ` Planos: ${plansError}.` : ""}`
       );
     } finally {
       setSaving(false);
