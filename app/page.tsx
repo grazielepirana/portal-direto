@@ -250,7 +250,7 @@ export default function Home() {
           ) : null}
           <div className="pointer-events-none absolute -top-16 -left-20 h-64 w-64 rounded-full bg-gradient-to-br from-sky-200/55 to-transparent blur-2xl" />
           <div className="pointer-events-none absolute -bottom-20 -right-12 h-72 w-72 rounded-full bg-gradient-to-tr from-indigo-200/45 to-transparent blur-2xl" />
-          <div className="mx-auto grid w-full max-w-[1200px] grid-cols-1 items-stretch gap-8 px-4 pt-2 sm:px-6 sm:pt-3 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] lg:px-8">
+          <div className="mx-auto grid w-full max-w-[1200px] grid-cols-1 items-stretch gap-8 px-4 pt-4 sm:px-6 sm:pt-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:px-8">
           <section
             className="!mt-0 rounded-[24px] p-8 sm:p-10 flex flex-col justify-between"
           >
@@ -301,7 +301,7 @@ export default function Home() {
 
           <section
             id="home-search"
-            className="!mt-0 rounded-[24px] bg-white/95 p-6 backdrop-blur-sm lg:w-full lg:max-w-[620px]"
+            className="!mt-0 rounded-[24px] bg-white/95 p-6 backdrop-blur-sm lg:ml-auto lg:w-full lg:max-w-[560px]"
             style={{ boxShadow: "0 12px 40px rgba(15,23,42,0.08)" }}
           >
             <h2 className="text-2xl font-bold text-slate-900 mb-2">Busque por localização, tipo e preço</h2>
