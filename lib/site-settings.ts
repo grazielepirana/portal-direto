@@ -4,6 +4,7 @@ export type SiteSettings = {
   site_name: string;
   logo_url: string;
   favicon_url: string;
+  favicon_scale_percent: number;
   logo_height_px: number;
   hero_image_url: string;
   hero_height_px: number;
@@ -51,6 +52,7 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   site_name: "Portal Direto",
   logo_url: "",
   favicon_url: "",
+  favicon_scale_percent: 100,
   logo_height_px: 40,
   hero_image_url: "",
   hero_height_px: 224,
@@ -126,6 +128,10 @@ export async function loadSiteSettings(): Promise<SiteSettings> {
     site_name: data.site_name ?? DEFAULT_SITE_SETTINGS.site_name,
     logo_url: data.logo_url ?? DEFAULT_SITE_SETTINGS.logo_url,
     favicon_url: data.favicon_url ?? DEFAULT_SITE_SETTINGS.favicon_url,
+    favicon_scale_percent:
+      Number(data.favicon_scale_percent) >= 50 && Number(data.favicon_scale_percent) <= 220
+        ? Number(data.favicon_scale_percent)
+        : DEFAULT_SITE_SETTINGS.favicon_scale_percent,
     logo_height_px:
       Number(data.logo_height_px) > 0
         ? Number(data.logo_height_px)

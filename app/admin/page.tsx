@@ -623,6 +623,27 @@ export default function AdminPage() {
                 <p className="mt-1 text-xs text-slate-600">
                   Recomendado: PNG 32x32 ou ICO.
                 </p>
+                <label className="mt-3 block text-sm font-semibold text-slate-800">
+                  Tamanho visual do favicon ({settings.favicon_scale_percent}%)
+                </label>
+                <input
+                  type="range"
+                  min={50}
+                  max={220}
+                  value={settings.favicon_scale_percent}
+                  onChange={(e) =>
+                    setSettings((p) => ({
+                      ...p,
+                      favicon_scale_percent: parseDimension(
+                        e.target.value,
+                        100,
+                        50,
+                        220
+                      ),
+                    }))
+                  }
+                  className="mt-1 w-full"
+                />
                 {settings.favicon_url ? (
                   <div className="mt-3 inline-flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
                     <img

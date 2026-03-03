@@ -8,14 +8,33 @@ import SiteBrand from "./SiteBrand";
 import SiteFooter from "./SiteFooter";
 import CookieBanner from "./CookieBanner";
 
-async function loadFaviconUrlFromSettings() {
+function clampFaviconScale(value: number) {
+  if (!Number.isFinite(value)) return 100;
+  return Math.min(220, Math.max(50, Math.round(value)));
+}
+
+function buildScaledFaviconDataUrl(iconUrl: string, scalePercent: number) {
+  const size = 64;
+  const scale = clampFaviconScale(scalePercent);
+  const scaledSize = (size * scale) / 100;
+  const offset = (size - scaledSize) / 2;
+
+  const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+  <image href="${iconUrl}" x="${offset}" y="${offset}" width="${scaledSize}" height="${scaledSize}" preserveAspectRatio="xMidYMid meet" />
+</svg>`;
+
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
+async function loadFaviconFromSettings() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!supabaseUrl || !supabaseAnonKey) return "";
+  if (!supabaseUrl || !supabaseAnonKey) return { url: "", scale: 100 };
 
   try {
     const response = await fetch(
-      `${supabaseUrl}/rest/v1/site_settings?id=eq.1&select=favicon_url`,
+      `${supabaseUrl}/rest/v1/site_settings?id=eq.1&select=favicon_url,favicon_scale_percent`,
       {
         headers: {
           apikey: supabaseAnonKey,
@@ -25,26 +44,33 @@ async function loadFaviconUrlFromSettings() {
       }
     );
 
-    if (!response.ok) return "";
-    const data = (await response.json()) as Array<{ favicon_url?: string | null }>;
+    if (!response.ok) return { url: "", scale: 100 };
+    const data = (await response.json()) as Array<{
+      favicon_url?: string | null;
+      favicon_scale_percent?: number | null;
+    }>;
     const url = String(data?.[0]?.favicon_url ?? "").trim();
-    return url;
+    const scale = clampFaviconScale(Number(data?.[0]?.favicon_scale_percent ?? 100));
+    return { url, scale };
   } catch {
-    return "";
+    return { url: "", scale: 100 };
   }
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const faviconUrl = await loadFaviconUrlFromSettings();
+  const favicon = await loadFaviconFromSettings();
+  const iconUrl = favicon.url
+    ? buildScaledFaviconDataUrl(favicon.url, favicon.scale)
+    : undefined;
 
   return {
     title: "Portal Direto",
     description: "Imóveis direto com o proprietário",
-    icons: faviconUrl
+    icons: iconUrl
       ? {
-          icon: [{ url: faviconUrl }],
-          shortcut: [{ url: faviconUrl }],
-          apple: [{ url: faviconUrl }],
+          icon: [{ url: iconUrl }],
+          shortcut: [{ url: iconUrl }],
+          apple: [{ url: iconUrl }],
         }
       : undefined,
   };
