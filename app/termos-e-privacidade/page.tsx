@@ -13,56 +13,59 @@ export default function TermsAndPrivacyPage() {
 
         <section className="!mt-0 mt-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
           <h1 className="text-3xl font-extrabold tracking-tight text-slate-950">
-            Termos e Privacidade
+            Política de Privacidade
           </h1>
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Este documento resume como o Portal Direto funciona, quais responsabilidades de uso
-            você assume ao utilizar a plataforma e como os seus dados são tratados.
+            Este documento explica como seus dados são coletados, usados e protegidos dentro do
+            Portal Direto.
           </p>
 
           <div className="mt-8 space-y-7 text-slate-700">
             <section className="!mt-0">
-              <h2 className="text-lg font-bold text-slate-950">1. Uso da plataforma</h2>
+              <h2 className="text-lg font-bold text-slate-950">1. Coleta de dados</h2>
               <p className="mt-2 text-sm leading-7">
-                O Portal Direto conecta anunciantes e interessados para negociação direta de
-                imóveis. O usuário é responsável pela veracidade das informações publicadas,
-                incluindo descrição, fotos, localização e valores.
+                Coletamos dados fornecidos por você no cadastro e uso da plataforma, como nome,
+                e-mail, dados de anúncios, mensagens no chat e preferências de navegação.
               </p>
             </section>
 
             <section className="!mt-0">
-              <h2 className="text-lg font-bold text-slate-950">2. Responsabilidade sobre anúncios</h2>
+              <h2 className="text-lg font-bold text-slate-950">2. Uso das informações</h2>
               <p className="mt-2 text-sm leading-7">
-                Cada anunciante responde pelo conteúdo enviado e pelas condições ofertadas no
-                anúncio. O portal atua como intermediador digital e não participa diretamente da
-                negociação final, assinatura de contrato ou transferência do imóvel.
+                Utilizamos os dados para autenticação, publicação de anúncios, funcionamento do
+                chat, segurança da conta e melhoria da experiência no site.
               </p>
             </section>
 
             <section className="!mt-0">
-              <h2 className="text-lg font-bold text-slate-950">3. Privacidade e dados</h2>
+              <h2 className="text-lg font-bold text-slate-950">3. Compartilhamento</h2>
               <p className="mt-2 text-sm leading-7">
-                Utilizamos dados da conta e de uso da plataforma para autenticação, funcionamento
-                do chat, segurança e melhoria da experiência. Não divulgamos dados pessoais além do
-                necessário para operação das funcionalidades do site.
+                Não comercializamos seus dados pessoais. As informações podem ser compartilhadas
+                apenas quando necessário para operação do serviço, cumprimento legal ou segurança.
               </p>
             </section>
 
             <section className="!mt-0">
-              <h2 className="text-lg font-bold text-slate-950">4. Segurança da conta</h2>
+              <h2 className="text-lg font-bold text-slate-950">4. Cookies e tecnologias</h2>
               <p className="mt-2 text-sm leading-7">
-                Recomendamos manter senha forte, não compartilhar credenciais e encerrar sessão em
-                dispositivos públicos. Em caso de acesso suspeito, atualize sua senha nas
-                configurações da conta.
+                Utilizamos cookies para manter sessões, melhorar funcionalidades e analisar uso do
+                site conforme suas preferências de consentimento.
               </p>
             </section>
 
             <section className="!mt-0">
-              <h2 className="text-lg font-bold text-slate-950">5. Atualizações deste documento</h2>
+              <h2 className="text-lg font-bold text-slate-950">5. Seus direitos</h2>
               <p className="mt-2 text-sm leading-7">
-                Estes termos podem ser atualizados para refletir melhorias na plataforma e
-                exigências legais. Sempre que houver mudança relevante, a versão mais recente ficará
-                disponível nesta página.
+                Você pode solicitar atualização ou exclusão de dados pessoais da conta, de acordo
+                com a legislação aplicável e os recursos disponíveis na plataforma.
+              </p>
+            </section>
+
+            <section className="!mt-0">
+              <h2 className="text-lg font-bold text-slate-950">6. Atualizações desta política</h2>
+              <p className="mt-2 text-sm leading-7">
+                Esta política pode ser atualizada para refletir melhorias no serviço ou exigências
+                legais. A versão mais recente ficará sempre disponível nesta página.
               </p>
             </section>
           </div>

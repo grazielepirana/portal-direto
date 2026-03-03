@@ -310,9 +310,13 @@ export default function LoginPage() {
           ) : null}
 
           <p className="mt-5 text-center text-xs text-slate-500">
-            Ao continuar, você concorda com nossos{" "}
+            Ao criar conta e continuar, você concorda com nossos{" "}
+            <Link href="/termos-de-uso" className="font-semibold underline">
+              Termos de Uso
+            </Link>{" "}
+            e{" "}
             <Link href="/termos-e-privacidade" className="font-semibold underline">
-              Termos e Privacidade
+              Política de Privacidade
             </Link>
             .
           </p>

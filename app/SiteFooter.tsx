@@ -37,8 +37,11 @@ export default function SiteFooter() {
             <Link href="/planos" className="block text-[#E2E8F0] transition-colors hover:text-white">
               Planos para cadastrar imóveis
             </Link>
+            <Link href="/termos-de-uso" className="block text-[#E2E8F0] transition-colors hover:text-white">
+              Termos de Uso
+            </Link>
             <Link href="/termos-e-privacidade" className="block text-[#E2E8F0] transition-colors hover:text-white">
-              Termos e privacidades
+              Política de Privacidade
             </Link>
           </div>
 
