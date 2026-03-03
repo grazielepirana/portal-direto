@@ -250,9 +250,9 @@ export default function Home() {
           ) : null}
           <div className="pointer-events-none absolute -top-16 -left-20 z-10 h-64 w-64 rounded-full bg-gradient-to-br from-sky-200/55 to-transparent blur-2xl" />
           <div className="pointer-events-none absolute -bottom-20 -right-12 z-10 h-72 w-72 rounded-full bg-gradient-to-tr from-indigo-200/45 to-transparent blur-2xl" />
-          <div className="relative z-20 mx-auto grid w-full max-w-[1200px] grid-cols-1 items-stretch gap-8 px-4 pt-4 sm:px-6 sm:pt-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:px-8">
+          <div className="relative z-20 mx-auto grid w-full max-w-[1200px] grid-cols-1 items-stretch gap-8 px-4 pt-4 sm:px-6 sm:pt-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:px-8">
           <section
-            className="!mt-0 rounded-[24px] p-8 sm:p-10 flex flex-col justify-between"
+            className="!mt-0 h-full rounded-[24px] p-8 sm:p-10 flex flex-col justify-between"
           >
             <div>
               <h1 className="text-[40px] md:text-[50px] lg:text-[56px] leading-[1.05] font-extrabold tracking-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]">
@@ -301,7 +301,7 @@ export default function Home() {
 
           <section
             id="home-search"
-            className="!mt-0 rounded-[24px] bg-white/95 p-6 backdrop-blur-sm lg:ml-auto lg:w-full lg:max-w-[560px]"
+            className="!mt-0 h-full w-full rounded-[24px] bg-white/95 p-6 backdrop-blur-sm"
             style={{ boxShadow: "0 12px 40px rgba(15,23,42,0.08)" }}
           >
             <h2 className="text-2xl font-bold text-slate-900 mb-2">Busque por localização, tipo e preço</h2>
