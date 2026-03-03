@@ -175,9 +175,9 @@ export default function AdminPage() {
           settingsError ? ` Site: ${settingsError}.` : ""
         }${plansError ? ` Planos: ${plansError}.` : ""}`
       );
-    } finally {
-      setSaving(false);
     }
+
+    setSaving(false);
   }
 
   async function handleLogout() {
