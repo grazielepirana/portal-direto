@@ -21,10 +21,10 @@ export default function SiteFooter() {
 
   return (
     <footer
-      className="mt-12 border-t border-white/10"
+      className="mt-10 border-t border-white/10"
       style={{ background: "#0F172A", color: "#CBD5E1" }}
     >
-      <div className="max-w-[1200px] mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-2 gap-10">
+      <div className="max-w-[1200px] mx-auto px-6 py-8 grid grid-cols-1 md:grid-cols-2 gap-6">
         <section className="!mt-0">
           <h3 className="text-lg font-bold text-white mb-4">Institucional</h3>
           <div className="space-y-2">
@@ -107,7 +107,7 @@ export default function SiteFooter() {
         </section>
       </div>
 
-      <div className="max-w-[1200px] mx-auto px-6 pb-8 pt-1 text-center text-sm text-[#CBD5E1]">
+      <div className="max-w-[1200px] mx-auto px-6 pb-5 pt-1 text-center text-sm text-[#CBD5E1]">
         © {new Date().getFullYear()} {settings.site_name || "Portal Direto"} — Todos os direitos reservados.
       </div>
     </footer>
