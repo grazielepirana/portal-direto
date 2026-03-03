@@ -21,26 +21,26 @@ export default function SiteFooter() {
 
   return (
     <footer
-      className="mt-10 border-t border-white/10"
+      className="mt-8 border-t border-white/10"
       style={{ background: "#0F172A", color: "#CBD5E1" }}
     >
-      <div className="max-w-[1200px] mx-auto px-6 py-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="max-w-[1200px] mx-auto px-5 py-5 grid grid-cols-1 md:grid-cols-2 gap-4">
         <section className="!mt-0">
-          <h3 className="text-lg font-bold text-white mb-4">Institucional</h3>
-          <div className="space-y-2">
-            <Link href="/termos" className="block text-[#E2E8F0] transition-colors hover:text-white">
+          <h3 className="mb-2 text-base font-bold text-white">Institucional</h3>
+          <div className="space-y-1">
+            <Link href="/termos" className="block text-sm text-[#E2E8F0] transition-colors hover:text-white">
               Termos de Uso
             </Link>
-            <Link href="/privacidade" className="block text-[#E2E8F0] transition-colors hover:text-white">
+            <Link href="/privacidade" className="block text-sm text-[#E2E8F0] transition-colors hover:text-white">
               Política de Privacidade
             </Link>
-            <Link href="/contato" className="block text-[#E2E8F0] transition-colors hover:text-white">
+            <Link href="/contato" className="block text-sm text-[#E2E8F0] transition-colors hover:text-white">
               Fale Conosco
             </Link>
           </div>
 
-          <div className="mt-6">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">Redes sociais</p>
+          <div className="mt-4">
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400">Redes sociais</p>
             <div className="flex items-center gap-3">
               <a
                 href={settings.social_instagram_url || "#"}
@@ -92,22 +92,22 @@ export default function SiteFooter() {
         </section>
 
         <section className="!mt-0">
-          <h3 className="text-lg font-bold text-white mb-3">Blog</h3>
-          <div className="space-y-2">
-            {posts.length === 0 ? <p className="text-[#CBD5E1]">Sem artigos publicados.</p> : null}
+          <h3 className="mb-2 text-base font-bold text-white">Blog</h3>
+          <div className="space-y-1">
+            {posts.length === 0 ? <p className="text-sm text-[#CBD5E1]">Sem artigos publicados.</p> : null}
             {posts.map((post) => (
-              <Link key={post.id} href={`/blog/${post.slug}`} className="block text-[#E2E8F0] transition-colors hover:text-white">
+              <Link key={post.id} href={`/blog/${post.slug}`} className="block text-sm text-[#E2E8F0] transition-colors hover:text-white">
                 {post.title}
               </Link>
             ))}
-            <Link href="/blog" className="block font-semibold mt-2 text-[#E2E8F0] transition-colors hover:text-white">
+            <Link href="/blog" className="mt-2 block text-sm font-semibold text-[#E2E8F0] transition-colors hover:text-white">
               Ver todos os artigos
             </Link>
           </div>
         </section>
       </div>
 
-      <div className="max-w-[1200px] mx-auto px-6 pb-5 pt-1 text-center text-sm text-[#CBD5E1]">
+      <div className="max-w-[1200px] mx-auto px-5 pb-3 pt-0 text-center text-xs text-[#CBD5E1]">
         © {new Date().getFullYear()} {settings.site_name || "Portal Direto"} — Todos os direitos reservados.
       </div>
     </footer>
