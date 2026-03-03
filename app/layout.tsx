@@ -8,10 +8,47 @@ import SiteBrand from "./SiteBrand";
 import SiteFooter from "./SiteFooter";
 import CookieBanner from "./CookieBanner";
 
-export const metadata: Metadata = {
-  title: "Portal Direto",
-  description: "Imóveis direto com o proprietário",
-};
+async function loadFaviconUrlFromSettings() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseAnonKey) return "";
+
+  try {
+    const response = await fetch(
+      `${supabaseUrl}/rest/v1/site_settings?id=eq.1&select=favicon_url`,
+      {
+        headers: {
+          apikey: supabaseAnonKey,
+          Authorization: `Bearer ${supabaseAnonKey}`,
+        },
+        cache: "no-store",
+      }
+    );
+
+    if (!response.ok) return "";
+    const data = (await response.json()) as Array<{ favicon_url?: string | null }>;
+    const url = String(data?.[0]?.favicon_url ?? "").trim();
+    return url;
+  } catch {
+    return "";
+  }
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const faviconUrl = await loadFaviconUrlFromSettings();
+
+  return {
+    title: "Portal Direto",
+    description: "Imóveis direto com o proprietário",
+    icons: faviconUrl
+      ? {
+          icon: [{ url: faviconUrl }],
+          shortcut: [{ url: faviconUrl }],
+          apple: [{ url: faviconUrl }],
+        }
+      : undefined,
+  };
+}
 
 export default function RootLayout({
   children,
