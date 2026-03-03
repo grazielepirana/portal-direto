@@ -231,26 +231,29 @@ export default function Home() {
     <main className="min-h-screen bg-[#F8FAFC] px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-[1200px] space-y-10">
         <div className="relative overflow-hidden rounded-[24px]">
-          <div className="pointer-events-none absolute -top-16 -left-20 h-64 w-64 rounded-full bg-gradient-to-br from-sky-200/55 to-transparent blur-2xl" />
-          <div className="pointer-events-none absolute -bottom-20 -right-12 h-72 w-72 rounded-full bg-gradient-to-tr from-indigo-200/45 to-transparent blur-2xl" />
-          <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-          <section
-            className="!mt-0 rounded-[24px] bg-white p-8 sm:p-10 flex flex-col justify-between"
-            style={{ boxShadow: "0 12px 40px rgba(15,23,42,0.08)" }}
-          >
-            {heroImageUrl ? (
+          {heroImageUrl ? (
+            <>
               <img
                 src={heroImageUrl}
-                alt="Imagem principal"
-                className="w-full rounded-2xl mb-8 bg-slate-100"
+                alt="Imagem de fundo do topo"
+                className="absolute inset-0 h-full w-full"
                 style={{
-                  height: `${Math.max(180, Math.min(heroHeightPx, 300))}px`,
                   objectFit: heroImageFit,
                   objectPosition: `${heroPositionX}% ${heroPositionY}%`,
                 }}
               />
-            ) : null}
-
+              <div className="pointer-events-none absolute inset-0 bg-slate-900/25" />
+            </>
+          ) : null}
+          <div className="pointer-events-none absolute -top-16 -left-20 h-64 w-64 rounded-full bg-gradient-to-br from-sky-200/55 to-transparent blur-2xl" />
+          <div className="pointer-events-none absolute -bottom-20 -right-12 h-72 w-72 rounded-full bg-gradient-to-tr from-indigo-200/45 to-transparent blur-2xl" />
+          <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+          <section
+            className={`!mt-0 rounded-[24px] p-8 sm:p-10 flex flex-col justify-between ${
+              heroImageUrl ? "bg-white/92 backdrop-blur-sm" : "bg-white"
+            }`}
+            style={{ boxShadow: "0 12px 40px rgba(15,23,42,0.08)" }}
+          >
             <div>
               <h1 className="text-[44px] md:text-[52px] lg:text-[56px] leading-[1.05] font-extrabold tracking-tight text-slate-900">
                 Venda ou compre imóvel direto com o proprietário
@@ -298,7 +301,9 @@ export default function Home() {
 
           <section
             id="home-search"
-            className="!mt-0 rounded-[24px] bg-white p-8"
+            className={`!mt-0 rounded-[24px] p-8 ${
+              heroImageUrl ? "bg-white/92 backdrop-blur-sm" : "bg-white"
+            }`}
             style={{ boxShadow: "0 12px 40px rgba(15,23,42,0.08)" }}
           >
             <h2 className="text-2xl font-bold text-slate-900 mb-2">Busque por localização, tipo e preço</h2>
