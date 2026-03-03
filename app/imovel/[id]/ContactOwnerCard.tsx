@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabase";
 
 type ContactOwnerCardProps = {
@@ -22,6 +22,17 @@ export default function ContactOwnerCard({
 }: ContactOwnerCardProps) {
   const [text, setText] = useState("Olá! Tenho interesse neste imóvel.");
   const [sending, setSending] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    supabase.auth.getUser().then(({ data }) => {
+      if (isMounted) setCurrentUserId(data.user?.id ?? null);
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   async function handleSend() {
     const messageText = text.trim();
@@ -34,6 +45,7 @@ export default function ContactOwnerCard({
     const me = data.user?.id;
 
     if (!me) {
+      alert("Para enviar mensagem, você precisa se cadastrar e fazer login primeiro.");
       window.location.href = "/login";
       return;
     }
@@ -156,13 +168,23 @@ export default function ContactOwnerCard({
         placeholder="Escreva sua mensagem..."
       />
 
+      {!currentUserId ? (
+        <p className="mt-2 text-xs text-slate-600">
+          Só pode enviar mensagem quem estiver cadastrado e logado.
+        </p>
+      ) : null}
+
       <button
         type="button"
         onClick={handleSend}
         disabled={sending}
         className="cta-primary mt-3 inline-flex h-11 w-full items-center justify-center rounded-xl px-4 font-semibold transition disabled:opacity-60"
       >
-        {sending ? "Enviando..." : "Enviar para o proprietário"}
+        {sending
+          ? "Enviando..."
+          : currentUserId
+          ? "Enviar para o proprietário"
+          : "Cadastre-se para enviar mensagem"}
       </button>
     </aside>
   );

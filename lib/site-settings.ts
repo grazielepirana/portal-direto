@@ -98,8 +98,10 @@ export function isAdminEmail(email: string | null): boolean {
     .map((v) => v.trim().toLowerCase())
     .filter(Boolean);
 
-  // Se não definir admins no .env, permite qualquer usuário logado acessar /admin.
-  if (envList.length === 0) return true;
+  // Fallback seguro: se a env falhar, apenas este e-mail pode acessar.
+  if (envList.length === 0) {
+    return email.toLowerCase() === "grazielepirana@outlook.com";
+  }
 
   return envList.includes(email.toLowerCase());
 }
