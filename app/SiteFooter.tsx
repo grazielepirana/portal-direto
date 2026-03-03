@@ -34,15 +34,6 @@ export default function SiteFooter() {
             <Link href="/privacidade" className="block text-[#E2E8F0] transition-colors hover:text-white">
               Política de Privacidade
             </Link>
-            <Link href="/cookies" className="block text-[#E2E8F0] transition-colors hover:text-white">
-              Política de Cookies
-            </Link>
-            <Link href="/aviso-anti-golpe" className="block text-[#E2E8F0] transition-colors hover:text-white">
-              Aviso Anti-Golpe
-            </Link>
-            <Link href="/canal-de-denuncias" className="block text-[#E2E8F0] transition-colors hover:text-white">
-              Canal de Denúncias
-            </Link>
             <Link href="/contato" className="block text-[#E2E8F0] transition-colors hover:text-white">
               Fale Conosco
             </Link>
