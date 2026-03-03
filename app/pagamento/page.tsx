@@ -15,6 +15,7 @@ function PagamentoPageContent() {
   const [settings, setSettings] = useState<SiteSettings>(DEFAULT_SITE_SETTINGS);
   const [method, setMethod] = useState<"pix" | "card">("pix");
   const [processing, setProcessing] = useState(false);
+  const [creatingMercadoCheckout, setCreatingMercadoCheckout] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [payerName, setPayerName] = useState("");
   const [cardNumber, setCardNumber] = useState("");
@@ -97,6 +98,63 @@ function PagamentoPageContent() {
       setStatusMessage("Não foi possível processar o pagamento agora.");
     } finally {
       setProcessing(false);
+    }
+  }
+
+  async function handleMercadoPagoCheckout() {
+    if (!listingId) {
+      setStatusMessage("Anúncio inválido para pagamento.");
+      return;
+    }
+    if (amount <= 0) {
+      setStatusMessage("Plano gratuito não precisa de pagamento.");
+      return;
+    }
+
+    setCreatingMercadoCheckout(true);
+    setStatusMessage(null);
+
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session?.access_token) {
+        setStatusMessage("Faça login novamente para continuar o pagamento.");
+        return;
+      }
+
+      const response = await fetch("/api/payments/mercado-pago/create-preference", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          listingId,
+          planId,
+          planName,
+          amount,
+          days,
+        }),
+      });
+
+      const result = (await response.json()) as {
+        ok?: boolean;
+        checkoutUrl?: string;
+        error?: string;
+      };
+
+      if (!response.ok || !result.ok || !result.checkoutUrl) {
+        setStatusMessage(result.error ?? "Não foi possível iniciar o checkout do Mercado Pago.");
+        return;
+      }
+
+      window.location.href = result.checkoutUrl;
+    } catch {
+      setStatusMessage("Não foi possível iniciar o checkout do Mercado Pago agora.");
+    } finally {
+      setCreatingMercadoCheckout(false);
     }
   }
 
@@ -202,12 +260,24 @@ function PagamentoPageContent() {
                     {processing ? "Processando..." : "Confirmar pagamento"}
                   </button>
                 </div>
+              ) : settings.payment_provider === "mercado_pago_link" ? (
+                <div className="mt-5">
+                  <p className="mb-3 text-sm text-slate-700">
+                    Você será direcionado para o checkout seguro do Mercado Pago.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleMercadoPagoCheckout}
+                    disabled={creatingMercadoCheckout}
+                    className="cta-primary inline-flex h-12 w-full items-center justify-center rounded-xl px-5 text-sm font-bold transition disabled:opacity-60"
+                  >
+                    {creatingMercadoCheckout ? "Gerando checkout..." : "Pagar com Mercado Pago"}
+                  </button>
+                </div>
               ) : checkoutUrl ? (
                 <div className="mt-5">
                   <p className="mb-3 text-sm text-slate-700">
-                    {settings.payment_provider === "mercado_pago_link"
-                      ? "Você será direcionado para o checkout seguro do Mercado Pago."
-                      : "Você será direcionado para o checkout seguro do gateway selecionado."}
+                    Você será direcionado para o checkout seguro do gateway selecionado.
                   </p>
                   <a
                     href={checkoutUrl}
@@ -215,9 +285,7 @@ function PagamentoPageContent() {
                     rel="noreferrer"
                     className="cta-primary inline-flex h-12 w-full items-center justify-center rounded-xl px-5 text-sm font-bold transition"
                   >
-                    {settings.payment_provider === "mercado_pago_link"
-                      ? "Pagar com Mercado Pago"
-                      : "Confirmar pagamento"}
+                    Confirmar pagamento
                   </a>
                 </div>
               ) : (
