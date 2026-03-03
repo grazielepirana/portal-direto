@@ -453,7 +453,10 @@ export default function AdminPage() {
 
           {activeSection === "payment" ? (
             <div className="border border-slate-300 rounded-xl p-4">
-              <h2 className="text-xl font-bold mb-3">Integração de pagamento</h2>
+              <h2 className="text-xl font-bold mb-1">Integração de pagamento</h2>
+              <p className="text-sm text-slate-600 mb-3">
+                Configure aqui como o cliente vai pagar dentro do fluxo de anúncio.
+              </p>
               <label className="block text-sm font-semibold text-slate-800 mb-1">Gateway</label>
               <select
                 className="w-full border border-slate-400 text-slate-950 p-3 rounded-lg"
@@ -472,13 +475,26 @@ export default function AdminPage() {
               >
                 <option value="internal_checkout">Checkout interno no site</option>
                 <option value="none">Sem gateway (manual)</option>
-                <option value="mercado_pago_link">Mercado Pago (link)</option>
+                <option value="mercado_pago_link">Mercado Pago (link do checkout)</option>
                 <option value="stripe_link">Stripe (link)</option>
                 <option value="custom_link">Outro link</option>
               </select>
 
+              {settings.payment_provider === "mercado_pago_link" ? (
+                <div className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
+                  <p className="font-semibold">Configuração recomendada do Mercado Pago</p>
+                  <ul className="mt-1 list-disc pl-5 space-y-0.5">
+                    <li>Defina abaixo o link do seu checkout Mercado Pago.</li>
+                    <li>Ative o método no site em &quot;Gateway&quot;.</li>
+                    <li>Depois salve para aplicar no checkout do anúncio.</li>
+                  </ul>
+                </div>
+              ) : null}
+
               <label className="block text-sm font-semibold text-slate-800 mt-3 mb-1">
-                Chave PIX (checkout interno)
+                {settings.payment_provider === "mercado_pago_link"
+                  ? "Chave PIX (opcional no Mercado Pago)"
+                  : "Chave PIX (checkout interno)"}
               </label>
               <input
                 className="w-full border border-slate-400 text-slate-950 placeholder:text-slate-700 p-3 rounded-lg"
@@ -488,11 +504,17 @@ export default function AdminPage() {
               />
 
               <label className="block text-sm font-semibold text-slate-800 mt-3 mb-1">
-                Link de pagamento (template)
+                {settings.payment_provider === "mercado_pago_link"
+                  ? "Link do checkout Mercado Pago"
+                  : "Link de pagamento (template)"}
               </label>
               <input
                 className="w-full border border-slate-400 text-slate-950 placeholder:text-slate-700 p-3 rounded-lg"
-                placeholder="https://pagamento.exemplo.com/checkout?plan={PLAN_ID}&amount={AMOUNT}&listing={LISTING_ID}"
+                placeholder={
+                  settings.payment_provider === "mercado_pago_link"
+                    ? "https://link.mercadopago.com.br/SEU_LINK"
+                    : "https://pagamento.exemplo.com/checkout?plan={PLAN_ID}&amount={AMOUNT}&listing={LISTING_ID}"
+                }
                 value={settings.payment_link_template}
                 onChange={(e) =>
                   setSettings((p) => ({ ...p, payment_link_template: e.target.value }))

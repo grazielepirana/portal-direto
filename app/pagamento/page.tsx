@@ -204,16 +204,27 @@ function PagamentoPageContent() {
                 </div>
               ) : checkoutUrl ? (
                 <div className="mt-5">
+                  <p className="mb-3 text-sm text-slate-700">
+                    {settings.payment_provider === "mercado_pago_link"
+                      ? "Você será direcionado para o checkout seguro do Mercado Pago."
+                      : "Você será direcionado para o checkout seguro do gateway selecionado."}
+                  </p>
                   <a
                     href={checkoutUrl}
                     target="_blank"
                     rel="noreferrer"
                     className="cta-primary inline-flex h-12 w-full items-center justify-center rounded-xl px-5 text-sm font-bold transition"
                   >
-                    Confirmar pagamento
+                    {settings.payment_provider === "mercado_pago_link"
+                      ? "Pagar com Mercado Pago"
+                      : "Confirmar pagamento"}
                   </a>
                 </div>
-              ) : null}
+              ) : (
+                <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                  Configure o link do gateway no Admin para habilitar o pagamento deste plano.
+                </div>
+              )}
             </article>
 
             {statusMessage ? (
