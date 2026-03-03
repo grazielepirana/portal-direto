@@ -35,25 +35,30 @@ export default function CookieConsentBanner() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const timer = window.setTimeout(() => {
-      const current = window.localStorage.getItem(CONSENT_KEY);
-      if (current) {
-        try {
-          const parsed = JSON.parse(current) as Partial<SavedConsent>;
-          if (parsed.preferences) {
-            setPrefs({
-              necessary: true,
-              analytics: Boolean(parsed.preferences.analytics),
-              marketing: Boolean(parsed.preferences.marketing),
-              preferences: Boolean(parsed.preferences.preferences),
-            });
+      try {
+        const current = window.localStorage.getItem(CONSENT_KEY);
+        if (current) {
+          try {
+            const parsed = JSON.parse(current) as Partial<SavedConsent>;
+            if (parsed.preferences) {
+              setPrefs({
+                necessary: true,
+                analytics: Boolean(parsed.preferences.analytics),
+                marketing: Boolean(parsed.preferences.marketing),
+                preferences: Boolean(parsed.preferences.preferences),
+              });
+            }
+            setVisible(false);
+            return;
+          } catch {
+            // fallback para formato antigo
           }
-          setVisible(false);
-          return;
-        } catch {
-          // fallback para formato antigo
         }
+        setVisible(!current);
+      } catch {
+        // Alguns navegadores/modos privados podem bloquear localStorage.
+        setVisible(true);
       }
-      setVisible(!current);
     }, 0);
     return () => window.clearTimeout(timer);
   }, []);
@@ -65,7 +70,11 @@ export default function CookieConsentBanner() {
       updatedAt: new Date().toISOString(),
     };
     if (typeof window !== "undefined") {
-      window.localStorage.setItem(CONSENT_KEY, JSON.stringify(payload));
+      try {
+        window.localStorage.setItem(CONSENT_KEY, JSON.stringify(payload));
+      } catch {
+        // ignora falha de storage local para não quebrar UX
+      }
     }
     document.cookie = `portal_cookie_consent=${status}; path=/; max-age=${ONE_YEAR_SECONDS}; SameSite=Lax`;
     document.cookie = `${PREFERENCES_COOKIE}=${encodeURIComponent(
