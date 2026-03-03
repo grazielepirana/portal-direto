@@ -28,23 +28,23 @@ export default function SiteFooter() {
         <section className="!mt-0">
           <h3 className="text-lg font-bold text-white mb-4">Institucional</h3>
           <div className="space-y-2">
-            <Link href="/sobre-nos" className="block text-[#E2E8F0] transition-colors hover:text-white">
-              Sobre nós
-            </Link>
-            <Link href="/central-de-ajuda" className="block text-[#E2E8F0] transition-colors hover:text-white">
-              Central de ajuda
-            </Link>
-            <Link href="/planos" className="block text-[#E2E8F0] transition-colors hover:text-white">
-              Planos para cadastrar imóveis
-            </Link>
-            <Link href="/termos-de-uso" className="block text-[#E2E8F0] transition-colors hover:text-white">
+            <Link href="/termos" className="block text-[#E2E8F0] transition-colors hover:text-white">
               Termos de Uso
             </Link>
-            <Link href="/termos-e-privacidade" className="block text-[#E2E8F0] transition-colors hover:text-white">
+            <Link href="/privacidade" className="block text-[#E2E8F0] transition-colors hover:text-white">
               Política de Privacidade
             </Link>
-            <Link href="/politica-de-cookies" className="block text-[#E2E8F0] transition-colors hover:text-white">
+            <Link href="/cookies" className="block text-[#E2E8F0] transition-colors hover:text-white">
               Política de Cookies
+            </Link>
+            <Link href="/aviso-anti-golpe" className="block text-[#E2E8F0] transition-colors hover:text-white">
+              Aviso Anti-Golpe
+            </Link>
+            <Link href="/canal-de-denuncias" className="block text-[#E2E8F0] transition-colors hover:text-white">
+              Canal de Denúncias
+            </Link>
+            <Link href="/contato" className="block text-[#E2E8F0] transition-colors hover:text-white">
+              Fale Conosco
             </Link>
           </div>
 
