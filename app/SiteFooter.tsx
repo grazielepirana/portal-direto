@@ -15,7 +15,7 @@ export default function SiteFooter() {
       .catch(() => setSettings(DEFAULT_SITE_SETTINGS));
 
     loadBlogPosts(false)
-      .then((loaded) => setPosts(loaded.slice(0, 5)))
+      .then((loaded) => setPosts(loaded.slice(0, 2)))
       .catch(() => setPosts([]));
   }, []);
 
