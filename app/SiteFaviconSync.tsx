@@ -8,15 +8,25 @@ function clampFaviconScale(value: number) {
   return Math.min(220, Math.max(50, Math.round(value)));
 }
 
+function escapeXmlAttr(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/'/g, "&apos;");
+}
+
 function buildScaledFaviconDataUrl(iconUrl: string, scalePercent: number) {
   const size = 64;
   const scale = clampFaviconScale(scalePercent);
   const scaledSize = (size * scale) / 100;
   const offset = (size - scaledSize) / 2;
+  const safeIconUrl = escapeXmlAttr(iconUrl);
 
   const svg = `
 <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-  <image href="${iconUrl}" x="${offset}" y="${offset}" width="${scaledSize}" height="${scaledSize}" preserveAspectRatio="xMidYMid meet" />
+  <image href="${safeIconUrl}" x="${offset}" y="${offset}" width="${scaledSize}" height="${scaledSize}" preserveAspectRatio="xMidYMid meet" />
 </svg>`;
 
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
