@@ -239,18 +239,18 @@ export default function Home() {
               <img
                 src={heroImageUrl}
                 alt="Imagem de fundo do topo"
-                className="absolute inset-0 h-full w-full"
+                className="absolute inset-0 z-0 h-full w-full"
                 style={{
                   objectFit: heroImageFit,
                   objectPosition: `${heroPositionX}% ${heroPositionY}%`,
                 }}
               />
-              <div className="pointer-events-none absolute inset-0 bg-slate-900/38" />
+              <div className="pointer-events-none absolute inset-0 z-10 bg-slate-900/38" />
             </>
           ) : null}
-          <div className="pointer-events-none absolute -top-16 -left-20 h-64 w-64 rounded-full bg-gradient-to-br from-sky-200/55 to-transparent blur-2xl" />
-          <div className="pointer-events-none absolute -bottom-20 -right-12 h-72 w-72 rounded-full bg-gradient-to-tr from-indigo-200/45 to-transparent blur-2xl" />
-          <div className="mx-auto grid w-full max-w-[1200px] grid-cols-1 items-stretch gap-8 px-4 pt-4 sm:px-6 sm:pt-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:px-8">
+          <div className="pointer-events-none absolute -top-16 -left-20 z-10 h-64 w-64 rounded-full bg-gradient-to-br from-sky-200/55 to-transparent blur-2xl" />
+          <div className="pointer-events-none absolute -bottom-20 -right-12 z-10 h-72 w-72 rounded-full bg-gradient-to-tr from-indigo-200/45 to-transparent blur-2xl" />
+          <div className="relative z-20 mx-auto grid w-full max-w-[1200px] grid-cols-1 items-stretch gap-8 px-4 pt-4 sm:px-6 sm:pt-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:px-8">
           <section
             className="!mt-0 rounded-[24px] p-8 sm:p-10 flex flex-col justify-between"
           >
