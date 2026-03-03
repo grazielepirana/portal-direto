@@ -226,6 +226,30 @@ export default function TermsOfUsePage() {
               </p>
             </section>
           </div>
+
+          <section className="mt-10 rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <h2 className="text-base font-bold text-slate-900">Documentos relacionados</h2>
+            <div className="mt-3 flex flex-wrap gap-3 text-sm">
+              <Link
+                href="/politica-de-cookies"
+                className="rounded-full border border-slate-300 bg-white px-3 py-1.5 font-semibold text-slate-700 hover:bg-slate-100"
+              >
+                Política de Cookies
+              </Link>
+              <Link
+                href="/aviso-anti-golpe"
+                className="rounded-full border border-slate-300 bg-white px-3 py-1.5 font-semibold text-slate-700 hover:bg-slate-100"
+              >
+                Aviso Anti-Golpe
+              </Link>
+              <Link
+                href="/canal-de-denuncias"
+                className="rounded-full border border-slate-300 bg-white px-3 py-1.5 font-semibold text-slate-700 hover:bg-slate-100"
+              >
+                Canal de Denúncias
+              </Link>
+            </div>
+          </section>
         </section>
       </div>
     </main>
