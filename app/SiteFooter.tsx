@@ -43,6 +43,9 @@ export default function SiteFooter() {
             <Link href="/termos-e-privacidade" className="block text-[#E2E8F0] transition-colors hover:text-white">
               Política de Privacidade
             </Link>
+            <Link href="/politica-de-cookies" className="block text-[#E2E8F0] transition-colors hover:text-white">
+              Política de Cookies
+            </Link>
           </div>
 
           <div className="mt-6">

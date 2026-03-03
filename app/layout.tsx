@@ -5,7 +5,7 @@ import AuthButton from "./AuthButton";
 import SiteThemeSync from "./SiteThemeSync";
 import SiteBrand from "./SiteBrand";
 import SiteFooter from "./SiteFooter";
-import CookieConsentBanner from "./CookieConsentBanner";
+import CookieBanner from "./CookieBanner";
 
 export const metadata: Metadata = {
   title: "Portal Direto",
@@ -54,7 +54,7 @@ export default function RootLayout({
 
         <main>{children}</main>
         <SiteFooter />
-        <CookieConsentBanner />
+        <CookieBanner />
       </body>
     </html>
   );
