@@ -253,28 +253,32 @@ export default function Home() {
 
             <div>
               <h1 className="text-[44px] md:text-[52px] lg:text-[56px] leading-[1.05] font-extrabold tracking-tight text-slate-900">
-                Encontre seu próximo imóvel com experiência premium
+                Venda ou compre imóvel direto com o proprietário
               </h1>
               <p className="mt-5 text-lg text-slate-600 max-w-xl">
-                Busque imóveis de venda e locação em poucos cliques, com informações completas e
-                contato direto com o proprietário.
+                Mais autonomia na negociação. Mais transparência na escolha.
               </p>
-              <div className="mt-6 flex flex-wrap items-center gap-3">
+              <p className="mt-3 text-sm font-medium text-slate-600">
+                Plataforma digital para conexão direta entre interessados.
+              </p>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
                 <button
                   type="button"
-                  onClick={() => {
-                    document.getElementById("highlights")?.scrollIntoView({ behavior: "smooth", block: "start" });
-                  }}
-                  className="h-11 rounded-full border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-800 hover:bg-slate-50 transition"
+                  onClick={() => router.push("/anunciar")}
+                  className="cta-primary h-12 w-full rounded-xl px-5 text-sm font-extrabold tracking-wide transition sm:w-auto"
                 >
-                  Ver destaques
+                  ANUNCIAR GRÁTIS
                 </button>
                 <button
                   type="button"
-                  onClick={() => router.push("/sobre-nos")}
-                  className="text-sm font-semibold text-slate-700 hover:text-slate-900 transition"
+                  onClick={() => {
+                    document
+                      .getElementById("home-search")
+                      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
+                  className="h-12 w-full rounded-xl border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 sm:w-auto"
                 >
-                  Como funciona →
+                  BUSCAR IMÓVEIS
                 </button>
               </div>
             </div>
@@ -293,6 +297,7 @@ export default function Home() {
           </section>
 
           <section
+            id="home-search"
             className="!mt-0 rounded-[24px] bg-white p-8"
             style={{ boxShadow: "0 12px 40px rgba(15,23,42,0.08)" }}
           >
@@ -449,6 +454,27 @@ export default function Home() {
           </section>
           </div>
         </div>
+
+        <section className="!mt-0 rounded-[20px] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-[1.2fr_1fr] md:items-start">
+            <div>
+              <h2 className="text-2xl font-bold text-slate-950">Por que anunciar no Portal Direto?</h2>
+              <ul className="mt-4 space-y-2 text-sm leading-7 text-slate-700">
+                <li>• Publicação rápida</li>
+                <li>• Negociação direta entre as partes</li>
+                <li>• Autonomia na condução da venda</li>
+                <li>• Planos acessíveis</li>
+                <li>• Opção gratuita para começar</li>
+              </ul>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <p className="text-sm leading-7 text-slate-700">
+                A legislação permite que o proprietário negocie diretamente seu imóvel. Nossa plataforma
+                facilita essa conexão digital entre as partes, com mais autonomia e transparência.
+              </p>
+            </div>
+          </div>
+        </section>
 
         {featuredListings.length > 0 ? (
           <section id="highlights" className="!mt-0">
