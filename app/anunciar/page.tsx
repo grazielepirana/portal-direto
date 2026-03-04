@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 import {
   DEFAULT_LISTING_PLANS,
@@ -89,6 +89,7 @@ async function uploadListingImages(userId: string, files: File[]) {
 }
 
 function AnunciarPageContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const fieldClassName =
     "h-12 w-full rounded-xl border border-slate-300 bg-white px-3 text-slate-900 placeholder:text-slate-500";
@@ -127,6 +128,18 @@ function AnunciarPageContent() {
   const [hasPreviousListing, setHasPreviousListing] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [showMobileSummary, setShowMobileSummary] = useState(false);
+  const [inlinePayment, setInlinePayment] = useState<{
+    listingId: string;
+    planId: string;
+    planName: string;
+    amount: number;
+    days: number;
+  } | null>(null);
+  const [creatingPixPayment, setCreatingPixPayment] = useState(false);
+  const [pixPaymentId, setPixPaymentId] = useState("");
+  const [pixQrCode, setPixQrCode] = useState("");
+  const [pixQrCodeBase64, setPixQrCodeBase64] = useState("");
+  const [copyPixCodeMsg, setCopyPixCodeMsg] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [loadingCep, setLoadingCep] = useState(false);
@@ -146,6 +159,11 @@ function AnunciarPageContent() {
     { id: 3, title: "Valores & Detalhes" },
     { id: 4, title: "Fotos & Publicar" },
   ];
+
+  const paidPlans = useMemo(
+    () => availablePlans.filter((plan) => Number(plan.price ?? 0) > 0),
+    [availablePlans]
+  );
 
   useEffect(() => {
     if (availablePlans.length === 0) return;
@@ -395,13 +413,22 @@ function AnunciarPageContent() {
       );
 
       if ((chosenPlan.price ?? 0) > 0) {
-        const params = new URLSearchParams();
-        params.set("plan", chosenPlan.id);
-        params.set("planName", chosenPlan.name);
-        params.set("amount", String(chosenPlan.price));
-        params.set("days", String(chosenPlan.days));
-        if (createdListingId) params.set("listing", createdListingId);
-        window.location.href = `/pagamento?${params.toString()}`;
+        if (!createdListingId) {
+          setMsg("Anúncio criado, mas não foi possível iniciar pagamento.");
+          return;
+        }
+        setInlinePayment({
+          listingId: createdListingId,
+          planId: chosenPlan.id,
+          planName: chosenPlan.name,
+          amount: Number(chosenPlan.price ?? 0),
+          days: Number(chosenPlan.days ?? 0),
+        });
+        setPixPaymentId("");
+        setPixQrCode("");
+        setPixQrCodeBase64("");
+        setCopyPixCodeMsg(null);
+        setMsg("Anúncio criado. Finalize o pagamento abaixo na mesma página para ativar o plano.");
         return;
       }
 
@@ -432,6 +459,11 @@ function AnunciarPageContent() {
       setTradeType("");
       setTradeValue("");
       setPhotoFiles([]);
+      setInlinePayment(null);
+      setPixPaymentId("");
+      setPixQrCode("");
+      setPixQrCodeBase64("");
+      setCopyPixCodeMsg(null);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Erro ao criar anúncio.";
       setMsg(message);
@@ -439,6 +471,158 @@ function AnunciarPageContent() {
       setLoading(false);
     }
   }
+
+  async function createInlinePixPayment() {
+    if (!inlinePayment) return;
+
+    setCreatingPixPayment(true);
+    setCopyPixCodeMsg(null);
+    setMsg(null);
+
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const userEmail = String(session?.user?.email ?? "").trim();
+
+      if (!session?.access_token) {
+        setMsg("Faça login novamente para gerar o PIX.");
+        return;
+      }
+
+      const response = await fetch("/api/mercadopago/pix/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          listingId: inlinePayment.listingId,
+          amount: inlinePayment.amount,
+          plan: inlinePayment.planId,
+          planName: inlinePayment.planName,
+          days: inlinePayment.days,
+          userEmail,
+        }),
+      });
+
+      const result = (await response.json()) as {
+        ok?: boolean;
+        paymentId?: string;
+        qrCode?: string;
+        qrCodeBase64?: string;
+        status?: string;
+        error?: string;
+        details?: unknown;
+      };
+
+      if (!response.ok || !result.ok || !result.paymentId) {
+        const details = result.details ? ` | details: ${JSON.stringify(result.details)}` : "";
+        setMsg(`[${response.status}] ${result.error ?? "Não foi possível gerar o PIX."}${details}`);
+        return;
+      }
+
+      setPixPaymentId(result.paymentId || "");
+      setPixQrCode(result.qrCode || "");
+      setPixQrCodeBase64(result.qrCodeBase64 || "");
+      setMsg("PIX gerado. Após pagar, a confirmação é automática.");
+    } catch {
+      setMsg("Não foi possível gerar o PIX agora.");
+    } finally {
+      setCreatingPixPayment(false);
+    }
+  }
+
+  async function copyPixCode() {
+    if (!pixQrCode) return;
+    try {
+      await navigator.clipboard.writeText(pixQrCode);
+      setCopyPixCodeMsg("Código PIX copiado.");
+      setTimeout(() => setCopyPixCodeMsg(null), 2500);
+    } catch {
+      setCopyPixCodeMsg("Não foi possível copiar agora.");
+    }
+  }
+
+  async function changeInlinePlan(nextPlanId: string) {
+    if (!inlinePayment) return;
+    const chosen = paidPlans.find((plan) => plan.id === nextPlanId);
+    if (!chosen) return;
+
+    setMsg(null);
+    try {
+      const payload = {
+        plan_id: chosen.id,
+        plan_name: chosen.name,
+        plan_price: chosen.price,
+        plan_days: chosen.days,
+        is_featured: chosen.is_featured,
+        active_until: calculateActiveUntil(chosen.days),
+        updated_at: new Date().toISOString(),
+      };
+
+      const { error } = await supabase
+        .from("listings")
+        .update(payload)
+        .eq("id", inlinePayment.listingId);
+
+      if (error) {
+        setMsg("Não foi possível trocar o plano agora.");
+        return;
+      }
+
+      setInlinePayment({
+        ...inlinePayment,
+        planId: chosen.id,
+        planName: chosen.name,
+        amount: Number(chosen.price ?? 0),
+        days: Number(chosen.days ?? 0),
+      });
+      setPixPaymentId("");
+      setPixQrCode("");
+      setPixQrCodeBase64("");
+      setCopyPixCodeMsg(null);
+      setMsg("Plano atualizado. Gere um novo QR para pagar o valor atualizado.");
+    } catch {
+      setMsg("Não foi possível trocar o plano agora.");
+    }
+  }
+
+  useEffect(() => {
+    if (!inlinePayment) return;
+    if (inlinePayment.amount <= 0) return;
+    if (pixPaymentId || creatingPixPayment) return;
+    void createInlinePixPayment();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inlinePayment]);
+
+  useEffect(() => {
+    if (!pixPaymentId || !inlinePayment) return;
+
+    let stopped = false;
+    const interval = setInterval(async () => {
+      try {
+        const response = await fetch(
+          `/api/mercadopago/payment-status?mp_payment_id=${encodeURIComponent(pixPaymentId)}`,
+          { cache: "no-store" }
+        );
+        const result = (await response.json()) as { ok?: boolean; payment_status?: string };
+        if (!response.ok || !result.ok) return;
+        if (String(result.payment_status ?? "").toLowerCase() === "approved" && !stopped) {
+          setMsg("✅ Pagamento confirmado! Redirecionando para o anúncio...");
+          clearInterval(interval);
+          setTimeout(() => router.push(`/imovel/${inlinePayment.listingId}`), 900);
+        }
+      } catch {
+        // mantém polling
+      }
+    }, 5000);
+
+    return () => {
+      stopped = true;
+      clearInterval(interval);
+    };
+  }, [inlinePayment, pixPaymentId, router]);
 
   function handlePhotoSelection(files: File[]) {
     if (files.length > MAX_PHOTOS) {
@@ -957,6 +1141,95 @@ function AnunciarPageContent() {
                         ))}
                       </div>
                     ) : null}
+                  </div>
+                </section>
+              ) : null}
+
+              {inlinePayment ? (
+                <section className="!mt-0 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <h2 className="text-xl font-bold text-slate-900">Pagamento do plano</h2>
+                  <p className="mt-1 text-sm text-slate-600">
+                    Escolha o plano e finalize o pagamento sem sair desta página.
+                  </p>
+
+                  <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold text-slate-800">
+                        Plano selecionado
+                      </label>
+                      <select
+                        className={fieldClassName}
+                        value={inlinePayment.planId}
+                        onChange={(e) => {
+                          void changeInlinePlan(e.target.value);
+                        }}
+                      >
+                        {paidPlans.map((plan) => (
+                          <option key={plan.id} value={plan.id}>
+                            {plan.name} - R$ {Number(plan.price).toLocaleString("pt-BR")} - {plan.days} dias
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                      <p className="text-sm text-slate-600">Valor a pagar</p>
+                      <p className="mt-1 text-2xl font-extrabold text-slate-950">
+                        R$ {Number(inlinePayment.amount).toLocaleString("pt-BR")}
+                      </p>
+                      <p className="text-sm text-slate-600">
+                        Duração: {inlinePayment.days} dias
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-[220px_minmax(0,1fr)]">
+                    <div className="flex h-[220px] items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-2 text-center text-xs text-slate-500">
+                      {pixQrCodeBase64 ? (
+                        <img
+                          src={pixQrCodeBase64}
+                          alt="QR Code PIX"
+                          className="h-full w-full rounded-lg object-contain"
+                        />
+                      ) : creatingPixPayment ? (
+                        "Gerando QR Code..."
+                      ) : (
+                        "QR Code indisponível no momento."
+                      )}
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="rounded-xl border border-slate-300 bg-white px-3 py-2 font-mono text-sm break-all text-slate-800">
+                        {pixQrCode || "Código PIX aparecerá aqui."}
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={copyPixCode}
+                          disabled={!pixQrCode}
+                          className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                        >
+                          Copiar código PIX
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            void createInlinePixPayment();
+                          }}
+                          disabled={creatingPixPayment}
+                          className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                        >
+                          {creatingPixPayment ? "Gerando..." : "Gerar novo QR"}
+                        </button>
+                      </div>
+                      {copyPixCodeMsg ? (
+                        <p className="text-xs text-slate-600">{copyPixCodeMsg}</p>
+                      ) : null}
+                      {pixPaymentId ? (
+                        <p className="text-xs text-slate-500">
+                          Pagamento #{pixPaymentId} em acompanhamento automático.
+                        </p>
+                      ) : null}
+                    </div>
                   </div>
                 </section>
               ) : null}
