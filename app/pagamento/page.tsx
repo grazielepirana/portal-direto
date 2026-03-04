@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import {
   DEFAULT_SITE_SETTINGS,
@@ -62,22 +62,6 @@ function PagamentoPageContent() {
     return items;
   }, [amount, days]);
 
-  const markListingAsPaid = useCallback(async () => {
-    if (!listingId) return;
-
-    const payload = {
-      payment_status: "paid",
-      paid_at: new Date().toISOString(),
-      payment_method: method,
-      updated_at: new Date().toISOString(),
-    };
-
-    const { error } = await supabase.from("listings").update(payload).eq("id", listingId);
-    if (error) {
-      // Bancos sem as colunas novas: ignora e segue.
-    }
-  }, [listingId, method]);
-
   async function handleInternalPayment() {
     if (amount <= 0) {
       setStatusMessage("Plano gratuito não precisa de pagamento.");
@@ -97,7 +81,6 @@ function PagamentoPageContent() {
     try {
       // Simula processamento interno (substituível por gateway real depois).
       await new Promise((resolve) => setTimeout(resolve, 1400));
-      await markListingAsPaid();
       setStatusMessage("✅ Pagamento confirmado. Seu plano foi ativado com sucesso.");
     } catch {
       setStatusMessage("Não foi possível processar o pagamento agora.");
@@ -188,7 +171,7 @@ function PagamentoPageContent() {
         return;
       }
 
-      const response = await fetch("/api/mercadopago/create-payment", {
+      const response = await fetch("/api/mercadopago/pix/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -196,9 +179,10 @@ function PagamentoPageContent() {
         },
         body: JSON.stringify({
           listingId,
-          planId,
+          plan: planId,
           planName,
           amount,
+          days,
           userEmail,
         }),
       });
@@ -271,7 +255,7 @@ function PagamentoPageContent() {
     const interval = setInterval(async () => {
       try {
         const response = await fetch(
-          `/api/mercadopago/payment-status?paymentId=${encodeURIComponent(pixPaymentId)}`,
+          `/api/mercadopago/payment-status?mp_payment_id=${encodeURIComponent(pixPaymentId)}`,
           {
             cache: "no-store",
           }
@@ -283,7 +267,6 @@ function PagamentoPageContent() {
         if (!response.ok || !result.ok) return;
 
         if (String(result.payment_status ?? "").toLowerCase() === "approved" && !stopped) {
-          await markListingAsPaid();
           setStatusMessage("✅ Pagamento aprovado! Seu anúncio foi ativado.");
           setPixPaymentId("");
           clearInterval(interval);
@@ -297,7 +280,7 @@ function PagamentoPageContent() {
       stopped = true;
       clearInterval(interval);
     };
-  }, [pixPaymentId, markListingAsPaid]);
+  }, [pixPaymentId]);
 
   return (
     <main className="min-h-screen bg-[#F8FAFC] px-4 py-8 md:px-6 md:py-10">
