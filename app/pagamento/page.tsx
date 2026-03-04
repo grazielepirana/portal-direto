@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import {
   DEFAULT_SITE_SETTINGS,
@@ -16,6 +16,11 @@ function PagamentoPageContent() {
   const [method, setMethod] = useState<"pix" | "card">("pix");
   const [processing, setProcessing] = useState(false);
   const [creatingMercadoCheckout, setCreatingMercadoCheckout] = useState(false);
+  const [creatingPixPayment, setCreatingPixPayment] = useState(false);
+  const [pixPaymentId, setPixPaymentId] = useState("");
+  const [pixQrCode, setPixQrCode] = useState("");
+  const [pixQrCodeBase64, setPixQrCodeBase64] = useState("");
+  const [copyPixCodeMsg, setCopyPixCodeMsg] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [payerName, setPayerName] = useState("");
   const [cardNumber, setCardNumber] = useState("");
@@ -57,7 +62,7 @@ function PagamentoPageContent() {
     return items;
   }, [amount, days]);
 
-  async function markListingAsPaid() {
+  const markListingAsPaid = useCallback(async () => {
     if (!listingId) return;
 
     const payload = {
@@ -71,7 +76,7 @@ function PagamentoPageContent() {
     if (error) {
       // Bancos sem as colunas novas: ignora e segue.
     }
-  }
+  }, [listingId, method]);
 
   async function handleInternalPayment() {
     if (amount <= 0) {
@@ -158,6 +163,128 @@ function PagamentoPageContent() {
     }
   }
 
+  async function createPixPayment() {
+    if (!listingId) {
+      setStatusMessage("Anúncio inválido para pagamento.");
+      return;
+    }
+    if (amount <= 0) {
+      setStatusMessage("Plano gratuito não precisa de pagamento.");
+      return;
+    }
+
+    setCreatingPixPayment(true);
+    setStatusMessage(null);
+    setCopyPixCodeMsg(null);
+
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const userEmail = String(session?.user?.email ?? "").trim();
+
+      if (!session?.access_token) {
+        setStatusMessage("Faça login novamente para gerar o PIX.");
+        return;
+      }
+
+      const response = await fetch("/api/mercadopago/create-payment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          listingId,
+          planId,
+          planName,
+          amount,
+          userEmail,
+        }),
+      });
+
+      const result = (await response.json()) as {
+        ok?: boolean;
+        payment_id?: string;
+        qr_code?: string;
+        qr_code_base64?: string;
+        error?: string;
+      };
+
+      if (!response.ok || !result.ok || !result.payment_id) {
+        setStatusMessage(result.error ?? "Não foi possível gerar o PIX agora.");
+        return;
+      }
+
+      setPixPaymentId(result.payment_id || "");
+      setPixQrCode(result.qr_code || "");
+      setPixQrCodeBase64(result.qr_code_base64 || "");
+      setStatusMessage("PIX gerado. Aguarde a confirmação automática após o pagamento.");
+    } catch {
+      setStatusMessage("Não foi possível gerar o QR Code PIX agora.");
+    } finally {
+      setCreatingPixPayment(false);
+    }
+  }
+
+  async function copyPixCode() {
+    if (!pixQrCode) return;
+    try {
+      await navigator.clipboard.writeText(pixQrCode);
+      setCopyPixCodeMsg("Código PIX copiado.");
+      setTimeout(() => setCopyPixCodeMsg(null), 2500);
+    } catch {
+      setCopyPixCodeMsg("Não foi possível copiar agora.");
+    }
+  }
+
+  useEffect(() => {
+    if (!(settings.payment_provider === "internal_checkout" || settings.payment_provider === "none")) {
+      return;
+    }
+    if (method !== "pix") return;
+    if (amount <= 0) return;
+    if (pixPaymentId || creatingPixPayment) return;
+
+    void createPixPayment();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [method, amount, settings.payment_provider]);
+
+  useEffect(() => {
+    if (!pixPaymentId) return;
+
+    let stopped = false;
+    const interval = setInterval(async () => {
+      try {
+        const response = await fetch(
+          `/api/mercadopago/payment-status?paymentId=${encodeURIComponent(pixPaymentId)}`,
+          {
+            cache: "no-store",
+          }
+        );
+        const result = (await response.json()) as {
+          ok?: boolean;
+          payment_status?: string;
+        };
+        if (!response.ok || !result.ok) return;
+
+        if (String(result.payment_status ?? "").toLowerCase() === "approved" && !stopped) {
+          await markListingAsPaid();
+          setStatusMessage("✅ Pagamento aprovado! Seu anúncio foi ativado.");
+          setPixPaymentId("");
+          clearInterval(interval);
+        }
+      } catch {
+        // mantém polling
+      }
+    }, 5000);
+
+    return () => {
+      stopped = true;
+      clearInterval(interval);
+    };
+  }, [pixPaymentId, markListingAsPaid]);
+
   return (
     <main className="min-h-screen bg-[#F8FAFC] px-4 py-8 md:px-6 md:py-10">
       <div className="mx-auto w-full max-w-6xl">
@@ -211,15 +338,54 @@ function PagamentoPageContent() {
                         Use sua carteira bancária para pagar via PIX.
                       </p>
                       <div className="grid grid-cols-1 gap-4 md:grid-cols-[190px_minmax(0,1fr)]">
-                        <div className="flex h-[190px] items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 text-center text-xs text-slate-500">
-                          Área do QR Code
+                        <div className="flex h-[190px] items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-2 text-center text-xs text-slate-500">
+                          {pixQrCodeBase64 ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={pixQrCodeBase64}
+                              alt="QR Code PIX Mercado Pago"
+                              className="h-full w-full rounded-lg object-contain"
+                            />
+                          ) : creatingPixPayment ? (
+                            "Gerando QR Code..."
+                          ) : (
+                            "QR Code indisponível no momento."
+                          )}
                         </div>
-                        <div className="rounded-xl border border-slate-300 bg-white px-3 py-2 font-mono text-sm break-all text-slate-800">
-                          {settings.payment_pix_key || "Chave PIX disponível no momento da confirmação."}
+                        <div className="space-y-2">
+                          <div className="rounded-xl border border-slate-300 bg-white px-3 py-2 font-mono text-sm break-all text-slate-800">
+                            {pixQrCode || "Código PIX aparecerá aqui."}
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={copyPixCode}
+                              disabled={!pixQrCode}
+                              className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                            >
+                              Copiar código PIX
+                            </button>
+                            <button
+                              type="button"
+                              onClick={createPixPayment}
+                              disabled={creatingPixPayment}
+                              className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                            >
+                              {creatingPixPayment ? "Gerando..." : "Gerar novo QR"}
+                            </button>
+                          </div>
+                          {copyPixCodeMsg ? (
+                            <p className="text-xs text-slate-600">{copyPixCodeMsg}</p>
+                          ) : null}
+                          {pixPaymentId ? (
+                            <p className="text-xs text-slate-500">
+                              Pagamento #{pixPaymentId} em acompanhamento automático.
+                            </p>
+                          ) : null}
                         </div>
                       </div>
                       <p className="text-xs text-slate-500">
-                        Após concluir o pagamento, clique em &quot;Confirmar pagamento&quot;.
+                        Após pagar, a confirmação é automática.
                       </p>
                     </div>
                   ) : (
