@@ -274,11 +274,7 @@ export default function Home() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    document
-                      .getElementById("home-search")
-                      ?.scrollIntoView({ behavior: "smooth", block: "start" });
-                  }}
+                  onClick={() => router.push("/imoveis")}
                   className="h-12 w-full rounded-xl border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 sm:w-auto"
                 >
                   BUSCAR IMÓVEIS
