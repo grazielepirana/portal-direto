@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import {
@@ -11,6 +11,7 @@ import {
 } from "../../lib/site-settings";
 
 function PagamentoPageContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [settings, setSettings] = useState<SiteSettings>(DEFAULT_SITE_SETTINGS);
   const [method, setMethod] = useState<"pix" | "card">("pix");
@@ -270,6 +271,11 @@ function PagamentoPageContent() {
           setStatusMessage("✅ Pagamento aprovado! Seu anúncio foi ativado.");
           setPixPaymentId("");
           clearInterval(interval);
+          if (listingId) {
+            setTimeout(() => {
+              router.push(`/imovel/${listingId}`);
+            }, 900);
+          }
         }
       } catch {
         // mantém polling
@@ -280,7 +286,7 @@ function PagamentoPageContent() {
       stopped = true;
       clearInterval(interval);
     };
-  }, [pixPaymentId]);
+  }, [pixPaymentId, listingId, router]);
 
   return (
     <main className="min-h-screen bg-[#F8FAFC] px-4 py-8 md:px-6 md:py-10">
