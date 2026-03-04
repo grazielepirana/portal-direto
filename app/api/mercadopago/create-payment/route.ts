@@ -165,6 +165,9 @@ export async function POST(req: Request) {
       id?: string | number;
       status?: string;
       external_reference?: string;
+      message?: string;
+      error?: string;
+      cause?: Array<{ code?: string | number; description?: string }>;
       point_of_interaction?: {
         transaction_data?: {
           qr_code?: string;
@@ -174,10 +177,20 @@ export async function POST(req: Request) {
     };
 
     if (!response.ok || !data?.id) {
+      const causeText = Array.isArray(data?.cause)
+        ? data.cause
+            .map((item) => String(item?.description ?? item?.code ?? "").trim())
+            .filter(Boolean)
+            .join(" | ")
+        : "";
+      const mpMessage = String(data?.message ?? data?.error ?? "").trim();
+      const composedMessage = [mpMessage, causeText].filter(Boolean).join(" | ");
       return NextResponse.json(
         {
           ok: false,
-          error: "Não foi possível gerar o PIX no Mercado Pago.",
+          error:
+            composedMessage ||
+            "Não foi possível gerar o PIX no Mercado Pago.",
           statusCode: response.status,
           details: data,
         },

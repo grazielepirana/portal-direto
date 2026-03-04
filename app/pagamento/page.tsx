@@ -215,9 +215,11 @@ function PagamentoPageContent() {
       };
 
       if (!response.ok || !result.ok || !result.paymentId) {
+        const technicalDetails =
+          result.details != null ? ` | details: ${JSON.stringify(result.details)}` : "";
         const errorMessage = `[${response.status}] ${
           result.error ?? "Não foi possível gerar o PIX agora."
-        }`;
+        }${technicalDetails}`;
         console.error("Erro ao gerar PIX Mercado Pago:", {
           status: response.status,
           body: result,
