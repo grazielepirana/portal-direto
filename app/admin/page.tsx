@@ -14,7 +14,6 @@ import {
 import {
   DEFAULT_LISTING_PLANS,
   loadListingPlans,
-  saveListingPlans,
   type ListingPlan,
 } from "../../lib/listing-plans";
 
@@ -160,7 +159,20 @@ export default function AdminPage() {
     }
 
     try {
-      await saveListingPlans(plans);
+      const accessToken = await getAdminAccessToken();
+      const response = await fetch("/api/admin/save-listing-plans", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ plans }),
+      });
+
+      const result = (await response.json()) as { ok?: boolean; error?: string };
+      if (!response.ok || !result.ok) {
+        throw new Error(result.error ?? "Falha ao salvar planos.");
+      }
       plansSaved = true;
     } catch (err: unknown) {
       plansError = err instanceof Error ? err.message : "Falha ao salvar planos.";
