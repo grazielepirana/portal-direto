@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { supabase } from "../../../../lib/supabase";
 import {
@@ -208,6 +208,8 @@ export default function EditarImovelPage({
   const [photoItems, setPhotoItems] = useState<PhotoItem[]>([]);
   const [plans, setPlans] = useState<ListingPlan[]>(DEFAULT_LISTING_PLANS);
   const [selectedPlanId, setSelectedPlanId] = useState("free-120");
+  const [currentListingPlanId, setCurrentListingPlanId] = useState("");
+  const [hasOtherFreeListing, setHasOtherFreeListing] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [showMobileSummary, setShowMobileSummary] = useState(false);
   const createdPreviewUrlsRef = useRef<Set<string>>(new Set());
@@ -219,7 +221,19 @@ export default function EditarImovelPage({
     { id: 4, title: "Fotos & Salvar" },
   ];
 
-  const selectedPlan = plans.find((plan) => plan.id === selectedPlanId) ?? plans[0];
+  const canUseFreePlanInEdit = useMemo(
+    () => currentListingPlanId === "free-120" || !hasOtherFreeListing,
+    [currentListingPlanId, hasOtherFreeListing]
+  );
+
+  const availablePlans = useMemo(
+    () =>
+      plans.filter((plan) => plan.id !== "free-120" || canUseFreePlanInEdit),
+    [plans, canUseFreePlanInEdit]
+  );
+
+  const selectedPlan =
+    availablePlans.find((plan) => plan.id === selectedPlanId) ?? availablePlans[0];
 
   useEffect(() => {
     (async () => {
@@ -292,7 +306,17 @@ export default function EditarImovelPage({
           url,
         }))
       );
-      setSelectedPlanId(listing.plan_id ?? "free-120");
+      const currentPlanId = listing.plan_id ?? "free-120";
+      setCurrentListingPlanId(currentPlanId);
+      setSelectedPlanId(currentPlanId);
+
+      const { count: otherFreeCount } = await supabase
+        .from("listings")
+        .select("id", { count: "exact", head: true })
+        .eq("owner_id", user.id)
+        .eq("plan_id", "free-120")
+        .neq("id", id);
+      setHasOtherFreeListing((otherFreeCount ?? 0) > 0);
       setLoadingPage(false);
     })();
   }, [params]);
@@ -302,6 +326,14 @@ export default function EditarImovelPage({
       .then((loaded) => setPlans(loaded))
       .catch(() => setPlans(DEFAULT_LISTING_PLANS));
   }, []);
+
+  useEffect(() => {
+    if (availablePlans.length === 0) return;
+    const exists = availablePlans.some((plan) => plan.id === selectedPlanId);
+    if (!exists) {
+      setSelectedPlanId(availablePlans[0].id);
+    }
+  }, [availablePlans, selectedPlanId]);
 
   useEffect(() => {
     const previewUrls = createdPreviewUrlsRef.current;
@@ -356,7 +388,14 @@ export default function EditarImovelPage({
       let imageUrls = existingImageUrls;
       let photoWarning: string | null = null;
       let schemaWarning: string | null = null;
-      const selectedPlan = plans.find((plan) => plan.id === selectedPlanId) ?? plans[0];
+      if (!canUseFreePlanInEdit && selectedPlanId === "free-120") {
+        setMsg(
+          "O plano grátis é permitido apenas para 1 anúncio por usuário. Escolha outro plano."
+        );
+        return;
+      }
+      const selectedPlan =
+        availablePlans.find((plan) => plan.id === selectedPlanId) ?? availablePlans[0];
       if (!selectedPlan) {
         setMsg("Nenhum plano disponível para atualização.");
         return;
@@ -665,13 +704,18 @@ export default function EditarImovelPage({
                       value={selectedPlanId}
                       onChange={(e) => setSelectedPlanId(e.target.value)}
                     >
-                      {plans.map((plan) => (
+                      {availablePlans.map((plan) => (
                         <option key={plan.id} value={plan.id}>
                           {plan.name} - R$ {Number(plan.price).toLocaleString("pt-BR")} - {plan.days} dias
                           {plan.is_featured ? " - Destaque" : ""}
                         </option>
                       ))}
                     </select>
+                    {!canUseFreePlanInEdit ? (
+                      <p className="mt-2 text-xs text-slate-600">
+                        O plano grátis é limitado a 1 anúncio por usuário.
+                      </p>
+                    ) : null}
                   </div>
                 </div>
               </section>
