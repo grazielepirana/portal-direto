@@ -404,7 +404,7 @@ function ImoveisPageContent({ searchParams }: { searchParams: ReturnType<typeof 
   return (
     <main className="min-h-screen bg-gray-100 p-6 pb-20">
       <div className="max-w-7xl mx-auto">
-        <section className="bg-white rounded-2xl shadow p-5 mb-6">
+        <section className="!mt-0 bg-white rounded-2xl shadow p-5 mb-6">
           <div className="flex items-center justify-between gap-3 mb-4">
             <h1 className="text-xl font-bold text-slate-950">Filtros</h1>
             <button
@@ -497,7 +497,7 @@ function ImoveisPageContent({ searchParams }: { searchParams: ReturnType<typeof 
           ) : null}
         </section>
 
-        <section className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(300px,28%)] gap-6 items-start">
+        <section className="!mt-0 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(300px,28%)] gap-6 items-start">
           <div>
             <div className="mb-6 rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-[0_6px_20px_rgba(15,23,42,0.06)]">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
