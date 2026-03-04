@@ -154,10 +154,11 @@ function AnunciarPageContent() {
   );
 
   const steps = [
-    { id: 1, title: "Tipo & Plano" },
+    { id: 1, title: "Tipo do imóvel" },
     { id: 2, title: "Endereço" },
     { id: 3, title: "Valores & Detalhes" },
-    { id: 4, title: "Fotos & Publicar" },
+    { id: 4, title: "Fotos & Revisão" },
+    { id: 5, title: "Plano & Pagamento" },
   ];
 
   const paidPlans = useMemo(
@@ -673,10 +674,6 @@ function AnunciarPageContent() {
   }
 
   function goToNextStep() {
-    if (currentStep === 1 && !selectedPlanId) {
-      setMsg("Selecione um plano para continuar.");
-      return;
-    }
     if (currentStep === 2 && !city.trim()) {
       setMsg("Preencha a cidade para continuar.");
       return;
@@ -685,8 +682,16 @@ function AnunciarPageContent() {
       setMsg("Preencha o preço para continuar.");
       return;
     }
+    if (currentStep === 4 && photoFiles.length === 0) {
+      setMsg("Adicione pelo menos 1 foto para continuar.");
+      return;
+    }
+    if (currentStep === 5 && !selectedPlanId) {
+      setMsg("Selecione um plano para publicar.");
+      return;
+    }
     setMsg(null);
-    setCurrentStep((prev) => Math.min(4, prev + 1));
+    setCurrentStep((prev) => Math.min(5, prev + 1));
   }
 
   function goToPreviousStep() {
@@ -704,7 +709,7 @@ function AnunciarPageContent() {
         </div>
 
         <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
             {steps.map((step) => (
               <div key={step.id} className="space-y-2">
                 <div
@@ -744,8 +749,8 @@ function AnunciarPageContent() {
             <div className="space-y-6">
               {currentStep === 1 ? (
                 <section className="!mt-0 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                  <h2 className="text-xl font-bold text-slate-900">Tipo e plano</h2>
-                  <p className="mt-1 text-sm text-slate-600">Defina a categoria do imóvel e o plano do anúncio.</p>
+                  <h2 className="text-xl font-bold text-slate-900">Tipo do imóvel</h2>
+                  <p className="mt-1 text-sm text-slate-600">Defina finalidade e categoria do imóvel.</p>
                   <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
                     <div>
                       <label className="mb-2 block text-sm font-semibold text-slate-800">Finalidade</label>
@@ -770,26 +775,6 @@ function AnunciarPageContent() {
                         <option>Terreno</option>
                         <option>Comercial</option>
                       </select>
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="mb-2 block text-sm font-semibold text-slate-800">Plano do anúncio</label>
-                      <select
-                        className={fieldClassName}
-                        value={selectedPlanId}
-                        onChange={(e) => setSelectedPlanId(e.target.value)}
-                      >
-                        {availablePlans.map((plan) => (
-                          <option key={plan.id} value={plan.id}>
-                            {plan.name} - R$ {Number(plan.price).toLocaleString("pt-BR")} - {plan.days} dias
-                            {plan.is_featured ? " - Destaque" : ""}
-                          </option>
-                        ))}
-                      </select>
-                      <p className="mt-2 text-sm text-slate-600">
-                        {hasPreviousListing
-                          ? "O plano grátis é válido apenas para o primeiro anúncio."
-                          : "Seu primeiro anúncio pode usar o plano grátis por 120 dias."}
-                      </p>
                     </div>
                   </div>
                 </section>
@@ -1145,9 +1130,9 @@ function AnunciarPageContent() {
                 </section>
               ) : null}
 
-              {inlinePayment ? (
+              {currentStep === 5 ? (
                 <section className="!mt-0 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                  <h2 className="text-xl font-bold text-slate-900">Pagamento do plano</h2>
+                  <h2 className="text-xl font-bold text-slate-900">Plano & Pagamento</h2>
                   <p className="mt-1 text-sm text-slate-600">
                     Escolha o plano e finalize o pagamento sem sair desta página.
                   </p>
@@ -1155,82 +1140,104 @@ function AnunciarPageContent() {
                   <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
                       <label className="mb-2 block text-sm font-semibold text-slate-800">
-                        Plano selecionado
+                        Plano do anúncio
                       </label>
                       <select
                         className={fieldClassName}
-                        value={inlinePayment.planId}
+                        value={selectedPlanId}
                         onChange={(e) => {
-                          void changeInlinePlan(e.target.value);
+                          const nextPlanId = e.target.value;
+                          setSelectedPlanId(nextPlanId);
+                          if (inlinePayment) {
+                            void changeInlinePlan(nextPlanId);
+                          }
                         }}
                       >
-                        {paidPlans.map((plan) => (
+                        {availablePlans.map((plan) => (
                           <option key={plan.id} value={plan.id}>
                             {plan.name} - R$ {Number(plan.price).toLocaleString("pt-BR")} - {plan.days} dias
                           </option>
                         ))}
                       </select>
+                      <p className="mt-2 text-sm text-slate-600">
+                        {hasPreviousListing
+                          ? "O plano grátis é válido apenas para o primeiro anúncio."
+                          : "Seu primeiro anúncio pode usar o plano grátis por 120 dias."}
+                      </p>
                     </div>
                     <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
                       <p className="text-sm text-slate-600">Valor a pagar</p>
                       <p className="mt-1 text-2xl font-extrabold text-slate-950">
-                        R$ {Number(inlinePayment.amount).toLocaleString("pt-BR")}
+                        R${" "}
+                        {Number(
+                          availablePlans.find((plan) => plan.id === selectedPlanId)?.price ?? 0
+                        ).toLocaleString("pt-BR")}
                       </p>
                       <p className="text-sm text-slate-600">
-                        Duração: {inlinePayment.days} dias
+                        Duração:{" "}
+                        {Number(
+                          availablePlans.find((plan) => plan.id === selectedPlanId)?.days ?? 0
+                        )}{" "}
+                        dias
                       </p>
                     </div>
                   </div>
 
-                  <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-[220px_minmax(0,1fr)]">
-                    <div className="flex h-[220px] items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-2 text-center text-xs text-slate-500">
-                      {pixQrCodeBase64 ? (
-                        <img
-                          src={pixQrCodeBase64}
-                          alt="QR Code PIX"
-                          className="h-full w-full rounded-lg object-contain"
-                        />
-                      ) : creatingPixPayment ? (
-                        "Gerando QR Code..."
-                      ) : (
-                        "QR Code indisponível no momento."
-                      )}
-                    </div>
+                  {inlinePayment ? (
+                    <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-[220px_minmax(0,1fr)]">
+                      <div className="flex h-[220px] items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-2 text-center text-xs text-slate-500">
+                        {pixQrCodeBase64 ? (
+                          <img
+                            src={pixQrCodeBase64}
+                            alt="QR Code PIX"
+                            className="h-full w-full rounded-lg object-contain"
+                          />
+                        ) : creatingPixPayment ? (
+                          "Gerando QR Code..."
+                        ) : (
+                          "QR Code indisponível no momento."
+                        )}
+                      </div>
 
-                    <div className="space-y-3">
-                      <div className="rounded-xl border border-slate-300 bg-white px-3 py-2 font-mono text-sm break-all text-slate-800">
-                        {pixQrCode || "Código PIX aparecerá aqui."}
+                      <div className="space-y-3">
+                        <div className="rounded-xl border border-slate-300 bg-white px-3 py-2 font-mono text-sm break-all text-slate-800">
+                          {pixQrCode || "Código PIX aparecerá aqui."}
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={copyPixCode}
+                            disabled={!pixQrCode}
+                            className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                          >
+                            Copiar código PIX
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              void createInlinePixPayment();
+                            }}
+                            disabled={creatingPixPayment}
+                            className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                          >
+                            {creatingPixPayment ? "Gerando..." : "Gerar novo QR"}
+                          </button>
+                        </div>
+                        {copyPixCodeMsg ? (
+                          <p className="text-xs text-slate-600">{copyPixCodeMsg}</p>
+                        ) : null}
+                        {pixPaymentId ? (
+                          <p className="text-xs text-slate-500">
+                            Pagamento #{pixPaymentId} em acompanhamento automático.
+                          </p>
+                        ) : null}
                       </div>
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          onClick={copyPixCode}
-                          disabled={!pixQrCode}
-                          className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
-                        >
-                          Copiar código PIX
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            void createInlinePixPayment();
-                          }}
-                          disabled={creatingPixPayment}
-                          className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
-                        >
-                          {creatingPixPayment ? "Gerando..." : "Gerar novo QR"}
-                        </button>
-                      </div>
-                      {copyPixCodeMsg ? (
-                        <p className="text-xs text-slate-600">{copyPixCodeMsg}</p>
-                      ) : null}
-                      {pixPaymentId ? (
-                        <p className="text-xs text-slate-500">
-                          Pagamento #{pixPaymentId} em acompanhamento automático.
-                        </p>
-                      ) : null}
                     </div>
-                  </div>
+                  ) : (
+                    <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+                      Clique em <b>Publicar anúncio</b> para criar o imóvel e gerar o pagamento nesta mesma aba.
+                    </div>
+                  )}
                 </section>
               ) : null}
 
@@ -1247,7 +1254,7 @@ function AnunciarPageContent() {
                 >
                   Voltar
                 </button>
-                {currentStep < 4 ? (
+                {currentStep < 5 ? (
                   <button
                     type="button"
                     onClick={goToNextStep}
@@ -1291,7 +1298,7 @@ function AnunciarPageContent() {
               >
                 Voltar
               </button>
-              {currentStep < 4 ? (
+              {currentStep < 5 ? (
                 <button
                   type="button"
                   onClick={goToNextStep}
