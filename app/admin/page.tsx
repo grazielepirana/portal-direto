@@ -169,9 +169,17 @@ export default function AdminPage() {
         body: JSON.stringify({ plans }),
       });
 
+      const contentType = response.headers.get("content-type") ?? "";
+      if (!contentType.includes("application/json")) {
+        const rawText = await response.text();
+        throw new Error(
+          `Falha ao salvar planos (HTTP ${response.status}). Resposta inesperada do servidor.`
+        );
+      }
+
       const result = (await response.json()) as { ok?: boolean; error?: string };
       if (!response.ok || !result.ok) {
-        throw new Error(result.error ?? "Falha ao salvar planos.");
+        throw new Error(result.error ?? `Falha ao salvar planos (HTTP ${response.status}).`);
       }
       plansSaved = true;
     } catch (err: unknown) {
