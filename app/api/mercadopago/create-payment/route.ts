@@ -27,10 +27,14 @@ function parseListingId(externalReference: string | null | undefined) {
 function getRequiredEnv() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const mercadoPagoAccessToken = process.env.MERCADO_PAGO_ACCESS_TOKEN;
+  const mercadoPagoAccessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
 
   if (!supabaseUrl || !supabaseAnonKey || !mercadoPagoAccessToken) return null;
   return { supabaseUrl, supabaseAnonKey, mercadoPagoAccessToken };
+}
+
+function isValidEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 }
 
 export async function POST(req: Request) {
@@ -68,6 +72,12 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
+    if (!planName) {
+      return NextResponse.json(
+        { ok: false, error: "planName é obrigatório." },
+        { status: 400 }
+      );
+    }
 
     const supabase = createClient(env.supabaseUrl, env.supabaseAnonKey, {
       auth: { autoRefreshToken: false, persistSession: false },
@@ -101,6 +111,12 @@ export async function POST(req: Request) {
     if (!payerEmail) {
       return NextResponse.json(
         { ok: false, error: "Email do pagador não encontrado." },
+        { status: 400 }
+      );
+    }
+    if (!isValidEmail(payerEmail)) {
+      return NextResponse.json(
+        { ok: false, error: "Email do pagador inválido." },
         { status: 400 }
       );
     }
@@ -159,8 +175,13 @@ export async function POST(req: Request) {
 
     if (!response.ok || !data?.id) {
       return NextResponse.json(
-        { ok: false, error: "Não foi possível gerar o PIX no Mercado Pago." },
-        { status: 502 }
+        {
+          ok: false,
+          error: "Não foi possível gerar o PIX no Mercado Pago.",
+          statusCode: response.status,
+          details: data,
+        },
+        { status: response.status || 502 }
       );
     }
 
@@ -168,7 +189,11 @@ export async function POST(req: Request) {
     const qrCodeBase64 = data.point_of_interaction?.transaction_data?.qr_code_base64 ?? "";
     if (!qrCode || !qrCodeBase64) {
       return NextResponse.json(
-        { ok: false, error: "PIX gerado sem QR Code retornado pelo Mercado Pago." },
+        {
+          ok: false,
+          error: "PIX gerado sem QR Code retornado pelo Mercado Pago.",
+          statusCode: 502,
+        },
         { status: 502 }
       );
     }
@@ -184,10 +209,10 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       ok: true,
-      payment_id: String(data.id),
-      payment_status: String(data.status ?? "pending"),
-      qr_code: qrCode,
-      qr_code_base64: `data:image/png;base64,${qrCodeBase64}`,
+      paymentId: String(data.id),
+      qrCode,
+      qrCodeBase64: `data:image/png;base64,${qrCodeBase64}`,
+      status: String(data.status ?? "pending"),
     });
   } catch {
     return NextResponse.json(

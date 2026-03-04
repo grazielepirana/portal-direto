@@ -14,7 +14,7 @@ type Payload = {
 function getRequiredEnv() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const mercadoPagoAccessToken = process.env.MERCADO_PAGO_ACCESS_TOKEN;
+  const mercadoPagoAccessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
 
   if (!supabaseUrl || !supabaseAnonKey || !mercadoPagoAccessToken) {
     return null;

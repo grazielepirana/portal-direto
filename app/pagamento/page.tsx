@@ -205,21 +205,33 @@ function PagamentoPageContent() {
 
       const result = (await response.json()) as {
         ok?: boolean;
-        payment_id?: string;
-        qr_code?: string;
-        qr_code_base64?: string;
+        paymentId?: string;
+        qrCode?: string;
+        qrCodeBase64?: string;
+        status?: string;
+        statusCode?: number;
+        details?: unknown;
         error?: string;
       };
 
-      if (!response.ok || !result.ok || !result.payment_id) {
-        setStatusMessage(result.error ?? "Não foi possível gerar o PIX agora.");
+      if (!response.ok || !result.ok || !result.paymentId) {
+        const errorMessage = `[${response.status}] ${
+          result.error ?? "Não foi possível gerar o PIX agora."
+        }`;
+        console.error("Erro ao gerar PIX Mercado Pago:", {
+          status: response.status,
+          body: result,
+        });
+        setStatusMessage(errorMessage);
         return;
       }
 
-      setPixPaymentId(result.payment_id || "");
-      setPixQrCode(result.qr_code || "");
-      setPixQrCodeBase64(result.qr_code_base64 || "");
-      setStatusMessage("PIX gerado. Aguarde a confirmação automática após o pagamento.");
+      setPixPaymentId(result.paymentId || "");
+      setPixQrCode(result.qrCode || "");
+      setPixQrCodeBase64(result.qrCodeBase64 || "");
+      setStatusMessage(
+        `PIX gerado (${result.status ?? "pending"}). Aguarde a confirmação automática após o pagamento.`
+      );
     } catch {
       setStatusMessage("Não foi possível gerar o QR Code PIX agora.");
     } finally {
