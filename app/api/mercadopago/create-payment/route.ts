@@ -157,6 +157,7 @@ export async function POST(req: Request) {
       headers: {
         Authorization: `Bearer ${env.mercadoPagoAccessToken}`,
         "Content-Type": "application/json",
+        "X-Idempotency-Key": crypto.randomUUID(),
       },
       body: JSON.stringify(mpPayload),
     });
