@@ -32,6 +32,7 @@ function PagamentoPageContent() {
   const days = Number(searchParams.get("days") ?? 0);
   const listingId = searchParams.get("listing");
   const planId = searchParams.get("plan") ?? "";
+  const checkoutStatus = (searchParams.get("status") ?? "").toLowerCase();
 
   useEffect(() => {
     loadSiteSettings()
@@ -248,6 +249,18 @@ function PagamentoPageContent() {
     void createPixPayment();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [method, amount, settings.payment_provider]);
+
+  useEffect(() => {
+    if (!listingId) return;
+    if (checkoutStatus !== "success" && checkoutStatus !== "approved") return;
+
+    setStatusMessage("✅ Pagamento confirmado! Redirecionando para o anúncio...");
+    const timer = setTimeout(() => {
+      router.push(`/imovel/${listingId}`);
+    }, 700);
+
+    return () => clearTimeout(timer);
+  }, [checkoutStatus, listingId, router]);
 
   useEffect(() => {
     if (!pixPaymentId) return;
