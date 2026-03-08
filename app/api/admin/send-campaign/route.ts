@@ -27,7 +27,7 @@ function getBearerToken(header: string | null) {
 }
 
 async function loadAudienceEmails(
-  admin: ReturnType<typeof createClient>,
+  admin: { auth: { admin: { listUsers: (params: { page: number; perPage: number }) => Promise<{ data: { users: Array<{ email?: string | null; email_confirmed_at?: string | null }> } | null; error: { message: string } | null }> } } },
   audience: AudienceMode
 ) {
   const emails = new Set<string>();
@@ -180,4 +180,3 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: msg }, { status: 500 });
   }
 }
-
