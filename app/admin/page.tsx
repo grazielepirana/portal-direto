@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "../../lib/supabase";
@@ -60,7 +60,14 @@ async function uploadSiteAsset(file: File, folder: "logo" | "hero" | "home-block
 }
 
 export default function AdminPage() {
-  type AdminSection = "appearance" | "content" | "payment" | "locations" | "plans";
+  type AdminSection = "appearance" | "content" | "payment" | "locations" | "plans" | "emails";
+  type EmailAudienceUser = {
+    id: string;
+    email: string;
+    email_confirmed_at: string | null;
+    created_at: string | null;
+    last_sign_in_at: string | null;
+  };
 
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -71,6 +78,14 @@ export default function AdminPage() {
   const [msg, setMsg] = useState<string | null>(null);
   const [settings, setSettings] = useState<SiteSettings>(DEFAULT_SITE_SETTINGS);
   const [plans, setPlans] = useState<ListingPlan[]>(DEFAULT_LISTING_PLANS);
+  const [emailAudience, setEmailAudience] = useState<EmailAudienceUser[]>([]);
+  const [emailAudienceTotal, setEmailAudienceTotal] = useState(0);
+  const [emailAudienceConfirmed, setEmailAudienceConfirmed] = useState(0);
+  const [loadingEmailAudience, setLoadingEmailAudience] = useState(false);
+  const [sendingCampaign, setSendingCampaign] = useState(false);
+  const [campaignAudience, setCampaignAudience] = useState<"confirmed" | "all">("confirmed");
+  const [campaignSubject, setCampaignSubject] = useState("");
+  const [campaignMessage, setCampaignMessage] = useState("");
   const [locationsCsvFile, setLocationsCsvFile] = useState<File | null>(null);
   const [replaceLocations, setReplaceLocations] = useState(false);
   const heroPreviewRef = useRef<HTMLDivElement | null>(null);
@@ -313,6 +328,89 @@ export default function AdminPage() {
     }
   }
 
+  const loadAdminEmailAudience = useCallback(async () => {
+    try {
+      setLoadingEmailAudience(true);
+      setMsg(null);
+      const accessToken = await getAdminAccessToken();
+
+      const response = await fetch("/api/admin/email-audience", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const result = (await response.json()) as {
+        ok?: boolean;
+        error?: string;
+        total?: number;
+        confirmedCount?: number;
+        users?: EmailAudienceUser[];
+      };
+
+      if (!response.ok || !result.ok) {
+        throw new Error(result.error ?? "Falha ao carregar audiência de e-mails.");
+      }
+
+      setEmailAudience(Array.isArray(result.users) ? result.users : []);
+      setEmailAudienceTotal(Number(result.total ?? 0));
+      setEmailAudienceConfirmed(Number(result.confirmedCount ?? 0));
+    } catch (err: unknown) {
+      setMsg(err instanceof Error ? err.message : "Erro ao carregar e-mails dos usuários.");
+    } finally {
+      setLoadingEmailAudience(false);
+    }
+  }, []);
+
+  async function handleSendCampaign() {
+    try {
+      setSendingCampaign(true);
+      setMsg(null);
+      const accessToken = await getAdminAccessToken();
+
+      const response = await fetch("/api/admin/send-campaign", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          subject: campaignSubject,
+          message: campaignMessage,
+          audience: campaignAudience,
+        }),
+      });
+
+      const result = (await response.json()) as {
+        ok?: boolean;
+        error?: string;
+        sent?: number;
+        failed?: number;
+        total?: number;
+      };
+
+      if (!response.ok || !result.ok) {
+        throw new Error(result.error ?? "Falha ao enviar campanha.");
+      }
+
+      setMsg(
+        `✅ Campanha enviada. Entregues: ${result.sent ?? 0} de ${result.total ?? 0}. Falhas: ${
+          result.failed ?? 0
+        }.`
+      );
+    } catch (err: unknown) {
+      setMsg(err instanceof Error ? err.message : "Erro ao enviar campanha.");
+    } finally {
+      setSendingCampaign(false);
+    }
+  }
+
+  useEffect(() => {
+    if (activeSection !== "emails") return;
+    void loadAdminEmailAudience();
+  }, [activeSection, loadAdminEmailAudience]);
+
   function updateHeroPositionFromClientPoint(clientX: number, clientY: number) {
     if (!heroPreviewRef.current) return;
     const rect = heroPreviewRef.current.getBoundingClientRect();
@@ -353,7 +451,7 @@ export default function AdminPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-6">
+        <div className="grid grid-cols-2 gap-2 mb-6 md:grid-cols-6">
           <button
             type="button"
             onClick={() => setActiveSection("appearance")}
@@ -408,6 +506,17 @@ export default function AdminPage() {
             }`}
           >
             Planos
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveSection("emails")}
+            className={`rounded-xl border px-3 py-2 text-sm font-semibold transition ${
+              activeSection === "emails"
+                ? "bg-black text-white border-black"
+                : "bg-white text-slate-800 border-slate-300 hover:bg-slate-50"
+            }`}
+          >
+            E-mails
           </button>
         </div>
 
@@ -1089,7 +1198,138 @@ export default function AdminPage() {
             </div>
           ) : null}
 
-          <div className="flex gap-3">
+          {activeSection === "emails" ? (
+            <div className="space-y-4">
+              <div className="border border-slate-300 rounded-xl p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h2 className="text-xl font-bold">Central de e-mails</h2>
+                    <p className="text-sm text-slate-600 mt-1">
+                      Veja confirmação de e-mail dos usuários e envie campanhas de publicidade.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={loadAdminEmailAudience}
+                    disabled={loadingEmailAudience}
+                    className="border px-4 py-2 rounded-xl font-semibold hover:bg-gray-50 disabled:opacity-60"
+                  >
+                    {loadingEmailAudience ? "Atualizando..." : "Atualizar lista"}
+                  </button>
+                </div>
+
+                <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                    <p className="text-xs uppercase font-semibold text-slate-500">Usuários com cadastro</p>
+                    <p className="text-2xl font-extrabold text-slate-950">{emailAudienceTotal}</p>
+                  </div>
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                    <p className="text-xs uppercase font-semibold text-slate-500">E-mails confirmados</p>
+                    <p className="text-2xl font-extrabold text-slate-950">{emailAudienceConfirmed}</p>
+                  </div>
+                </div>
+
+                <div className="mt-4 rounded-lg border border-slate-200 overflow-hidden">
+                  <div className="max-h-64 overflow-auto">
+                    <table className="w-full text-sm">
+                      <thead className="bg-slate-50 text-slate-700">
+                        <tr>
+                          <th className="px-3 py-2 text-left font-semibold">E-mail</th>
+                          <th className="px-3 py-2 text-left font-semibold">Confirmação</th>
+                          <th className="px-3 py-2 text-left font-semibold">Último acesso</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {emailAudience.length > 0 ? (
+                          emailAudience.slice(0, 80).map((item) => (
+                            <tr key={item.id} className="border-t border-slate-100">
+                              <td className="px-3 py-2 text-slate-900">{item.email}</td>
+                              <td className="px-3 py-2">
+                                {item.email_confirmed_at ? (
+                                  <span className="inline-flex rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">
+                                    Confirmado
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
+                                    Pendente
+                                  </span>
+                                )}
+                              </td>
+                              <td className="px-3 py-2 text-slate-700">
+                                {item.last_sign_in_at
+                                  ? new Date(item.last_sign_in_at).toLocaleString("pt-BR")
+                                  : "-"}
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td className="px-3 py-3 text-slate-600" colSpan={3}>
+                              Nenhum usuário encontrado.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border border-slate-300 rounded-xl p-4">
+                <h3 className="text-lg font-bold">Enviar publicidade por e-mail</h3>
+                <p className="text-sm text-slate-600 mt-1">
+                  Os envios usam o provedor configurado via <code>RESEND_API_KEY</code> na Vercel.
+                </p>
+
+                <div className="mt-4 space-y-3">
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-800 mb-1">Público</label>
+                    <select
+                      className="w-full border border-slate-400 text-slate-950 p-3 rounded-lg"
+                      value={campaignAudience}
+                      onChange={(e) => setCampaignAudience(e.target.value as "confirmed" | "all")}
+                    >
+                      <option value="confirmed">Somente e-mails confirmados</option>
+                      <option value="all">Todos os usuários cadastrados</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-800 mb-1">Assunto</label>
+                    <input
+                      className="w-full border border-slate-400 text-slate-950 placeholder:text-slate-700 p-3 rounded-lg"
+                      placeholder="Ex: Novidades do Portal Direto"
+                      value={campaignSubject}
+                      onChange={(e) => setCampaignSubject(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-800 mb-1">Mensagem</label>
+                    <textarea
+                      className="w-full border border-slate-400 text-slate-950 placeholder:text-slate-700 p-3 rounded-lg min-h-28"
+                      placeholder="Escreva a campanha de publicidade."
+                      value={campaignMessage}
+                      onChange={(e) => setCampaignMessage(e.target.value)}
+                    />
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      void handleSendCampaign();
+                    }}
+                    disabled={sendingCampaign}
+                    className="rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-60"
+                  >
+                    {sendingCampaign ? "Enviando..." : "Enviar campanha"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          <div className={`flex gap-3 ${activeSection === "emails" ? "hidden" : ""}`}>
             <button
               disabled={saving}
               className="bg-black text-white px-6 py-3 rounded-xl hover:bg-gray-800 transition disabled:opacity-60"

@@ -177,7 +177,7 @@ export default function AuthButton() {
   const logoutRefIndex = sections.flatMap((section) => section.items).filter((item) => !item.disabled).length;
 
   return (
-    <div className="flex items-center gap-3 flex-wrap justify-end">
+    <div className="flex items-center justify-end">
       <div className="relative" ref={menuRef}>
         <button
           ref={buttonRef}
@@ -187,9 +187,10 @@ export default function AuthButton() {
           aria-haspopup="menu"
           aria-expanded={openMenu}
           aria-controls={menuId}
-          className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-800 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
+          className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-800 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
         >
-          Minha conta
+          <span className="sm:hidden">Conta</span>
+          <span className="hidden sm:inline">Minha conta</span>
           <span aria-hidden>{openMenu ? "▲" : "▼"}</span>
         </button>
 
@@ -289,7 +290,7 @@ export default function AuthButton() {
         ) : null}
       </div>
 
-      <span className="text-sm text-gray-600 hidden 2xl:inline">{email}</span>
+      <span className="hidden text-sm text-gray-600 2xl:inline">{email}</span>
     </div>
   );
 }
