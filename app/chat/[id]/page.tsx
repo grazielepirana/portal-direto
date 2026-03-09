@@ -273,7 +273,10 @@ export default function ChatRoomPage({
         },
         (payload) => {
           const newMsg = payload.new as Msg;
-          setMessages((prev) => [...prev, newMsg]);
+          setMessages((prev) => {
+            if (prev.some((item) => item.id === newMsg.id)) return prev;
+            return [...prev, newMsg];
+          });
         }
       )
       .subscribe();
@@ -359,16 +362,28 @@ export default function ChatRoomPage({
     const msgText = text.trim();
     setText("");
 
-    const { error } = await supabase.from("messages").insert({
-      conversation_id: conversationId,
-      sender_id: userId,
-      text: msgText,
-    });
+    const { data: insertedMsg, error } = await supabase
+      .from("messages")
+      .insert({
+        conversation_id: conversationId,
+        sender_id: userId,
+        text: msgText,
+      })
+      .select("id,conversation_id,sender_id,created_at,text")
+      .single();
 
     if (error) {
       alert(error.message);
       setText(msgText);
       return;
+    }
+
+    if (insertedMsg) {
+      const nextMsg = insertedMsg as Msg;
+      setMessages((prev) => {
+        if (prev.some((item) => item.id === nextMsg.id)) return prev;
+        return [...prev, nextMsg];
+      });
     }
 
     // preview da conversa
