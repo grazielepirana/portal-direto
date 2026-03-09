@@ -118,7 +118,7 @@ function AnunciarPageContent() {
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
   const [propertyDetails, setPropertyDetails] = useState<string[]>([]);
-  const [acceptsTrade, setAcceptsTrade] = useState<"sim" | "nao">("nao");
+  const [acceptsTrade, setAcceptsTrade] = useState<"" | "sim" | "nao">("");
   const [tradeType, setTradeType] = useState("");
   const [tradeValue, setTradeValue] = useState("");
   const [photoFiles, setPhotoFiles] = useState<File[]>([]);
@@ -249,8 +249,16 @@ function AnunciarPageContent() {
 
       const priceNumber = parseCurrencyInputToNumber(price);
 
+      const iptuNumber = parseCurrencyInputToNumber(iptuFee);
       if (!city || !propertyType || priceNumber == null) {
         setMsg("Preencha pelo menos: tipo, cidade e preço.");
+        return;
+      }
+
+      if (!listingTitle.trim() || !description.trim() || iptuNumber == null || !acceptsTrade) {
+        setMsg(
+          "Preencha os campos obrigatórios: título, descrição, valor do IPTU e se aceita permuta."
+        );
         return;
       }
 
@@ -325,7 +333,7 @@ function AnunciarPageContent() {
           acceptsTrade === "sim" ? parseCurrencyInputToNumber(tradeValue) : null,
         condo_name: isInCondo === "sim" ? condoName || null : null,
         condo_fee: isInCondo === "sim" ? parseCurrencyInputToNumber(condoFee) : null,
-        iptu_fee: parseCurrencyInputToNumber(iptuFee),
+        iptu_fee: iptuNumber,
         code: code || null,
         price: priceNumber,
       };
@@ -456,7 +464,7 @@ function AnunciarPageContent() {
       setListingTitle("");
       setDescription("");
       setPropertyDetails([]);
-      setAcceptsTrade("nao");
+      setAcceptsTrade("");
       setTradeType("");
       setTradeValue("");
       setPhotoFiles([]);
@@ -680,6 +688,22 @@ function AnunciarPageContent() {
     }
     if (currentStep === 3 && parseCurrencyInputToNumber(price) == null) {
       setMsg("Preencha o preço para continuar.");
+      return;
+    }
+    if (currentStep === 3 && !listingTitle.trim()) {
+      setMsg("Preencha o título do imóvel para continuar.");
+      return;
+    }
+    if (currentStep === 3 && !description.trim()) {
+      setMsg("Preencha a descrição do imóvel para continuar.");
+      return;
+    }
+    if (currentStep === 3 && parseCurrencyInputToNumber(iptuFee) == null) {
+      setMsg("Preencha o valor do IPTU para continuar.");
+      return;
+    }
+    if (currentStep === 3 && !acceptsTrade) {
+      setMsg("Selecione se aceita permuta para continuar.");
       return;
     }
     if (currentStep === 4 && photoFiles.length === 0) {
@@ -917,7 +941,7 @@ function AnunciarPageContent() {
                       </div>
                     ) : null}
                     <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-800">Valor do IPTU</label>
+                      <label className="mb-2 block text-sm font-semibold text-slate-800">Valor do IPTU *</label>
                       <input
                         className={fieldClassName}
                         type="text"
@@ -952,11 +976,11 @@ function AnunciarPageContent() {
                       <input className={fieldClassName} value={code} onChange={(e) => setCode(e.target.value)} />
                     </div>
                     <div className="md:col-span-2">
-                      <label className="mb-2 block text-sm font-semibold text-slate-800">Título do imóvel</label>
+                      <label className="mb-2 block text-sm font-semibold text-slate-800">Título do imóvel *</label>
                       <input className={fieldClassName} value={listingTitle} onChange={(e) => setListingTitle(e.target.value)} />
                     </div>
                     <div className="md:col-span-2">
-                      <label className="mb-2 block text-sm font-semibold text-slate-800">Descrição</label>
+                      <label className="mb-2 block text-sm font-semibold text-slate-800">Descrição *</label>
                       <textarea
                         className="min-h-32 w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 placeholder:text-slate-500"
                         value={description}
@@ -987,13 +1011,13 @@ function AnunciarPageContent() {
                       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div>
                           <label className="mb-2 block text-sm font-semibold text-slate-800">
-                            Aceita permuta?
+                            Aceita permuta? *
                           </label>
                           <select
                             className={fieldClassName}
                             value={acceptsTrade}
                             onChange={(e) => {
-                              const next = e.target.value as "sim" | "nao";
+                              const next = e.target.value as "" | "sim" | "nao";
                               setAcceptsTrade(next);
                               if (next === "nao") {
                                 setTradeType("");
@@ -1001,6 +1025,7 @@ function AnunciarPageContent() {
                               }
                             }}
                           >
+                            <option value="">Selecione</option>
                             <option value="nao">Não</option>
                             <option value="sim">Sim</option>
                           </select>

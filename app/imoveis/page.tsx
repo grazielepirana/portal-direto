@@ -43,6 +43,7 @@ type Listing = {
   iptu_fee?: number | null;
   code?: string | null;
   description?: string | null;
+  accepts_trade?: boolean | null;
   is_featured?: boolean | null;
   active_until?: string | null;
   created_at?: string | null;
@@ -161,6 +162,11 @@ function ImoveisPageContent({ searchParams }: { searchParams: ReturnType<typeof 
   const [bathrooms, setBathrooms] = useState<"" | "1" | "2" | "3" | "4">("");
   const [suites, setSuites] = useState<"" | "1" | "2" | "3" | "4">("");
   const [parkingSpots, setParkingSpots] = useState<"" | "1" | "2" | "3" | "4">("");
+  const [acceptsTradeFilter, setAcceptsTradeFilter] = useState<"" | "sim" | "nao">(
+    searchParams.get("permuta") === "sim" || searchParams.get("permuta") === "nao"
+      ? (searchParams.get("permuta") as "sim" | "nao")
+      : ""
+  );
   const [minArea, setMinArea] = useState("");
   const [maxArea, setMaxArea] = useState("");
   const [condoOrCode, setCondoOrCode] = useState(searchParams.get("condoOrCode") ?? "");
@@ -187,7 +193,7 @@ function ImoveisPageContent({ searchParams }: { searchParams: ReturnType<typeof 
       const { data, error } = await supabase
         .from("listings")
         .select(
-          "id,owner_id,kind,property_type,listing_title,image_urls,price,city,neighborhood,address,address_number,address_complement,cep,bedrooms,bathrooms,suites,area_sqm,parking_spots,condo_name,condo_is_in,condo_amenities,condo_amenities_other,condo_fee,iptu_fee,code,description,is_featured,active_until,created_at"
+          "id,owner_id,kind,property_type,listing_title,image_urls,price,city,neighborhood,address,address_number,address_complement,cep,bedrooms,bathrooms,suites,area_sqm,parking_spots,condo_name,condo_is_in,condo_amenities,condo_amenities_other,condo_fee,iptu_fee,code,description,accepts_trade,is_featured,active_until,created_at"
         )
         .order("created_at", { ascending: false })
         .limit(300);
@@ -297,6 +303,9 @@ function ImoveisPageContent({ searchParams }: { searchParams: ReturnType<typeof 
         if (!condo.includes(q) && !code.includes(q)) return false;
       }
 
+      if (acceptsTradeFilter === "sim" && !it.accepts_trade) return false;
+      if (acceptsTradeFilter === "nao" && Boolean(it.accepts_trade)) return false;
+
       if (it.active_until) {
         const untilDate = new Date(it.active_until);
         if (!Number.isNaN(untilDate.getTime()) && untilDate < new Date()) return false;
@@ -318,6 +327,7 @@ function ImoveisPageContent({ searchParams }: { searchParams: ReturnType<typeof 
     minArea,
     maxArea,
     condoOrCode,
+    acceptsTradeFilter,
   ]);
 
   const sortedListings = useMemo(() => {
@@ -398,6 +408,7 @@ function ImoveisPageContent({ searchParams }: { searchParams: ReturnType<typeof 
     setBathrooms("");
     setSuites("");
     setParkingSpots("");
+    setAcceptsTradeFilter("");
     setMinArea("");
     setMaxArea("");
     setCondoOrCode("");
@@ -418,7 +429,7 @@ function ImoveisPageContent({ searchParams }: { searchParams: ReturnType<typeof 
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-7">
             <select className={filterFieldClassName} value={kind} onChange={(e) => setKind(e.target.value as "" | "venda" | "locacao")}>
               <option value="">Comprar ou Alugar</option>
               <option value="venda">Comprar</option>
@@ -452,6 +463,15 @@ function ImoveisPageContent({ searchParams }: { searchParams: ReturnType<typeof 
               onChange={(e) => setMaxPrice(formatCurrencyInput(e.target.value))}
               onBlur={(e) => setMaxPrice(finalizeCurrencyInput(e.target.value))}
             />
+            <select
+              className={filterFieldClassName}
+              value={acceptsTradeFilter}
+              onChange={(e) => setAcceptsTradeFilter(e.target.value as "" | "sim" | "nao")}
+            >
+              <option value="">Permuta (qualquer)</option>
+              <option value="sim">Aceita permuta</option>
+              <option value="nao">Não aceita permuta</option>
+            </select>
 
             <button onClick={clearFilters} className="w-full border px-4 py-3 rounded-xl hover:bg-gray-50 transition font-semibold">
               Limpar filtros
@@ -495,6 +515,15 @@ function ImoveisPageContent({ searchParams }: { searchParams: ReturnType<typeof 
               <input className={filterFieldClassName} type="number" placeholder="Área mínima (m²)" value={minArea} onChange={(e) => setMinArea(e.target.value)} />
               <input className={filterFieldClassName} type="number" placeholder="Área máxima (m²)" value={maxArea} onChange={(e) => setMaxArea(e.target.value)} />
               <input className={`${filterFieldClassName} sm:col-span-2 lg:col-span-2`} placeholder="Condomínio ou Código" value={condoOrCode} onChange={(e) => setCondoOrCode(e.target.value)} />
+              <select
+                className={filterFieldClassName}
+                value={acceptsTradeFilter}
+                onChange={(e) => setAcceptsTradeFilter(e.target.value as "" | "sim" | "nao")}
+              >
+                <option value="">Permuta (qualquer)</option>
+                <option value="sim">Aceita permuta</option>
+                <option value="nao">Não aceita permuta</option>
+              </select>
             </div>
           ) : null}
         </section>
@@ -659,7 +688,7 @@ function ImoveisPageContent({ searchParams }: { searchParams: ReturnType<typeof 
           <div className="lg:sticky lg:top-24 self-start">
             {!loading && !loadError ? (
               <MapListings
-                key={`map-${kind}-${propertyType}-${location}-${minPrice}-${maxPrice}-${bedrooms}-${bathrooms}-${suites}-${parkingSpots}-${minArea}-${maxArea}-${condoOrCode}`}
+                key={`map-${kind}-${propertyType}-${location}-${minPrice}-${maxPrice}-${bedrooms}-${bathrooms}-${suites}-${parkingSpots}-${acceptsTradeFilter}-${minArea}-${maxArea}-${condoOrCode}`}
                 listings={sortedListings.map((item) => ({
                   id: item.id,
                   title: item.listing_title?.trim() || `${item.property_type} • ${item.kind === "venda" ? "Venda" : "Locação"}`,
