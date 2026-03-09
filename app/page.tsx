@@ -18,6 +18,7 @@ type FeaturedListing = {
   listing_title?: string | null;
   property_type?: string | null;
   price?: number | null;
+  bathrooms?: number | null;
   bedrooms?: number | null;
   parking_spots?: number | null;
   area_sqm?: number | null;
@@ -201,7 +202,7 @@ export default function Home() {
       const { data } = await supabase
         .from("listings")
         .select(
-          "id,kind,listing_title,property_type,price,bedrooms,parking_spots,area_sqm,city,neighborhood,image_urls,is_featured,active_until,created_at"
+          "id,kind,listing_title,property_type,price,bathrooms,bedrooms,parking_spots,area_sqm,city,neighborhood,image_urls,is_featured,active_until,created_at"
         )
         .eq("is_featured", true)
         .order("created_at", { ascending: false })
@@ -527,7 +528,7 @@ export default function Home() {
         {featuredListings.length > 0 ? (
           <section id="highlights" className="!mt-0">
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <h2 className="text-3xl font-bold tracking-tight text-[#19191D]">Imóveis em destaque</h2>
+              <h2 className="text-3xl font-bold tracking-tight text-[#19191D]">Imóveis recentes</h2>
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
@@ -610,36 +611,27 @@ export default function Home() {
                       >
                         ♡
                       </span>
-                    </div>
-                    <div className="p-5">
-                      <h3 className="text-[22px] font-semibold leading-tight text-[#19191D] line-clamp-2 min-h-[3.4rem]">{title}</h3>
-                      <p className="text-[32px] font-extrabold text-[#19191D] mt-2 leading-none">
-                        {(item.price ?? 0).toLocaleString("pt-BR", {
-                          style: "currency",
-                          currency: "BRL",
-                          minimumFractionDigits: 0,
-                        })}
-                      </p>
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {item.bedrooms ? (
-                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-[#19191D]">
-                            {item.bedrooms} qtos
-                          </span>
-                        ) : null}
-                        {item.parking_spots ? (
-                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-[#19191D]">
-                            {item.parking_spots} vagas
-                          </span>
-                        ) : null}
-                        {item.area_sqm ? (
-                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-[#19191D]">
-                            {item.area_sqm} m²
-                          </span>
-                        ) : null}
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent px-4 pb-3 pt-7">
+                        <p className="text-left text-2xl font-bold leading-none text-white drop-shadow-sm">
+                          {(item.price ?? 0).toLocaleString("pt-BR", {
+                            style: "currency",
+                            currency: "BRL",
+                            minimumFractionDigits: 0,
+                          })}
+                        </p>
                       </div>
+                    </div>
+                    <div className="p-3.5">
+                      <h3 className="line-clamp-2 text-[15px] font-semibold leading-tight text-[#19191D]">{title}</h3>
                       {locationText ? (
-                        <p className="text-sm text-[#19191D] mt-3 line-clamp-1">{locationText}</p>
+                        <p className="mt-1 line-clamp-1 text-sm text-slate-600">{locationText}</p>
                       ) : null}
+                      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500">
+                        {item.area_sqm ? <span className="inline-flex items-center gap-1">📐 {item.area_sqm} m²</span> : null}
+                        {item.bedrooms ? <span className="inline-flex items-center gap-1">🛏️ {item.bedrooms}</span> : null}
+                        {item.bathrooms ? <span className="inline-flex items-center gap-1">🚿 {item.bathrooms}</span> : null}
+                        {item.parking_spots ? <span className="inline-flex items-center gap-1">🚗 {item.parking_spots}</span> : null}
+                      </div>
                     </div>
                   </button>
                 );
