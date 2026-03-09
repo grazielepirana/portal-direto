@@ -93,6 +93,7 @@ export default function LoginPage() {
           email,
           password,
           options: {
+            emailRedirectTo: `${window.location.origin}/`,
             data: {
               full_name: fullName.trim(),
             },
@@ -146,6 +147,9 @@ export default function LoginPage() {
       const { error } = await supabase.auth.resend({
         type: "signup",
         email: email.trim(),
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+        },
       });
       if (error) {
         setMsg(mapAuthError(error.message ?? "Erro ao reenviar confirmação."));
