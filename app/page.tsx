@@ -444,7 +444,7 @@ export default function Home() {
         </div>
 
         <section className="!mt-0 p-0">
-          <h2 className="text-lg font-bold leading-none text-[#D3D8D9] md:text-2xl">Como funciona</h2>
+          <h2 className="text-lg font-bold leading-none text-[#19191D] md:text-2xl">Como funciona</h2>
           <div className="mt-5 grid grid-cols-1 gap-4 lg:grid-cols-3">
             <article className="rounded-2xl border border-slate-200 bg-[#EAF0ED] px-6 py-7">
               <div className="flex items-center gap-4">
@@ -454,7 +454,7 @@ export default function Home() {
                 >
                   1
                 </span>
-                <h3 className="text-sm font-semibold leading-none text-[#D3D8D9] md:text-lg">Anuncie seu imóvel</h3>
+                <h3 className="text-sm font-semibold leading-none text-[#19191D] md:text-lg">Anuncie seu imóvel</h3>
               </div>
               <div className="mt-6 flex items-start gap-3">
                 <span className="inline-flex h-6 w-6 items-center justify-center text-[#82C1A2]">
@@ -464,7 +464,7 @@ export default function Home() {
                     <path d="M10 20v-5h4v5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </span>
-                <p className="text-xs leading-tight text-[#D3D8D9] md:text-sm">
+                <p className="text-xs leading-tight text-[#19191D] md:text-sm">
                   Publique seu imóvel em
                   <br />
                   poucos minutos.
@@ -480,7 +480,7 @@ export default function Home() {
                 >
                   2
                 </span>
-                <h3 className="text-sm font-semibold leading-none text-[#D3D8D9] md:text-lg">Receba contatos</h3>
+                <h3 className="text-sm font-semibold leading-none text-[#19191D] md:text-lg">Receba contatos</h3>
               </div>
               <div className="mt-6 flex items-start gap-3">
                 <span className="inline-flex h-6 w-6 items-center justify-center text-[#82C1A2]">
@@ -488,7 +488,7 @@ export default function Home() {
                     <path d="M20 14a6 6 0 0 1-6 6H7l-3 2v-8a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </span>
-                <p className="text-xs leading-tight text-[#D3D8D9] md:text-sm">
+                <p className="text-xs leading-tight text-[#19191D] md:text-sm">
                   Interessados entram em contato
                   <br />
                   diretamente pela plataforma.
@@ -504,7 +504,7 @@ export default function Home() {
                 >
                   3
                 </span>
-                <h3 className="text-sm font-semibold leading-none text-[#D3D8D9] md:text-lg">Negocie diretamente</h3>
+                <h3 className="text-sm font-semibold leading-none text-[#19191D] md:text-lg">Negocie diretamente</h3>
               </div>
               <div className="mt-6 flex items-start gap-3">
                 <span className="inline-flex h-6 w-6 items-center justify-center text-[#82C1A2]">
@@ -514,7 +514,7 @@ export default function Home() {
                     <path d="M19 9.5 21.2 11.7a2 2 0 0 1 0 2.8L19 16.7a2 2 0 0 1-2.8 0L14 14.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </span>
-                <p className="text-xs leading-tight text-[#D3D8D9] md:text-sm">
+                <p className="text-xs leading-tight text-[#19191D] md:text-sm">
                   Comprador e proprietário
                   <br />
                   conversam diretamente.
@@ -527,7 +527,7 @@ export default function Home() {
         {featuredListings.length > 0 ? (
           <section id="highlights" className="!mt-0">
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <h2 className="text-3xl font-bold tracking-tight text-[#D3D8D9]">Imóveis em destaque</h2>
+              <h2 className="text-3xl font-bold tracking-tight text-[#19191D]">Imóveis em destaque</h2>
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
@@ -565,7 +565,7 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => router.push("/imoveis")}
-                  className="ml-0 text-sm font-semibold text-[#D3D8D9] hover:opacity-80 sm:ml-2"
+                  className="ml-0 text-sm font-semibold text-[#19191D] hover:opacity-80 sm:ml-2"
                 >
                   Ver todos
                 </button>
@@ -612,8 +612,8 @@ export default function Home() {
                       </span>
                     </div>
                     <div className="p-5">
-                      <h3 className="text-[22px] font-semibold leading-tight text-[#D3D8D9] line-clamp-2 min-h-[3.4rem]">{title}</h3>
-                      <p className="text-[32px] font-extrabold text-[#D3D8D9] mt-2 leading-none">
+                      <h3 className="text-[22px] font-semibold leading-tight text-[#19191D] line-clamp-2 min-h-[3.4rem]">{title}</h3>
+                      <p className="text-[32px] font-extrabold text-[#19191D] mt-2 leading-none">
                         {(item.price ?? 0).toLocaleString("pt-BR", {
                           style: "currency",
                           currency: "BRL",
@@ -622,23 +622,23 @@ export default function Home() {
                       </p>
                       <div className="mt-3 flex flex-wrap gap-2">
                         {item.bedrooms ? (
-                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-[#D3D8D9]">
+                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-[#19191D]">
                             {item.bedrooms} qtos
                           </span>
                         ) : null}
                         {item.parking_spots ? (
-                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-[#D3D8D9]">
+                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-[#19191D]">
                             {item.parking_spots} vagas
                           </span>
                         ) : null}
                         {item.area_sqm ? (
-                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-[#D3D8D9]">
+                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-[#19191D]">
                             {item.area_sqm} m²
                           </span>
                         ) : null}
                       </div>
                       {locationText ? (
-                        <p className="text-sm text-[#D3D8D9] mt-3 line-clamp-1">{locationText}</p>
+                        <p className="text-sm text-[#19191D] mt-3 line-clamp-1">{locationText}</p>
                       ) : null}
                     </div>
                   </button>
@@ -648,13 +648,13 @@ export default function Home() {
               {visibleFeaturedListings.length < 4 ? (
                 <article className="rounded-[18px] border border-slate-200 bg-white p-6 shadow-[0_6px_20px_rgba(0,0,0,0.08)] flex flex-col justify-between">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-[#D3D8D9] mb-2">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-[#19191D] mb-2">
                       Para proprietários
                     </p>
-                    <h3 className="text-2xl font-bold text-[#D3D8D9] leading-tight">
+                    <h3 className="text-2xl font-bold text-[#19191D] leading-tight">
                       Anuncie seu imóvel em 2 minutos
                     </h3>
-                    <p className="text-sm text-[#D3D8D9] mt-3">
+                    <p className="text-sm text-[#19191D] mt-3">
                       Crie seu anúncio, suba fotos e receba contatos diretos de interessados.
                     </p>
                   </div>
@@ -669,7 +669,7 @@ export default function Home() {
               ) : null}
             </div>
             {visibleFeaturedListings.length === 0 ? (
-              <p className="text-sm text-[#D3D8D9] mt-3">
+              <p className="text-sm text-[#19191D] mt-3">
                 Não há imóveis em destaque para este tipo no momento.
               </p>
             ) : null}
