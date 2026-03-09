@@ -443,19 +443,28 @@ export default function Home() {
           </div>
         </div>
 
-        <section className="!mt-0 rounded-[20px] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+        <section className="!mt-0 p-0">
           <h2 className="text-2xl font-bold leading-none text-slate-950 md:text-4xl">Como funciona</h2>
           <div className="mt-5 grid grid-cols-1 gap-4 lg:grid-cols-3">
-            <article className="rounded-2xl border border-slate-200 bg-[#EAF8F2] px-6 py-7">
+            <article className="rounded-2xl border border-slate-200 bg-[#EAF0ED] px-6 py-7">
               <div className="flex items-center gap-4">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-emerald-400 text-xl font-bold text-white">
+                <span
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full text-xl font-bold text-white"
+                  style={{ backgroundColor: "#82C1A2" }}
+                >
                   1
                 </span>
-                <h3 className="text-lg font-semibold leading-none text-slate-900 md:text-3xl">Anuncie seu imóvel</h3>
+                <h3 className="text-lg font-semibold leading-none text-black md:text-3xl">Anuncie seu imóvel</h3>
               </div>
               <div className="mt-6 flex items-start gap-3">
-                <span className="text-2xl text-emerald-500">🏠</span>
-                <p className="text-base leading-tight text-slate-800 md:text-2xl">
+                <span className="inline-flex h-6 w-6 items-center justify-center text-[#82C1A2]">
+                  <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" aria-hidden="true">
+                    <path d="M3 11.5L12 4l9 7.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M6 10.5V20h12v-9.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M10 20v-5h4v5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
+                <p className="text-sm leading-tight text-slate-800 md:text-base">
                   Publique seu imóvel em
                   <br />
                   poucos minutos.
@@ -463,16 +472,23 @@ export default function Home() {
               </div>
             </article>
 
-            <article className="rounded-2xl border border-slate-200 bg-white px-6 py-7">
+            <article className="rounded-2xl border border-slate-200 bg-[#FAFAFA] px-6 py-7">
               <div className="flex items-center gap-4">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-emerald-400 text-xl font-bold text-white">
+                <span
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full text-xl font-bold text-white"
+                  style={{ backgroundColor: "#82C1A2" }}
+                >
                   2
                 </span>
-                <h3 className="text-lg font-semibold leading-none text-slate-900 md:text-3xl">Receba contatos</h3>
+                <h3 className="text-lg font-semibold leading-none text-black md:text-3xl">Receba contatos</h3>
               </div>
               <div className="mt-6 flex items-start gap-3">
-                <span className="text-2xl text-emerald-500">💬</span>
-                <p className="text-base leading-tight text-slate-800 md:text-2xl">
+                <span className="inline-flex h-6 w-6 items-center justify-center text-[#82C1A2]">
+                  <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" aria-hidden="true">
+                    <path d="M20 14a6 6 0 0 1-6 6H7l-3 2v-8a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
+                <p className="text-sm leading-tight text-slate-800 md:text-base">
                   Interessados entram em contato
                   <br />
                   diretamente pela plataforma.
@@ -480,16 +496,25 @@ export default function Home() {
               </div>
             </article>
 
-            <article className="rounded-2xl border border-slate-200 bg-[#EAF8F2] px-6 py-7">
+            <article className="rounded-2xl border border-slate-200 bg-[#EAF0ED] px-6 py-7">
               <div className="flex items-center gap-4">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-emerald-400 text-xl font-bold text-white">
+                <span
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full text-xl font-bold text-white"
+                  style={{ backgroundColor: "#82C1A2" }}
+                >
                   3
                 </span>
-                <h3 className="text-lg font-semibold leading-none text-slate-900 md:text-3xl">Negocie diretamente</h3>
+                <h3 className="text-lg font-semibold leading-none text-black md:text-3xl">Negocie diretamente</h3>
               </div>
               <div className="mt-6 flex items-start gap-3">
-                <span className="text-2xl text-emerald-500">🤝</span>
-                <p className="text-base leading-tight text-slate-800 md:text-2xl">
+                <span className="inline-flex h-6 w-6 items-center justify-center text-[#82C1A2]">
+                  <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" aria-hidden="true">
+                    <path d="M8.5 12.5 11 15a2 2 0 0 0 2.8 0l3.2-3.2a2 2 0 0 0 0-2.8L15.5 7.5a2 2 0 0 0-2.8 0L10.5 9.7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M5 14.5 2.8 12.3a2 2 0 0 1 0-2.8L5 7.3a2 2 0 0 1 2.8 0L10 9.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M19 9.5 21.2 11.7a2 2 0 0 1 0 2.8L19 16.7a2 2 0 0 1-2.8 0L14 14.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
+                <p className="text-sm leading-tight text-slate-800 md:text-base">
                   Comprador e proprietário
                   <br />
                   conversam diretamente.
