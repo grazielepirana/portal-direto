@@ -129,7 +129,9 @@ function ImoveisPageContent({ searchParams }: { searchParams: ReturnType<typeof 
   const [loadError, setLoadError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
-  const [openListingId, setOpenListingId] = useState<string | null>(null);
+  const [openListingId, setOpenListingId] = useState<string | null>(
+    () => searchParams.get("open") ?? null
+  );
   const [showMoreFilters, setShowMoreFilters] = useState(false);
   const [sortBy, setSortBy] = useState<"featured" | "price_asc" | "price_desc" | "recent">(
     "featured"

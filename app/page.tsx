@@ -521,7 +521,7 @@ export default function Home() {
                   <button
                     key={item.id}
                     type="button"
-                    onClick={() => router.push(`/imovel/${item.id}`)}
+                    onClick={() => router.push(`/imoveis?open=${item.id}`)}
                     className="group text-left bg-white border border-slate-200 rounded-[18px] overflow-hidden shadow-[0_6px_20px_rgba(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-[6px]"
                   >
                     <div className="relative overflow-hidden">
