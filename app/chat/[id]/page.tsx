@@ -148,76 +148,6 @@ export default function ChatRoomPage({
         return;
       }
 
-      // carrega outras conversas do usuário para mostrar na lateral
-      const { data: convs } = await supabase
-        .from("conversations")
-        .select("id,user_a,user_b,listing_id,last_message_text,last_message_at,created_at")
-        .or(`user_a.eq.${uid},user_b.eq.${uid}`)
-        .order("last_message_at", { ascending: false })
-        .order("created_at", { ascending: false });
-
-      const nextConversations = (convs as Conversation[] | null) ?? [];
-      setConversations(nextConversations);
-
-      const otherUserIds = nextConversations.map((conversation) =>
-        conversation.user_a === uid ? conversation.user_b : conversation.user_a
-      );
-      const namesMap = await loadProfilesMap(otherUserIds);
-      setProfileNames(namesMap);
-
-      const listingIds = Array.from(
-        new Set(
-          nextConversations
-            .map((conversation) => conversation.listing_id)
-            .filter((listingId): listingId is string => Boolean(listingId))
-        )
-      );
-      if (listingIds.length > 0) {
-        const { data: listings } = await supabase
-          .from("listings")
-          .select("id,listing_title,property_type,kind,image_urls")
-          .in("id", listingIds);
-
-        const titlesMap: Record<string, string> = {};
-        const imagesMap: Record<string, string> = {};
-        for (const item of listings ?? []) {
-          const listingId = String(item.id);
-          const fallback = `${item.property_type ?? "Imóvel"} • ${
-            item.kind === "venda" ? "Venda" : "Locação"
-          }`;
-          titlesMap[listingId] = (item.listing_title as string | null)?.trim() || fallback;
-          const firstImage = getFirstImageUrl(item.image_urls);
-          if (firstImage) imagesMap[listingId] = firstImage;
-        }
-        setListingTitles(titlesMap);
-        setListingImages(imagesMap);
-      }
-
-      const conversationIds = nextConversations.map((conversation) => conversation.id);
-      if (conversationIds.length > 0) {
-        const { data: messagesRaw } = await supabase
-          .from("messages")
-          .select("conversation_id,sender_id,created_at")
-          .in("conversation_id", conversationIds)
-          .order("created_at", { ascending: false });
-
-        const lastSeenMap = readLastSeenMap();
-        const counts: Record<string, number> = {};
-        for (const conversationKey of conversationIds) counts[conversationKey] = 0;
-
-        for (const msg of messagesRaw ?? []) {
-          const conversationKey = String(msg.conversation_id ?? "");
-          if (!conversationKey) continue;
-          if (String(msg.sender_id ?? "") === uid) continue;
-
-          const seenAt = lastSeenMap[conversationKey];
-          if (!seenAt || new Date(String(msg.created_at ?? "")).getTime() > new Date(seenAt).getTime()) {
-            counts[conversationKey] = (counts[conversationKey] ?? 0) + 1;
-          }
-        }
-        setUnreadCounts(counts);
-      }
-
       // pega listing_id da conversa
       const { data: conv, error: convErr } = await supabase
         .from("conversations")
@@ -256,6 +186,91 @@ export default function ChatRoomPage({
     })();
   }, [params]);
 
+  // Carrega a lateral da inbox em segundo plano para não atrasar a abertura da conversa.
+  useEffect(() => {
+    if (!userId) return;
+    let cancelled = false;
+
+    (async () => {
+      const { data: convs } = await supabase
+        .from("conversations")
+        .select("id,user_a,user_b,listing_id,last_message_text,last_message_at,created_at")
+        .or(`user_a.eq.${userId},user_b.eq.${userId}`)
+        .order("last_message_at", { ascending: false })
+        .order("created_at", { ascending: false });
+      if (cancelled) return;
+
+      const nextConversations = (convs as Conversation[] | null) ?? [];
+      setConversations(nextConversations);
+
+      const otherUserIds = nextConversations.map((conversation) =>
+        conversation.user_a === userId ? conversation.user_b : conversation.user_a
+      );
+      const namesMap = await loadProfilesMap(otherUserIds);
+      if (cancelled) return;
+      setProfileNames(namesMap);
+
+      const listingIds = Array.from(
+        new Set(
+          nextConversations
+            .map((conversation) => conversation.listing_id)
+            .filter((listingId): listingId is string => Boolean(listingId))
+        )
+      );
+      if (listingIds.length > 0) {
+        const { data: listings } = await supabase
+          .from("listings")
+          .select("id,listing_title,property_type,kind,image_urls")
+          .in("id", listingIds);
+        if (cancelled) return;
+
+        const titlesMap: Record<string, string> = {};
+        const imagesMap: Record<string, string> = {};
+        for (const item of listings ?? []) {
+          const listingId = String(item.id);
+          const fallback = `${item.property_type ?? "Imóvel"} • ${
+            item.kind === "venda" ? "Venda" : "Locação"
+          }`;
+          titlesMap[listingId] = (item.listing_title as string | null)?.trim() || fallback;
+          const firstImage = getFirstImageUrl(item.image_urls);
+          if (firstImage) imagesMap[listingId] = firstImage;
+        }
+        setListingTitles(titlesMap);
+        setListingImages(imagesMap);
+      }
+
+      const conversationIds = nextConversations.map((conversation) => conversation.id);
+      if (conversationIds.length > 0) {
+        const { data: messagesRaw } = await supabase
+          .from("messages")
+          .select("conversation_id,sender_id,created_at")
+          .in("conversation_id", conversationIds)
+          .order("created_at", { ascending: false });
+        if (cancelled) return;
+
+        const lastSeenMap = readLastSeenMap();
+        const counts: Record<string, number> = {};
+        for (const conversationKey of conversationIds) counts[conversationKey] = 0;
+
+        for (const msg of messagesRaw ?? []) {
+          const conversationKey = String(msg.conversation_id ?? "");
+          if (!conversationKey) continue;
+          if (String(msg.sender_id ?? "") === userId) continue;
+
+          const seenAt = lastSeenMap[conversationKey];
+          if (!seenAt || new Date(String(msg.created_at ?? "")).getTime() > new Date(seenAt).getTime()) {
+            counts[conversationKey] = (counts[conversationKey] ?? 0) + 1;
+          }
+        }
+        setUnreadCounts(counts);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
+
   // 2) realtime: quando entra msg nova
   useEffect(() => {
     if (!conversationId) return;
@@ -286,12 +301,7 @@ export default function ChatRoomPage({
     };
   }, [conversationId]);
 
-  // 3) auto-scroll
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages.length]);
-
-  // 4) título da conversa (com base no imóvel)
+  // 3) título da conversa (com base no imóvel)
   const title = useMemo(() => {
     if (!listing) return "Conversa";
 
@@ -310,7 +320,7 @@ export default function ChatRoomPage({
     }${place ? ` • ${place}` : ""}${code}`;
   }, [listing]);
 
-  // 5) whatsapp (se existir owner_phone)
+  // 4) whatsapp (se existir owner_phone)
   const whatsappUrl = useMemo(() => {
     const phone = listing?.owner_phone?.replace(/\D/g, "") ?? "";
     if (!phone) return null;
