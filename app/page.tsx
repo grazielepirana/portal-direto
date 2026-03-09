@@ -444,23 +444,26 @@ export default function Home() {
         </div>
 
         <section className="!mt-0 rounded-[20px] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-[1.2fr_1fr] md:items-start">
-            <div>
-              <h2 className="text-2xl font-bold text-slate-950">Por que anunciar no Portal Direto?</h2>
-              <ul className="mt-4 space-y-2 text-sm leading-7 text-slate-700">
-                <li>• Publicação rápida</li>
-                <li>• Negociação direta entre as partes</li>
-                <li>• Autonomia na condução da venda</li>
-                <li>• Planos acessíveis</li>
-                <li>• Opção gratuita para começar</li>
-              </ul>
-            </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <p className="text-sm leading-7 text-slate-700">
-                A legislação permite que o proprietário negocie diretamente seu imóvel. Nossa plataforma
-                facilita essa conexão digital entre as partes, com mais autonomia e transparência.
+          <h2 className="text-2xl font-bold text-slate-950">Como funciona</h2>
+          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+            <article className="rounded-2xl border border-emerald-100 bg-[#EAF8F2] p-5">
+              <p className="text-lg font-extrabold text-emerald-800">1️⃣ Anuncie seu imóvel</p>
+              <p className="mt-2 text-sm leading-7 text-slate-700">
+                Publique seu imóvel em poucos minutos.
               </p>
-            </div>
+            </article>
+            <article className="rounded-2xl border border-slate-200 bg-white p-5">
+              <p className="text-lg font-extrabold text-slate-900">2️⃣ Receba contatos</p>
+              <p className="mt-2 text-sm leading-7 text-slate-700">
+                Interessados entram em contato diretamente pela plataforma.
+              </p>
+            </article>
+            <article className="rounded-2xl border border-emerald-100 bg-[#EAF8F2] p-5">
+              <p className="text-lg font-extrabold text-emerald-800">3️⃣ Negocie diretamente</p>
+              <p className="mt-2 text-sm leading-7 text-slate-700">
+                Comprador e proprietário conversam diretamente.
+              </p>
+            </article>
           </div>
         </section>
 
