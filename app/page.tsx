@@ -583,7 +583,7 @@ export default function Home() {
                     key={item.id}
                     type="button"
                     onClick={() => router.push(`/imoveis?open=${item.id}`)}
-                    className="group text-left bg-white border border-slate-200 rounded-[18px] overflow-hidden shadow-[0_6px_20px_rgba(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-[6px]"
+                    className="group text-left bg-white border border-slate-200 rounded-[12px] overflow-hidden shadow-[0_6px_20px_rgba(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-[6px]"
                   >
                     <div className="relative overflow-hidden">
                       {imageUrl ? (
@@ -627,10 +627,38 @@ export default function Home() {
                         <p className="mt-1 line-clamp-1 text-sm text-slate-600">{locationText}</p>
                       ) : null}
                       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500">
-                        {item.area_sqm ? <span className="inline-flex items-center gap-1">📐 {item.area_sqm} m²</span> : null}
-                        {item.bedrooms ? <span className="inline-flex items-center gap-1">🛏️ {item.bedrooms}</span> : null}
-                        {item.bathrooms ? <span className="inline-flex items-center gap-1">🚿 {item.bathrooms}</span> : null}
-                        {item.parking_spots ? <span className="inline-flex items-center gap-1">🚗 {item.parking_spots}</span> : null}
+                        {item.area_sqm ? (
+                          <span className="inline-flex items-center gap-1">
+                            <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 text-slate-500" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+                              <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                            {item.area_sqm} m²
+                          </span>
+                        ) : null}
+                        {item.bedrooms ? (
+                          <span className="inline-flex items-center gap-1">
+                            <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 text-slate-500" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+                              <path d="M3 12h18v7H3zM7 12V9a3 3 0 0 1 6 0v3" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                            {item.bedrooms}
+                          </span>
+                        ) : null}
+                        {item.bathrooms ? (
+                          <span className="inline-flex items-center gap-1">
+                            <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 text-slate-500" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+                              <path d="M7 3v7a5 5 0 0 0 10 0V3M7 8h10" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                            {item.bathrooms}
+                          </span>
+                        ) : null}
+                        {item.parking_spots ? (
+                          <span className="inline-flex items-center gap-1">
+                            <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 text-slate-500" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+                              <path d="M5 13h14l-1-4H6l-1 4Zm0 0v4m14-4v4M8 13v4m8-4v4" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                            {item.parking_spots}
+                          </span>
+                        ) : null}
                       </div>
                     </div>
                   </button>
@@ -638,7 +666,7 @@ export default function Home() {
               })}
 
               {visibleFeaturedListings.length < 4 ? (
-                <article className="rounded-[18px] border border-slate-200 bg-white p-6 shadow-[0_6px_20px_rgba(0,0,0,0.08)] flex flex-col justify-between">
+                <article className="rounded-[12px] border border-slate-200 bg-white p-6 shadow-[0_6px_20px_rgba(0,0,0,0.08)] flex flex-col justify-between">
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-wide text-[#19191D] mb-2">
                       Para proprietários
