@@ -225,13 +225,35 @@ export default function Home() {
   });
 
   const exploreTypes = [
-    { label: "Apartamentos", value: "Apartamento", icon: "🏢" },
-    { label: "Casas", value: "Casa", icon: "🏠" },
-    { label: "Coberturas", value: "Cobertura", icon: "🏙️" },
-    { label: "Terrenos", value: "Terreno", icon: "🌿" },
-    { label: "Prédio", value: "Prédio", icon: "🏬" },
-    { label: "Salas comerciais", value: "Sala comercial", icon: "🏢" },
+    { id: "apartamentos", label: "Apartamentos", value: "Apartamento" },
+    { id: "casas", label: "Casas", value: "Casa" },
+    { id: "coberturas", label: "Coberturas", value: "Apartamento" },
+    { id: "casas-condominio", label: "Casas em condomínio", value: "Casa" },
+    { id: "campos", label: "Campos", value: "Terreno" },
+    { id: "terrenos", label: "Terrenos", value: "Terreno" },
   ];
+
+  function renderExploreIcon(typeId: string) {
+    if (typeId === "terrenos" || typeId === "campos") {
+      return (
+        <svg viewBox="0 0 48 48" className="h-12 w-12" aria-hidden>
+          <rect x="3" y="8" width="42" height="32" rx="10" fill="#EAF8F2" />
+          <path d="M9 31c4-5 8-4 12 0 4-6 9-6 14 0 2-2 4-3 7-2" fill="none" stroke="#82C1A2" strokeWidth="2.2" strokeLinecap="round" />
+          <circle cx="20" cy="24" r="5" fill="#82C1A2" />
+        </svg>
+      );
+    }
+
+    return (
+      <svg viewBox="0 0 48 48" className="h-12 w-12" aria-hidden>
+        <rect x="3" y="8" width="42" height="32" rx="10" fill="#EAF8F2" />
+        <path d="M12 26.5 24 17l12 9.5v10H12z" fill="#82C1A2" />
+        <rect x="22" y="29" width="4" height="7.5" rx="1" fill="#EAF0ED" />
+        <rect x="16" y="28" width="4" height="4" rx="1" fill="#EAF0ED" />
+        <rect x="28" y="28" width="4" height="4" rx="1" fill="#EAF0ED" />
+      </svg>
+    );
+  }
 
   const filteredLocationSuggestions = locationSuggestions
     .filter((item) => normalizeText(item).includes(normalizeText(location)))
@@ -705,39 +727,53 @@ export default function Home() {
           </section>
         ) : null}
 
-        <section className="!mt-0 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <section className="!mt-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.8fr)]">
             <div>
-              <h2 className="text-xl font-bold text-[#19191D]">Explore por tipo de imóvel</h2>
-              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+              <h2 className="text-3xl font-semibold tracking-tight text-[#19191D] md:text-[40px]">Explore por tipo de imóvel</h2>
+              <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
                 {exploreTypes.map((type) => (
                   <button
                     key={type.label}
                     type="button"
                     onClick={() => router.push(`/imoveis?propertyType=${encodeURIComponent(type.value)}`)}
-                    className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 transition hover:border-[#0E9F6E] hover:bg-[#EAF8F2] hover:text-[#0A8A5E]"
+                    className="flex min-h-[126px] flex-col items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-2 py-3 text-center text-sm font-medium text-[#19191D] transition hover:border-[#82C1A2] hover:bg-[#F6FBF9]"
                   >
-                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#EAF8F2] text-xs">
-                      {type.icon}
-                    </span>
-                    <span className="leading-tight">{type.label}</span>
+                    {renderExploreIcon(type.id)}
+                    <span className="text-[18px] leading-tight">{type.label}</span>
                   </button>
                 ))}
               </div>
             </div>
 
-            <article className="rounded-2xl border border-[#B6DFC8] bg-[#EAF8F2] p-5 md:p-6">
-              <h3 className="text-xl font-bold text-[#19191D]">Quer vender ou alugar seu imóvel?</h3>
-              <p className="mt-2 text-sm text-slate-700">
-                Anuncie gratuitamente e conecte-se diretamente com interessados.
-              </p>
-              <button
-                type="button"
-                onClick={() => router.push("/anunciar")}
-                className="mt-5 inline-flex h-11 items-center justify-center rounded-xl bg-[#0E9F6E] px-4 text-sm font-semibold text-white transition hover:bg-[#0A8A5E]"
-              >
-                Anunciar imóvel
-              </button>
+            <article className="relative overflow-hidden rounded-2xl border border-slate-200 bg-[#FAFAFA] p-6">
+              <div className="relative z-10 max-w-[330px]">
+                <h3 className="text-[22px] leading-tight font-semibold text-[#19191D] md:text-[26px]">
+                  Quer vender ou alugar seu imóvel?
+                </h3>
+                <p className="mt-3 text-base leading-relaxed text-slate-700">
+                  Anuncie gratuitamente e conecte-se diretamente com interessados.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => router.push("/anunciar")}
+                  className="mt-6 inline-flex h-12 items-center justify-center rounded-xl bg-[#0E9F6E] px-6 text-base font-semibold text-white transition hover:bg-[#0A8A5E]"
+                >
+                  Anunciar imóvel
+                </button>
+              </div>
+              <div className="pointer-events-none absolute right-2 bottom-0 hidden lg:block">
+                <svg viewBox="0 0 220 180" className="h-[170px] w-[210px]" aria-hidden>
+                  <ellipse cx="92" cy="148" rx="74" ry="20" fill="#EAF0ED" />
+                  <rect x="14" y="76" width="72" height="50" rx="10" fill="#82C1A2" />
+                  <path d="M14 85 50 56l36 29" fill="#82C1A2" />
+                  <rect x="41" y="96" width="18" height="30" rx="3" fill="#EAF0ED" />
+                  <rect x="106" y="56" width="48" height="36" rx="8" fill="#D3D8D9" />
+                  <path d="M106 62 130 44l24 18" fill="#D3D8D9" />
+                  <circle cx="172" cy="82" r="22" fill="#EAF0ED" />
+                  <rect x="164" y="96" width="34" height="48" rx="10" fill="#D3D8D9" />
+                </svg>
+              </div>
             </article>
           </div>
         </section>
