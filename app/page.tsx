@@ -444,25 +444,57 @@ export default function Home() {
         </div>
 
         <section className="!mt-0 rounded-[20px] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
-          <h2 className="text-2xl font-bold text-slate-950">Como funciona</h2>
-          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
-            <article className="rounded-2xl border border-emerald-100 bg-[#EAF8F2] p-5">
-              <p className="text-lg font-extrabold text-emerald-800">1️⃣ Anuncie seu imóvel</p>
-              <p className="mt-2 text-sm leading-7 text-slate-700">
-                Publique seu imóvel em poucos minutos.
-              </p>
+          <h2 className="text-2xl font-bold leading-none text-slate-950 md:text-4xl">Como funciona</h2>
+          <div className="mt-5 grid grid-cols-1 gap-4 lg:grid-cols-3">
+            <article className="rounded-2xl border border-slate-200 bg-[#EAF8F2] px-6 py-7">
+              <div className="flex items-center gap-4">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-emerald-400 text-xl font-bold text-white">
+                  1
+                </span>
+                <h3 className="text-lg font-semibold leading-none text-slate-900 md:text-3xl">Anuncie seu imóvel</h3>
+              </div>
+              <div className="mt-6 flex items-start gap-3">
+                <span className="text-2xl text-emerald-500">🏠</span>
+                <p className="text-base leading-tight text-slate-800 md:text-2xl">
+                  Publique seu imóvel em
+                  <br />
+                  poucos minutos.
+                </p>
+              </div>
             </article>
-            <article className="rounded-2xl border border-slate-200 bg-white p-5">
-              <p className="text-lg font-extrabold text-slate-900">2️⃣ Receba contatos</p>
-              <p className="mt-2 text-sm leading-7 text-slate-700">
-                Interessados entram em contato diretamente pela plataforma.
-              </p>
+
+            <article className="rounded-2xl border border-slate-200 bg-white px-6 py-7">
+              <div className="flex items-center gap-4">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-emerald-400 text-xl font-bold text-white">
+                  2
+                </span>
+                <h3 className="text-lg font-semibold leading-none text-slate-900 md:text-3xl">Receba contatos</h3>
+              </div>
+              <div className="mt-6 flex items-start gap-3">
+                <span className="text-2xl text-emerald-500">💬</span>
+                <p className="text-base leading-tight text-slate-800 md:text-2xl">
+                  Interessados entram em contato
+                  <br />
+                  diretamente pela plataforma.
+                </p>
+              </div>
             </article>
-            <article className="rounded-2xl border border-emerald-100 bg-[#EAF8F2] p-5">
-              <p className="text-lg font-extrabold text-emerald-800">3️⃣ Negocie diretamente</p>
-              <p className="mt-2 text-sm leading-7 text-slate-700">
-                Comprador e proprietário conversam diretamente.
-              </p>
+
+            <article className="rounded-2xl border border-slate-200 bg-[#EAF8F2] px-6 py-7">
+              <div className="flex items-center gap-4">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-emerald-400 text-xl font-bold text-white">
+                  3
+                </span>
+                <h3 className="text-lg font-semibold leading-none text-slate-900 md:text-3xl">Negocie diretamente</h3>
+              </div>
+              <div className="mt-6 flex items-start gap-3">
+                <span className="text-2xl text-emerald-500">🤝</span>
+                <p className="text-base leading-tight text-slate-800 md:text-2xl">
+                  Comprador e proprietário
+                  <br />
+                  conversam diretamente.
+                </p>
+              </div>
             </article>
           </div>
         </section>
