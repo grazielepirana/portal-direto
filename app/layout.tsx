@@ -66,7 +66,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
-      <body className="bg-gray-100 text-gray-900">
+      <body className="overflow-x-hidden bg-gray-100 text-gray-900">
         <SiteThemeSync />
         <SiteFaviconSync />
 

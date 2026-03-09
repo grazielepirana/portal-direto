@@ -466,9 +466,9 @@ export default function Home() {
 
         {featuredListings.length > 0 ? (
           <section id="highlights" className="!mt-0">
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <h2 className="text-3xl font-bold tracking-tight text-slate-900">Imóveis em destaque</h2>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setFeaturedKindFilter("todos")}
@@ -505,7 +505,7 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => router.push("/imoveis")}
-                  className="text-sm font-semibold text-slate-700 hover:text-slate-900 ml-2"
+                  className="ml-0 text-sm font-semibold text-slate-700 hover:text-slate-900 sm:ml-2"
                 >
                   Ver todos
                 </button>

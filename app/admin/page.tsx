@@ -90,6 +90,11 @@ export default function AdminPage() {
   const [replaceLocations, setReplaceLocations] = useState(false);
   const heroPreviewRef = useRef<HTMLDivElement | null>(null);
   const [draggingHeroPreview, setDraggingHeroPreview] = useState(false);
+  const supabaseProjectRef = (() => {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+    const match = url.match(/^https:\/\/([a-z0-9-]+)\.supabase\.co/i);
+    return match?.[1] ?? "";
+  })();
 
   useEffect(() => {
     (async () => {
@@ -1200,6 +1205,33 @@ export default function AdminPage() {
 
           {activeSection === "emails" ? (
             <div className="space-y-4">
+              <div className="border border-slate-300 rounded-xl p-4">
+                <h2 className="text-xl font-bold">E-mail de confirmação de cadastro</h2>
+                <p className="mt-1 text-sm text-slate-600">
+                  O e-mail automático de confirmação é controlado pelo Supabase Auth. Você pode editar
+                  o conteúdo do template por este atalho.
+                </p>
+                <div className="mt-3 flex flex-wrap items-center gap-3">
+                  {supabaseProjectRef ? (
+                    <a
+                      href={`https://supabase.com/dashboard/project/${supabaseProjectRef}/auth/templates`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                    >
+                      Editar template no Supabase
+                    </a>
+                  ) : (
+                    <span className="text-sm text-slate-600">
+                      Não foi possível detectar o projeto Supabase automaticamente.
+                    </span>
+                  )}
+                  <p className="text-xs text-slate-500">
+                    Template: <b>Confirm signup</b> (confirmação de e-mail).
+                  </p>
+                </div>
+              </div>
+
               <div className="border border-slate-300 rounded-xl p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
