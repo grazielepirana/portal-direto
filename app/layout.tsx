@@ -8,54 +8,16 @@ import SiteBrand from "./SiteBrand";
 import SiteFooter from "./SiteFooter";
 import CookieBanner from "./CookieBanner";
 
-async function loadFaviconFromSettings() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!supabaseUrl || !supabaseAnonKey) return { url: "", version: "" };
-
-  try {
-    const response = await fetch(
-      `${supabaseUrl}/rest/v1/site_settings?id=eq.1&select=favicon_url,updated_at`,
-      {
-        headers: {
-          apikey: supabaseAnonKey,
-          Authorization: `Bearer ${supabaseAnonKey}`,
-        },
-        cache: "no-store",
-      }
-    );
-
-    if (!response.ok) return { url: "", version: "" };
-    const data = (await response.json()) as Array<{
-      favicon_url?: string | null;
-      updated_at?: string | null;
-    }>;
-    const url = String(data?.[0]?.favicon_url ?? "").trim();
-    const version = String(data?.[0]?.updated_at ?? "").trim();
-    return { url, version };
-  } catch {
-    return { url: "", version: "" };
-  }
-}
-
-export async function generateMetadata(): Promise<Metadata> {
-  const favicon = await loadFaviconFromSettings();
-  const iconUrl = favicon.url
-    ? `${favicon.url}${favicon.url.includes("?") ? "&" : "?"}v=${encodeURIComponent(
-        favicon.version || "1"
-      )}`
-    : undefined;
-
+export function generateMetadata(): Metadata {
+  const iconUrl = "/api/site/favicon";
   return {
     title: "Portal Direto",
     description: "Imóveis direto com o proprietário",
-    icons: iconUrl
-      ? {
-          icon: [{ url: iconUrl }],
-          shortcut: [{ url: iconUrl }],
-          apple: [{ url: iconUrl }],
-        }
-      : undefined,
+    icons: {
+      icon: [{ url: iconUrl }],
+      shortcut: [{ url: iconUrl }],
+      apple: [{ url: iconUrl }],
+    },
   };
 }
 
