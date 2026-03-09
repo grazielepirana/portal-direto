@@ -23,6 +23,7 @@ type ListingMeta = {
 };
 
 const CHAT_LAST_SEEN_KEY = "portal_chat_last_seen_v1";
+const CHAT_ARCHIVED_KEY = "portal_chat_archived_v1";
 
 function readLastSeenMap(): Record<string, string> {
   if (typeof window === "undefined") return {};
@@ -34,6 +35,23 @@ function readLastSeenMap(): Record<string, string> {
   } catch {
     return {};
   }
+}
+
+function readArchivedConversationIds(): string[] {
+  if (typeof window === "undefined") return [];
+  const raw = window.localStorage.getItem(CHAT_ARCHIVED_KEY);
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw) as string[];
+    return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveArchivedConversationIds(ids: string[]) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(CHAT_ARCHIVED_KEY, JSON.stringify(ids));
 }
 
 function getFirstImageUrl(value: unknown): string | null {
@@ -68,6 +86,7 @@ export default function ChatInboxPage() {
   const [activeChip, setActiveChip] = useState<"all" | "unread" | "archived">("all");
   const [loading, setLoading] = useState(true);
   const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
+  const [archivedIds, setArchivedIds] = useState<string[]>(() => readArchivedConversationIds());
 
   useEffect(() => {
     (async () => {
@@ -168,8 +187,13 @@ export default function ChatInboxPage() {
 
   const filteredConversations = useMemo(() => {
     const normalized = query.trim().toLowerCase();
+    const archivedSet = new Set(archivedIds);
 
     const byText = conversations.filter((conversation) => {
+      const isArchived = archivedSet.has(conversation.id);
+      if (activeChip === "archived" && !isArchived) return false;
+      if (activeChip !== "archived" && isArchived) return false;
+
       const otherId = conversation.user_a === userId ? conversation.user_b : conversation.user_a;
       const title = conversation.listing_id
         ? listingMetaMap[conversation.listing_id]?.title ?? `Anúncio ${conversation.listing_id.slice(0, 6)}…`
@@ -181,14 +205,18 @@ export default function ChatInboxPage() {
       return haystack.includes(normalized);
     });
 
-    if (activeChip === "archived") return [];
-
     if (activeChip === "unread") {
       return byText.filter((conversation) => (unreadCounts[conversation.id] ?? 0) > 0);
     }
 
     return byText;
-  }, [activeChip, conversations, listingMetaMap, profileNames, query, unreadCounts, userId]);
+  }, [activeChip, archivedIds, conversations, listingMetaMap, profileNames, query, unreadCounts, userId]);
+
+  function reopenConversation(conversationId: string) {
+    const next = archivedIds.filter((id) => id !== conversationId);
+    setArchivedIds(next);
+    saveArchivedConversationIds(next);
+  }
 
   if (loading) {
     return (
@@ -269,16 +297,9 @@ export default function ChatInboxPage() {
                   const thumb = meta?.imageUrl ?? undefined;
                   const unreadCount = unreadCounts[c.id] ?? 0;
                   const hasUnread = unreadCount > 0;
-                  return (
-                    <Link
-                      key={c.id}
-                      href={`/chat/${c.id}?other=${otherId}`}
-                      onClick={() => {
-                        const next = { ...readLastSeenMap(), [c.id]: new Date().toISOString() };
-                        window.localStorage.setItem(CHAT_LAST_SEEN_KEY, JSON.stringify(next));
-                      }}
-                      className="flex items-start gap-3 border-l-2 border-l-transparent px-4 py-3 transition hover:bg-slate-100 hover:border-l-slate-500"
-                    >
+
+                  const rowMain = (
+                    <>
                       {thumb ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -311,6 +332,38 @@ export default function ChatInboxPage() {
                           {unreadCount > 99 ? "99+" : unreadCount}
                         </span>
                       ) : null}
+                    </>
+                  );
+
+                  if (activeChip === "archived") {
+                    return (
+                      <div
+                        key={c.id}
+                        className="flex items-start gap-3 border-l-2 border-l-transparent px-4 py-3"
+                      >
+                        {rowMain}
+                        <button
+                          type="button"
+                          onClick={() => reopenConversation(c.id)}
+                          className="shrink-0 rounded-lg border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                        >
+                          Reabrir
+                        </button>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <Link
+                      key={c.id}
+                      href={`/chat/${c.id}?other=${otherId}`}
+                      onClick={() => {
+                        const next = { ...readLastSeenMap(), [c.id]: new Date().toISOString() };
+                        window.localStorage.setItem(CHAT_LAST_SEEN_KEY, JSON.stringify(next));
+                      }}
+                      className="flex items-start gap-3 border-l-2 border-l-transparent px-4 py-3 transition hover:bg-slate-100 hover:border-l-slate-500"
+                    >
+                      {rowMain}
                     </Link>
                   );
                 })}

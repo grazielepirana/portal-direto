@@ -40,6 +40,7 @@ type Listing = {
 };
 
 const CHAT_LAST_SEEN_KEY = "portal_chat_last_seen_v1";
+const CHAT_ARCHIVED_KEY = "portal_chat_archived_v1";
 
 function readLastSeenMap(): Record<string, string> {
   if (typeof window === "undefined") return {};
@@ -57,6 +58,31 @@ function markConversationSeen(conversationId: string) {
   if (typeof window === "undefined" || !conversationId) return;
   const next = { ...readLastSeenMap(), [conversationId]: new Date().toISOString() };
   window.localStorage.setItem(CHAT_LAST_SEEN_KEY, JSON.stringify(next));
+}
+
+function readArchivedConversationIds(): string[] {
+  if (typeof window === "undefined") return [];
+  const raw = window.localStorage.getItem(CHAT_ARCHIVED_KEY);
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw) as string[];
+    return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
+  } catch {
+    return [];
+  }
+}
+
+function archiveConversation(conversationId: string) {
+  if (typeof window === "undefined" || !conversationId) return;
+  const current = new Set(readArchivedConversationIds());
+  current.add(conversationId);
+  window.localStorage.setItem(CHAT_ARCHIVED_KEY, JSON.stringify(Array.from(current)));
+}
+
+function reopenConversation(conversationId: string) {
+  if (typeof window === "undefined" || !conversationId) return;
+  const next = readArchivedConversationIds().filter((id) => id !== conversationId);
+  window.localStorage.setItem(CHAT_ARCHIVED_KEY, JSON.stringify(next));
 }
 
 function getFirstImageUrl(value: unknown): string | null {
@@ -100,6 +126,7 @@ export default function ChatRoomPage({
   const [activeChip, setActiveChip] = useState<"all" | "unread" | "archived">("all");
   const [showDetailsDrawer, setShowDetailsDrawer] = useState(false);
   const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
+  const [actionMsg, setActionMsg] = useState<string | null>(null);
 
   const [listing, setListing] = useState<Listing | null>(null);
   const [otherName, setOtherName] = useState<string>("");
@@ -210,7 +237,7 @@ export default function ChatRoomPage({
         // pega dados do imóvel
         const { data: lst, error: lstErr } = await supabase
           .from("listings")
-          .select("id,listing_title,image_urls,price,property_type,kind,address,address_number,city,neighborhood,code,owner_phone")
+          .select("id,listing_title,image_urls,price,property_type,kind,address,address_number,city,neighborhood,code")
           .eq("id", conv.listing_id)
           .single();
 
@@ -294,8 +321,13 @@ export default function ChatRoomPage({
 
   const filteredConversations = useMemo(() => {
     const normalized = query.trim().toLowerCase();
+    const archivedSet = new Set(readArchivedConversationIds());
 
     const byText = conversations.filter((conversation) => {
+      const isArchived = archivedSet.has(conversation.id);
+      if (activeChip === "archived" && !isArchived) return false;
+      if (activeChip !== "archived" && isArchived) return false;
+
       const otherId = conversation.user_a === userId ? conversation.user_b : conversation.user_a;
       const listingTitle = conversation.listing_id
         ? listingTitles[conversation.listing_id] ?? "Conversa"
@@ -306,8 +338,6 @@ export default function ChatRoomPage({
       if (!normalized) return true;
       return haystack.includes(normalized);
     });
-
-    if (activeChip === "archived") return [];
 
     if (activeChip === "unread") {
       return byText.filter(
@@ -442,18 +472,8 @@ export default function ChatRoomPage({
               const isActive = conversation.id === conversationId;
               const unreadCount = unreadCounts[conversation.id] ?? 0;
               const hasUnread = unreadCount > 0 && !isActive;
-
-              return (
-                <Link
-                  key={conversation.id}
-                  href={`/chat/${conversation.id}?other=${otherId}`}
-                  onClick={() => markConversationSeen(conversation.id)}
-                  className={`flex items-start gap-3 border-l-2 px-4 py-3 transition ${
-                    isActive
-                      ? "bg-slate-100 border-l-slate-900"
-                      : "border-l-transparent hover:bg-slate-100 hover:border-l-slate-500"
-                  }`}
-                >
+              const rowMain = (
+                <>
                   {rowThumb ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -488,6 +508,42 @@ export default function ChatRoomPage({
                       {unreadCount > 99 ? "99+" : unreadCount}
                     </span>
                   ) : null}
+                </>
+              );
+
+              if (activeChip === "archived") {
+                return (
+                  <div
+                    key={conversation.id}
+                    className="flex items-start gap-3 border-l-2 border-l-transparent px-4 py-3"
+                  >
+                    {rowMain}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        reopenConversation(conversation.id);
+                        window.location.href = `/chat/${conversation.id}?other=${otherId}`;
+                      }}
+                      className="shrink-0 rounded-lg border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                    >
+                      Reabrir
+                    </button>
+                  </div>
+                );
+              }
+
+              return (
+                <Link
+                  key={conversation.id}
+                  href={`/chat/${conversation.id}?other=${otherId}`}
+                  onClick={() => markConversationSeen(conversation.id)}
+                  className={`flex items-start gap-3 border-l-2 px-4 py-3 transition ${
+                    isActive
+                      ? "bg-slate-100 border-l-slate-900"
+                      : "border-l-transparent hover:bg-slate-100 hover:border-l-slate-500"
+                  }`}
+                >
+                  {rowMain}
                 </Link>
               );
             })}
@@ -603,6 +659,11 @@ export default function ChatRoomPage({
             )}
             <div ref={bottomRef} />
           </div>
+          {actionMsg ? (
+            <div className="shrink-0 border-t border-slate-200 bg-emerald-50 px-4 py-2 text-xs font-semibold text-emerald-800">
+              {actionMsg}
+            </div>
+          ) : null}
 
           <div className="shrink-0 h-[76px] bg-white border-t border-slate-200 px-4 flex items-center gap-3">
             <button
@@ -674,6 +735,11 @@ export default function ChatRoomPage({
                   {listing.kind === "venda" ? "Venda" : "Locação"}
                 </p>
               ) : null}
+              {!listing ? (
+                <p className="mt-2 text-sm text-slate-600">
+                  Este chat ainda não está vinculado a um anúncio com detalhes completos.
+                </p>
+              ) : null}
             </div>
 
             <div className="space-y-2 mt-4">
@@ -690,12 +756,29 @@ export default function ChatRoomPage({
               ) : null}
               <button
                 type="button"
+                onClick={() => {
+                  archiveConversation(conversationId);
+                  setActionMsg("Conversa marcada como resolvida e movida para Arquivadas.");
+                  setShowDetailsDrawer(false);
+                  setTimeout(() => {
+                    window.location.href = "/chat";
+                  }, 700);
+                }}
                 className="w-full h-10 rounded-xl border border-slate-300 bg-white text-slate-700 text-sm font-semibold hover:bg-slate-50 transition"
               >
                 Marcar como resolvida
               </button>
               <button
                 type="button"
+                onClick={() => {
+                  const listingUrl = listing?.id
+                    ? `${window.location.origin}/imovel/${listing.id}`
+                    : "";
+                  const url = listingUrl
+                    ? `/canal-de-denuncias?tipo=conteudo irregular&link=${encodeURIComponent(listingUrl)}`
+                    : "/canal-de-denuncias";
+                  window.location.href = url;
+                }}
                 className="w-full h-10 rounded-xl border border-slate-300 bg-white text-slate-700 text-sm font-semibold hover:bg-slate-50 transition"
               >
                 Reportar/Bloquear
