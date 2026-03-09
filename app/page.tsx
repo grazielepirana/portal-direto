@@ -224,6 +224,15 @@ export default function Home() {
     return item.kind === featuredKindFilter;
   });
 
+  const exploreTypes = [
+    { label: "Apartamentos", value: "Apartamento", icon: "🏢" },
+    { label: "Casas", value: "Casa", icon: "🏠" },
+    { label: "Coberturas", value: "Cobertura", icon: "🏙️" },
+    { label: "Terrenos", value: "Terreno", icon: "🌿" },
+    { label: "Prédio", value: "Prédio", icon: "🏬" },
+    { label: "Salas comerciais", value: "Sala comercial", icon: "🏢" },
+  ];
+
   const filteredLocationSuggestions = locationSuggestions
     .filter((item) => normalizeText(item).includes(normalizeText(location)))
     .slice(0, 8);
@@ -695,6 +704,43 @@ export default function Home() {
             ) : null}
           </section>
         ) : null}
+
+        <section className="!mt-0 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+            <div>
+              <h2 className="text-xl font-bold text-[#19191D]">Explore por tipo de imóvel</h2>
+              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {exploreTypes.map((type) => (
+                  <button
+                    key={type.label}
+                    type="button"
+                    onClick={() => router.push(`/imoveis?propertyType=${encodeURIComponent(type.value)}`)}
+                    className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 transition hover:border-[#0E9F6E] hover:bg-[#EAF8F2] hover:text-[#0A8A5E]"
+                  >
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#EAF8F2] text-xs">
+                      {type.icon}
+                    </span>
+                    <span className="leading-tight">{type.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <article className="rounded-2xl border border-[#B6DFC8] bg-[#EAF8F2] p-5 md:p-6">
+              <h3 className="text-xl font-bold text-[#19191D]">Quer vender ou alugar seu imóvel?</h3>
+              <p className="mt-2 text-sm text-slate-700">
+                Anuncie gratuitamente e conecte-se diretamente com interessados.
+              </p>
+              <button
+                type="button"
+                onClick={() => router.push("/anunciar")}
+                className="mt-5 inline-flex h-11 items-center justify-center rounded-xl bg-[#0E9F6E] px-4 text-sm font-semibold text-white transition hover:bg-[#0A8A5E]"
+              >
+                Anunciar imóvel
+              </button>
+            </article>
+          </div>
+        </section>
 
         <section className="!mt-0 grid grid-cols-1 md:grid-cols-2 gap-6">
           <article
