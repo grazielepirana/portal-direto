@@ -638,7 +638,7 @@ export default function Home() {
                         {item.bedrooms ? (
                           <span className="inline-flex items-center gap-1">
                             <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 text-slate-500" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
-                              <path d="M3 12h18v7H3zM7 12V9a3 3 0 0 1 6 0v3" strokeLinecap="round" strokeLinejoin="round" />
+                              <path d="M3 11h18v7H3zM5 11V8h5v3M13 11V9h6v2" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                             {item.bedrooms}
                           </span>
@@ -646,7 +646,7 @@ export default function Home() {
                         {item.bathrooms ? (
                           <span className="inline-flex items-center gap-1">
                             <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 text-slate-500" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
-                              <path d="M7 3v7a5 5 0 0 0 10 0V3M7 8h10" strokeLinecap="round" strokeLinejoin="round" />
+                              <path d="M4 11h16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Zm3 2v3m10-3v3M8 11V8a2 2 0 1 1 4 0v3" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                             {item.bathrooms}
                           </span>
@@ -654,7 +654,7 @@ export default function Home() {
                         {item.parking_spots ? (
                           <span className="inline-flex items-center gap-1">
                             <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 text-slate-500" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
-                              <path d="M5 13h14l-1-4H6l-1 4Zm0 0v4m14-4v4M8 13v4m8-4v4" strokeLinecap="round" strokeLinejoin="round" />
+                              <path d="M5 14h14l-1-4H6l-1 4Zm2 0v3m10-3v3M8 17a1 1 0 1 0 0 2 1 1 0 0 0 0-2Zm8 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                             {item.parking_spots}
                           </span>

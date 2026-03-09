@@ -109,7 +109,7 @@ function AnunciarPageContent() {
   const [condoAmenitiesOther, setCondoAmenitiesOther] = useState("");
   const [condoFee, setCondoFee] = useState("");
   const [iptuFee, setIptuFee] = useState("");
-  const [bedrooms, setBedrooms] = useState<number>(1);
+  const [bedrooms, setBedrooms] = useState<number | "">("");
   const [bathrooms, setBathrooms] = useState<number | "">("");
   const [suites, setSuites] = useState<number | "">("");
   const [areaSqm, setAreaSqm] = useState<number | "">("");
@@ -261,6 +261,14 @@ function AnunciarPageContent() {
         );
         return;
       }
+      if (
+        typeof bedrooms !== "number" ||
+        typeof bathrooms !== "number" ||
+        typeof parkingSpots !== "number"
+      ) {
+        setMsg("Preencha os campos obrigatórios: quartos, banheiros e vagas de garagem.");
+        return;
+      }
 
       if (photoFiles.length === 0) {
         setMsg("Adicione pelo menos 1 foto do imóvel para publicar o anúncio.");
@@ -321,7 +329,7 @@ function AnunciarPageContent() {
           isInCondo === "sim" && condoAmenities.includes("Outros")
             ? condoAmenitiesOther.trim() || null
             : null,
-        bedrooms: bedrooms || null,
+        bedrooms: typeof bedrooms === "number" ? bedrooms : null,
         bathrooms: typeof bathrooms === "number" ? bathrooms : null,
         suites: typeof suites === "number" ? suites : null,
         area_sqm: typeof areaSqm === "number" ? areaSqm : null,
@@ -393,7 +401,7 @@ function AnunciarPageContent() {
             listing_title: listingTitle.trim() || null,
             city,
             neighborhood: neighborhood || null,
-            bedrooms: bedrooms || null,
+            bedrooms: typeof bedrooms === "number" ? bedrooms : null,
             condo_name: condoName || null,
             code: code || null,
             price: priceNumber,
@@ -453,7 +461,7 @@ function AnunciarPageContent() {
       setCondoAmenitiesOther("");
       setCondoFee("");
       setIptuFee("");
-      setBedrooms(1);
+      setBedrooms("");
       setBathrooms("");
       setSuites("");
       setAreaSqm("");
@@ -706,6 +714,15 @@ function AnunciarPageContent() {
       setMsg("Selecione se aceita permuta para continuar.");
       return;
     }
+    if (
+      currentStep === 3 &&
+      (typeof bedrooms !== "number" ||
+        typeof bathrooms !== "number" ||
+        typeof parkingSpots !== "number")
+    ) {
+      setMsg("Preencha quartos, banheiros e vagas para continuar.");
+      return;
+    }
     if (currentStep === 4 && photoFiles.length === 0) {
       setMsg("Adicione pelo menos 1 foto para continuar.");
       return;
@@ -952,11 +969,17 @@ function AnunciarPageContent() {
                       />
                     </div>
                     <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-800">Quartos</label>
-                      <input className={fieldClassName} type="number" min={0} value={bedrooms} onChange={(e) => setBedrooms(Number(e.target.value))} />
+                      <label className="mb-2 block text-sm font-semibold text-slate-800">Quartos *</label>
+                      <input
+                        className={fieldClassName}
+                        type="number"
+                        min={0}
+                        value={bedrooms}
+                        onChange={(e) => setBedrooms(e.target.value === "" ? "" : Number(e.target.value))}
+                      />
                     </div>
                     <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-800">Banheiros</label>
+                      <label className="mb-2 block text-sm font-semibold text-slate-800">Banheiros *</label>
                       <input className={fieldClassName} type="number" min={0} value={bathrooms} onChange={(e) => setBathrooms(e.target.value === "" ? "" : Number(e.target.value))} />
                     </div>
                     <div>
@@ -968,7 +991,7 @@ function AnunciarPageContent() {
                       <input className={fieldClassName} type="number" min={0} step="0.01" value={areaSqm} onChange={(e) => setAreaSqm(e.target.value === "" ? "" : Number(e.target.value))} />
                     </div>
                     <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-800">Vagas de garagem</label>
+                      <label className="mb-2 block text-sm font-semibold text-slate-800">Vagas de garagem *</label>
                       <input className={fieldClassName} type="number" min={0} value={parkingSpots} onChange={(e) => setParkingSpots(e.target.value === "" ? "" : Number(e.target.value))} />
                     </div>
                     <div>
