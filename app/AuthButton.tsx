@@ -242,7 +242,7 @@ export default function AuthButton() {
 
                       const refIndex = focusableIndex;
                       return (
-                        <Link
+                        <a
                           key={`${section.title}-${item.label}`}
                           href={item.href ?? "#"}
                           role="menuitem"
@@ -264,7 +264,7 @@ export default function AuthButton() {
                               {item.badge}
                             </span>
                           ) : null}
-                        </Link>
+                        </a>
                       );
                     })}
                   </div>

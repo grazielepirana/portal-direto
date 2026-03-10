@@ -61,6 +61,17 @@ function getFirstImageUrl(value: unknown): string | null {
 const HOME_FEATURED_CACHE_KEY = "portal_home_featured_cache_v1";
 const HOME_LOCATION_CACHE_KEY = "portal_home_locations_cache_v1";
 
+function dedupeFeaturedById(items: FeaturedListing[]) {
+  const seen = new Set<string>();
+  const unique: FeaturedListing[] = [];
+  for (const item of items) {
+    if (!item?.id || seen.has(item.id)) continue;
+    seen.add(item.id);
+    unique.push(item);
+  }
+  return unique;
+}
+
 export default function Home() {
   const router = useRouter();
   const [heroImageUrl, setHeroImageUrl] = useState("");
@@ -119,7 +130,9 @@ export default function Home() {
         const cachedFeatured = window.sessionStorage.getItem(HOME_FEATURED_CACHE_KEY);
         if (cachedFeatured) {
           const parsed = JSON.parse(cachedFeatured) as FeaturedListing[];
-          if (Array.isArray(parsed) && parsed.length > 0) setFeaturedListings(parsed);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setFeaturedListings(dedupeFeaturedById(parsed));
+          }
         }
 
         const cachedLocations = window.sessionStorage.getItem(HOME_LOCATION_CACHE_KEY);
@@ -212,9 +225,10 @@ export default function Home() {
         if (Number.isNaN(untilDate.getTime())) return true;
         return untilDate >= now;
       });
-      setFeaturedListings(valid);
+      const uniqueValid = dedupeFeaturedById(valid);
+      setFeaturedListings(uniqueValid);
       if (typeof window !== "undefined") {
-        window.sessionStorage.setItem(HOME_FEATURED_CACHE_KEY, JSON.stringify(valid));
+        window.sessionStorage.setItem(HOME_FEATURED_CACHE_KEY, JSON.stringify(uniqueValid));
       }
     })();
   }, []);
