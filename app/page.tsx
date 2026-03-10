@@ -234,25 +234,63 @@ export default function Home() {
   ];
 
   function renderExploreIcon(typeId: string) {
-    if (typeId === "terrenos" || typeId === "campos") {
-      return (
-        <svg viewBox="0 0 48 48" className="h-12 w-12" aria-hidden>
-          <rect x="3" y="8" width="42" height="32" rx="10" fill="#EAF8F2" />
-          <path d="M9 31c4-5 8-4 12 0 4-6 9-6 14 0 2-2 4-3 7-2" fill="none" stroke="#82C1A2" strokeWidth="2.2" strokeLinecap="round" />
-          <circle cx="20" cy="24" r="5" fill="#82C1A2" />
-        </svg>
-      );
+    switch (typeId) {
+      case "apartamentos":
+        return (
+          <svg viewBox="0 0 56 48" className="h-12 w-12" aria-hidden>
+            <rect x="4" y="8" width="48" height="32" rx="9" fill="#EAF8F2" />
+            <rect x="16" y="14" width="20" height="22" rx="2" fill="#82C1A2" />
+            <path d="M20 19h3M26 19h3M20 24h3M26 24h3M20 29h3M26 29h3" stroke="#EAF0ED" strokeWidth="1.8" strokeLinecap="round" />
+            <rect x="38" y="18" width="6" height="16" rx="1.5" fill="#D3D8D9" />
+          </svg>
+        );
+      case "casas":
+        return (
+          <svg viewBox="0 0 56 48" className="h-12 w-12" aria-hidden>
+            <rect x="4" y="8" width="48" height="32" rx="9" fill="#EAF8F2" />
+            <path d="M12 24 28 12l16 12" fill="#82C1A2" />
+            <rect x="14" y="24" width="28" height="13" rx="2" fill="#82C1A2" />
+            <rect x="25" y="27" width="6" height="10" rx="1.2" fill="#EAF0ED" />
+          </svg>
+        );
+      case "coberturas":
+        return (
+          <svg viewBox="0 0 56 48" className="h-12 w-12" aria-hidden>
+            <rect x="4" y="8" width="48" height="32" rx="9" fill="#EAF8F2" />
+            <path d="M10 25 28 12l18 13" fill="#0E9F6E" opacity="0.85" />
+            <rect x="11" y="25" width="34" height="12" rx="2" fill="#82C1A2" />
+            <rect x="34" y="17" width="8" height="7" rx="1.5" fill="#EAF0ED" />
+          </svg>
+        );
+      case "casas-condominio":
+        return (
+          <svg viewBox="0 0 56 48" className="h-12 w-12" aria-hidden>
+            <rect x="4" y="8" width="48" height="32" rx="9" fill="#EAF8F2" />
+            <path d="M10 26 23 16l13 10v11H10z" fill="#82C1A2" />
+            <path d="M38 15v16" stroke="#82C1A2" strokeWidth="2" />
+            <circle cx="38" cy="14" r="2.2" fill="#82C1A2" />
+            <path d="M39 15h6" stroke="#82C1A2" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        );
+      case "campos":
+        return (
+          <svg viewBox="0 0 56 48" className="h-12 w-12" aria-hidden>
+            <rect x="4" y="8" width="48" height="32" rx="9" fill="#EAF8F2" />
+            <rect x="15" y="17" width="26" height="16" rx="2" fill="#82C1A2" />
+            <path d="M8 19c6 2 10 6 10 12M8 19c6 0 11 2 16 8" stroke="#82C1A2" strokeWidth="2" strokeLinecap="round" />
+            <circle cx="30" cy="30" r="3" fill="#0E9F6E" opacity="0.65" />
+          </svg>
+        );
+      default:
+        return (
+          <svg viewBox="0 0 56 48" className="h-12 w-12" aria-hidden>
+            <rect x="4" y="8" width="48" height="32" rx="9" fill="#EAF8F2" />
+            <ellipse cx="21" cy="26" rx="9" ry="6" fill="#82C1A2" />
+            <ellipse cx="31" cy="23" rx="10" ry="7" fill="#B6DFC8" />
+            <path d="M11 33c4-2 8-2 12 0 3-1 7-1 10 0 3-1 6-1 9 0" stroke="#82C1A2" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        );
     }
-
-    return (
-      <svg viewBox="0 0 48 48" className="h-12 w-12" aria-hidden>
-        <rect x="3" y="8" width="42" height="32" rx="10" fill="#EAF8F2" />
-        <path d="M12 26.5 24 17l12 9.5v10H12z" fill="#82C1A2" />
-        <rect x="22" y="29" width="4" height="7.5" rx="1" fill="#EAF0ED" />
-        <rect x="16" y="28" width="4" height="4" rx="1" fill="#EAF0ED" />
-        <rect x="28" y="28" width="4" height="4" rx="1" fill="#EAF0ED" />
-      </svg>
-    );
   }
 
   const filteredLocationSuggestions = locationSuggestions
