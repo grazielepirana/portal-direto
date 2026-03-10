@@ -101,6 +101,7 @@ function getFirstImageUrl(value: unknown): string | null {
 
 export default function ChatInboxPage() {
   const [userId, setUserId] = useState<string | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [listingMetaMap, setListingMetaMap] = useState<Record<string, ListingMeta>>({});
   const [profileNames, setProfileNames] = useState<Record<string, string>>({});
@@ -228,10 +229,20 @@ export default function ChatInboxPage() {
       setLoading(false);
     }
 
-    (async () => {
+    async function resolveUserId() {
       const { data: sessionData } = await supabase.auth.getSession();
-      const uid = sessionData.session?.user?.id ?? null;
+      let uid = sessionData.session?.user?.id ?? null;
+      if (!uid) {
+        const { data: userData } = await supabase.auth.getUser();
+        uid = userData.user?.id ?? null;
+      }
+      return uid;
+    }
+
+    (async () => {
+      const uid = await resolveUserId();
       setUserId(uid);
+      setAuthChecked(true);
 
       if (!uid) {
         setLoading(false);
@@ -242,8 +253,9 @@ export default function ChatInboxPage() {
     })();
 
     const { data: authSub } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      const uid = session?.user?.id ?? null;
+      const uid = session?.user?.id ?? (await resolveUserId());
       setUserId(uid);
+      setAuthChecked(true);
       if (!uid) {
         setConversations([]);
         setListingMetaMap({});
@@ -294,7 +306,7 @@ export default function ChatInboxPage() {
     saveArchivedConversationIds(next);
   }
 
-  if (loading) {
+  if (loading || !authChecked) {
     return (
       <main className="h-[calc(100vh-80px)] bg-gray-100 p-6 lg:p-8">
         <div className="max-w-5xl mx-auto">Carregando...</div>
