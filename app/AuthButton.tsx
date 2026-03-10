@@ -52,8 +52,9 @@ export default function AuthButton() {
       }
     }
 
-    window.addEventListener("mousedown", onClickOutside);
-    return () => window.removeEventListener("mousedown", onClickOutside);
+    // Usa "click" (não mousedown) para não cancelar navegação em 1 clique fora do menu.
+    window.addEventListener("click", onClickOutside);
+    return () => window.removeEventListener("click", onClickOutside);
   }, []);
 
   useEffect(() => {

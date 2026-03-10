@@ -337,20 +337,18 @@ export default function Home() {
                 Plataforma digital para conexão direta entre interessados.
               </p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <button
-                  type="button"
-                  onClick={() => router.push("/anunciar")}
-                  className="cta-primary h-12 w-full rounded-xl px-5 text-sm font-extrabold tracking-wide transition sm:w-auto"
+                <Link
+                  href="/anunciar"
+                  className="cta-primary inline-flex h-12 w-full items-center justify-center rounded-xl px-5 text-sm font-extrabold tracking-wide transition sm:w-auto"
                 >
                   ANUNCIAR GRÁTIS
-                </button>
-                <button
-                  type="button"
-                  onClick={() => router.push("/imoveis")}
-                  className="h-12 w-full rounded-xl border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 sm:w-auto"
+                </Link>
+                <Link
+                  href="/imoveis"
+                  className="inline-flex h-12 w-full items-center justify-center rounded-xl border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 sm:w-auto"
                 >
                   BUSCAR IMÓVEIS
-                </button>
+                </Link>
               </div>
             </div>
 
