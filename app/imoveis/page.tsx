@@ -579,7 +579,7 @@ function ImoveisPageContent({ searchParams }: { searchParams: ReturnType<typeof 
                   return (
                     <div
                       key={item.id}
-                      className="group bg-white rounded-[18px] overflow-hidden cursor-pointer border border-slate-200 shadow-[0_8px_24px_rgba(15,23,42,0.08)] transition-all duration-300 hover:-translate-y-[6px]"
+                      className="group bg-white rounded-[12px] overflow-hidden cursor-pointer border border-slate-200 shadow-[0_6px_20px_rgba(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-[6px]"
                       role="link"
                       tabIndex={0}
                       onClick={() => {
@@ -614,8 +614,13 @@ function ImoveisPageContent({ searchParams }: { searchParams: ReturnType<typeof 
                           </div>
                         )}
                         {item.is_featured ? (
-                          <span className="absolute top-3 left-3 inline-flex items-center rounded-full border border-amber-300/70 bg-amber-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-amber-900">
+                          <span className="absolute top-3 left-3 inline-flex items-center rounded-full bg-[#0F172A]/85 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white">
                             Destaque
+                          </span>
+                        ) : null}
+                        {item.kind ? (
+                          <span className="absolute top-3 left-[92px] rounded-full bg-white/95 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-800 shadow-sm">
+                            {item.kind === "venda" ? "Venda" : "Locação"}
                           </span>
                         ) : null}
                         <div className="absolute top-3 right-3">
@@ -635,35 +640,33 @@ function ImoveisPageContent({ searchParams }: { searchParams: ReturnType<typeof 
                             }}
                           />
                         </div>
+                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent px-4 pb-3 pt-7">
+                          <p className="text-left text-2xl font-bold leading-none text-white drop-shadow-sm">
+                            {item.price != null
+                              ? item.price.toLocaleString("pt-BR", {
+                                  style: "currency",
+                                  currency: "BRL",
+                                  minimumFractionDigits: 0,
+                                })
+                              : "Preço sob consulta"}
+                          </p>
+                        </div>
                       </div>
 
-                      <div className="p-6">
-                        <h3 className="text-xl font-bold text-slate-950 mb-2">
+                      <div className="p-3.5">
+                        <h3 className="line-clamp-2 text-[15px] font-semibold leading-tight text-[#19191D]">
                           {item.listing_title?.trim() || `${item.property_type} • ${item.kind === "venda" ? "Venda" : "Locação"}`}
                         </h3>
-                        <p className="text-[28px] font-bold text-[#0F172A] mt-2">
-                          {item.price != null ? `R$ ${item.price.toLocaleString("pt-BR")}` : "Preço não informado"}
+                        <p className="mt-1 line-clamp-1 text-sm text-slate-600">
+                          {[item.neighborhood, item.city].filter(Boolean).join(" - ")}
                         </p>
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          {item.bedrooms ? (
-                            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                              {item.bedrooms} quartos
-                            </span>
-                          ) : null}
-                          {item.parking_spots ? (
-                            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                              {item.parking_spots} vagas
-                            </span>
-                          ) : null}
-                          {item.area_sqm ? (
-                            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                              {item.area_sqm} m²
-                            </span>
-                          ) : null}
+                        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500">
+                          {item.area_sqm ? <span className="inline-flex items-center gap-1">📐 {item.area_sqm} m²</span> : null}
+                          {item.bedrooms ? <span className="inline-flex items-center gap-1">🛏️ {item.bedrooms}</span> : null}
+                          {item.bathrooms ? <span className="inline-flex items-center gap-1">🚿 {item.bathrooms}</span> : null}
+                          {item.parking_spots ? <span className="inline-flex items-center gap-1">🚗 {item.parking_spots}</span> : null}
                         </div>
-                        <p className="text-sm text-slate-600 mt-1">
-                          {formatTimeAgo(item.created_at)}
-                        </p>
+                        <p className="mt-1 text-sm text-slate-600">{formatTimeAgo(item.created_at)}</p>
                         <button
                           type="button"
                           className="inline-block mt-4 underline font-semibold"
