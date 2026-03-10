@@ -120,16 +120,7 @@ export default function ChatInboxPage() {
       setLoading(false);
     }
 
-    (async () => {
-      const { data } = await supabase.auth.getUser();
-      const uid = data.user?.id ?? null;
-      setUserId(uid);
-
-      if (!uid) {
-        setLoading(false);
-        return;
-      }
-
+    async function loadInbox(uid: string) {
       const { data: convs, error } = await supabase
         .from("conversations")
         .select("id,user_a,user_b,listing_id,last_message_text,last_message_at,created_at")
@@ -235,7 +226,39 @@ export default function ChatInboxPage() {
         }
       }
       setLoading(false);
+    }
+
+    (async () => {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const uid = sessionData.session?.user?.id ?? null;
+      setUserId(uid);
+
+      if (!uid) {
+        setLoading(false);
+        return;
+      }
+
+      await loadInbox(uid);
     })();
+
+    const { data: authSub } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      const uid = session?.user?.id ?? null;
+      setUserId(uid);
+      if (!uid) {
+        setConversations([]);
+        setListingMetaMap({});
+        setProfileNames({});
+        setUnreadCounts({});
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+      await loadInbox(uid);
+    });
+
+    return () => {
+      authSub.subscription.unsubscribe();
+    };
   }, []);
 
   const filteredConversations = useMemo(() => {
