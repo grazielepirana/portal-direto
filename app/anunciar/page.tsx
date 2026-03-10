@@ -813,6 +813,8 @@ function AnunciarPageContent() {
                       >
                         <option>Apartamento</option>
                         <option>Casa</option>
+                        <option>Casa em condomínio</option>
+                        <option>Cobertura</option>
                         <option>Terreno</option>
                         <option>Comercial</option>
                       </select>

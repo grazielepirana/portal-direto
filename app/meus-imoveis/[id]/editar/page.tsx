@@ -693,6 +693,8 @@ export default function EditarImovelPage({
                     <select className={fieldClassName} value={propertyType} onChange={(e) => setPropertyType(e.target.value)}>
                       <option>Apartamento</option>
                       <option>Casa</option>
+                      <option>Casa em condomínio</option>
+                      <option>Cobertura</option>
                       <option>Terreno</option>
                       <option>Comercial</option>
                     </select>

@@ -440,6 +440,8 @@ function ImoveisPageContent({ searchParams }: { searchParams: ReturnType<typeof 
               <option value="">Tipo de imóvel</option>
               <option value="Apartamento">Apartamento</option>
               <option value="Casa">Casa</option>
+              <option value="Casa em condomínio">Casa em condomínio</option>
+              <option value="Cobertura">Cobertura</option>
               <option value="Terreno">Terreno</option>
               <option value="Comercial">Comercial</option>
             </select>

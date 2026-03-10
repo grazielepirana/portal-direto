@@ -226,10 +226,10 @@ export default function Home() {
   const exploreTypes = [
     { id: "apartamentos", label: "Apartamentos", value: "Apartamento" },
     { id: "casas", label: "Casas", value: "Casa" },
-    { id: "coberturas", label: "Coberturas", value: "Apartamento" },
-    { id: "casas-condominio", label: "Casas em condomínio", value: "Casa" },
-    { id: "campos", label: "Campos", value: "Terreno" },
+    { id: "coberturas", label: "Coberturas", value: "Cobertura" },
+    { id: "casas-condominio", label: "Casa em condomínio", value: "Casa em condomínio" },
     { id: "terrenos", label: "Terrenos", value: "Terreno" },
+    { id: "comercial", label: "Comercial", value: "Comercial" },
   ];
 
   function renderExploreIcon(typeId: string) {
@@ -271,13 +271,13 @@ export default function Home() {
             <path d="M39 15h6" stroke="#82C1A2" strokeWidth="2" strokeLinecap="round" />
           </svg>
         );
-      case "campos":
+      case "comercial":
         return (
           <svg viewBox="0 0 56 48" className="h-12 w-12" aria-hidden>
             <rect x="4" y="8" width="48" height="32" rx="9" fill="#EAF8F2" />
-            <rect x="15" y="17" width="26" height="16" rx="2" fill="#82C1A2" />
-            <path d="M8 19c6 2 10 6 10 12M8 19c6 0 11 2 16 8" stroke="#82C1A2" strokeWidth="2" strokeLinecap="round" />
-            <circle cx="30" cy="30" r="3" fill="#0E9F6E" opacity="0.65" />
+            <rect x="18" y="12" width="20" height="24" rx="2" fill="#82C1A2" />
+            <path d="M22 18h3M27 18h3M32 18h2M22 23h3M27 23h3M32 23h2M22 28h3M27 28h3M32 28h2" stroke="#EAF0ED" strokeWidth="1.6" strokeLinecap="round" />
+            <rect x="26" y="30" width="4" height="6" rx="1" fill="#EAF0ED" />
           </svg>
         );
       default:
@@ -374,6 +374,8 @@ export default function Home() {
                 <option value="">Tipo de imóvel</option>
                 <option value="Apartamento">Apartamento</option>
                 <option value="Casa">Casa</option>
+                <option value="Casa em condomínio">Casa em condomínio</option>
+                <option value="Cobertura">Cobertura</option>
                 <option value="Terreno">Terreno</option>
                 <option value="Comercial">Comercial</option>
               </select>
@@ -735,7 +737,7 @@ export default function Home() {
                     key={type.label}
                     type="button"
                     onClick={() => router.push(`/imoveis?propertyType=${encodeURIComponent(type.value)}`)}
-                    className="flex min-h-[126px] flex-col items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-2 py-3 text-center text-sm font-medium text-[#19191D] transition hover:border-[#82C1A2] hover:bg-[#F6FBF9]"
+                    className="flex min-h-[126px] flex-col items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-2 py-3 text-center text-sm font-medium text-[#19191D] transition hover:border-[#E5E7EB] hover:bg-[#FCFCFC]"
                   >
                     {renderExploreIcon(type.id)}
                     <span className="text-[18px] leading-tight">{type.label}</span>
