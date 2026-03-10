@@ -65,8 +65,19 @@ function dedupeFeaturedById(items: FeaturedListing[]) {
   const seen = new Set<string>();
   const unique: FeaturedListing[] = [];
   for (const item of items) {
-    if (!item?.id || seen.has(item.id)) continue;
-    seen.add(item.id);
+    if (!item) continue;
+    const image = getFirstImageUrl(item.image_urls) ?? "";
+    const fingerprint = [
+      String(item.listing_title ?? "").trim().toLowerCase(),
+      String(item.property_type ?? "").trim().toLowerCase(),
+      String(item.kind ?? "").trim().toLowerCase(),
+      String(item.price ?? ""),
+      String(item.city ?? "").trim().toLowerCase(),
+      String(item.neighborhood ?? "").trim().toLowerCase(),
+      image.trim().toLowerCase(),
+    ].join("|");
+    if (seen.has(fingerprint)) continue;
+    seen.add(fingerprint);
     unique.push(item);
   }
   return unique;
