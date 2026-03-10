@@ -24,6 +24,7 @@ type ListingMeta = {
 
 const CHAT_LAST_SEEN_KEY = "portal_chat_last_seen_v1";
 const CHAT_ARCHIVED_KEY = "portal_chat_archived_v1";
+const CHAT_INBOX_CACHE_KEY = "portal_chat_inbox_cache_v1";
 
 function readLastSeenMap(): Record<string, string> {
   if (typeof window === "undefined") return {};
@@ -52,6 +53,27 @@ function readArchivedConversationIds(): string[] {
 function saveArchivedConversationIds(ids: string[]) {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(CHAT_ARCHIVED_KEY, JSON.stringify(ids));
+}
+
+function readChatInboxCache() {
+  if (typeof window === "undefined") return null as null | {
+    conversations: Conversation[];
+    listingMetaMap: Record<string, ListingMeta>;
+    profileNames: Record<string, string>;
+    unreadCounts: Record<string, number>;
+  };
+  const raw = window.sessionStorage.getItem(CHAT_INBOX_CACHE_KEY);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as {
+      conversations: Conversation[];
+      listingMetaMap: Record<string, ListingMeta>;
+      profileNames: Record<string, string>;
+      unreadCounts: Record<string, number>;
+    };
+  } catch {
+    return null;
+  }
 }
 
 function getFirstImageUrl(value: unknown): string | null {
@@ -89,6 +111,15 @@ export default function ChatInboxPage() {
   const [archivedIds, setArchivedIds] = useState<string[]>(() => readArchivedConversationIds());
 
   useEffect(() => {
+    const cached = readChatInboxCache();
+    if (cached) {
+      setConversations(Array.isArray(cached.conversations) ? cached.conversations : []);
+      setListingMetaMap(cached.listingMetaMap ?? {});
+      setProfileNames(cached.profileNames ?? {});
+      setUnreadCounts(cached.unreadCounts ?? {});
+      setLoading(false);
+    }
+
     (async () => {
       const { data } = await supabase.auth.getUser();
       const uid = data.user?.id ?? null;
@@ -122,6 +153,7 @@ export default function ChatInboxPage() {
               .filter((id): id is string => Boolean(id))
           )
         );
+        let nextMetaMap: Record<string, ListingMeta> = {};
 
         if (listingIds.length > 0) {
           const { data: listings } = await supabase
@@ -129,7 +161,6 @@ export default function ChatInboxPage() {
             .select("id,listing_title,property_type,kind,image_urls,price,address,address_number,city,neighborhood")
             .in("id", listingIds);
 
-          const nextMetaMap: Record<string, ListingMeta> = {};
           for (const listing of listings ?? []) {
             const id = String(listing.id);
             const fallback = `${listing.property_type ?? "Imóvel"} • ${
@@ -179,6 +210,28 @@ export default function ChatInboxPage() {
             }
           }
           setUnreadCounts(counts);
+
+          if (typeof window !== "undefined") {
+            window.sessionStorage.setItem(
+              CHAT_INBOX_CACHE_KEY,
+              JSON.stringify({
+                conversations: nextConversations,
+                listingMetaMap: nextMetaMap,
+                profileNames: namesMap,
+                unreadCounts: counts,
+              })
+            );
+          }
+        } else if (typeof window !== "undefined") {
+          window.sessionStorage.setItem(
+            CHAT_INBOX_CACHE_KEY,
+            JSON.stringify({
+              conversations: nextConversations,
+              listingMetaMap: nextMetaMap,
+              profileNames: namesMap,
+              unreadCounts: {},
+            })
+          );
         }
       }
       setLoading(false);

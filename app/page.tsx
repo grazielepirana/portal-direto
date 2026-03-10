@@ -57,6 +57,9 @@ function getFirstImageUrl(value: unknown): string | null {
   return getImageUrls(value)[0] ?? null;
 }
 
+const HOME_FEATURED_CACHE_KEY = "portal_home_featured_cache_v1";
+const HOME_LOCATION_CACHE_KEY = "portal_home_locations_cache_v1";
+
 export default function Home() {
   const router = useRouter();
   const [heroImageUrl, setHeroImageUrl] = useState("");
@@ -66,14 +69,6 @@ export default function Home() {
   );
   const [heroPositionX, setHeroPositionX] = useState(DEFAULT_SITE_SETTINGS.hero_image_position_x);
   const [heroPositionY, setHeroPositionY] = useState(DEFAULT_SITE_SETTINGS.hero_image_position_y);
-  const [infoBlock1BgUrl, setInfoBlock1BgUrl] = useState("");
-  const [infoBlock2BgUrl, setInfoBlock2BgUrl] = useState("");
-  const [infoBlocksHeightPx, setInfoBlocksHeightPx] = useState(
-    DEFAULT_SITE_SETTINGS.home_info_blocks_height_px
-  );
-  const [infoBlocksImageFit, setInfoBlocksImageFit] = useState<"cover" | "contain">(
-    DEFAULT_SITE_SETTINGS.home_info_blocks_image_fit
-  );
 
   const [kind, setKind] = useState<"" | "venda" | "locacao">("");
   const [propertyType, setPropertyType] = useState("");
@@ -118,6 +113,24 @@ export default function Home() {
   }
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cachedFeatured = window.sessionStorage.getItem(HOME_FEATURED_CACHE_KEY);
+        if (cachedFeatured) {
+          const parsed = JSON.parse(cachedFeatured) as FeaturedListing[];
+          if (Array.isArray(parsed) && parsed.length > 0) setFeaturedListings(parsed);
+        }
+
+        const cachedLocations = window.sessionStorage.getItem(HOME_LOCATION_CACHE_KEY);
+        if (cachedLocations) {
+          const parsed = JSON.parse(cachedLocations) as string[];
+          if (Array.isArray(parsed) && parsed.length > 0) setLocationSuggestions(parsed.slice(0, 500));
+        }
+      } catch {
+        // ignore cache parse errors
+      }
+    }
+
     loadSiteSettings()
       .then((settings) => {
         setHeroImageUrl(settings.hero_image_url || "");
@@ -137,16 +150,6 @@ export default function Home() {
             ? Number(settings.hero_image_position_y)
             : DEFAULT_SITE_SETTINGS.hero_image_position_y
         );
-        setInfoBlock1BgUrl(settings.home_info_block_1_bg_url || "");
-        setInfoBlock2BgUrl(settings.home_info_block_2_bg_url || "");
-        setInfoBlocksHeightPx(
-          Number(settings.home_info_blocks_height_px) > 0
-            ? Number(settings.home_info_blocks_height_px)
-            : DEFAULT_SITE_SETTINGS.home_info_blocks_height_px
-        );
-        setInfoBlocksImageFit(
-          settings.home_info_blocks_image_fit === "contain" ? "contain" : "cover"
-        );
       })
       .catch(() => {
         setHeroImageUrl("");
@@ -154,16 +157,15 @@ export default function Home() {
         setHeroImageFit(DEFAULT_SITE_SETTINGS.hero_image_fit);
         setHeroPositionX(DEFAULT_SITE_SETTINGS.hero_image_position_x);
         setHeroPositionY(DEFAULT_SITE_SETTINGS.hero_image_position_y);
-        setInfoBlock1BgUrl("");
-        setInfoBlock2BgUrl("");
-        setInfoBlocksHeightPx(DEFAULT_SITE_SETTINGS.home_info_blocks_height_px);
-        setInfoBlocksImageFit(DEFAULT_SITE_SETTINGS.home_info_blocks_image_fit);
       });
 
     (async () => {
       const fromBase = await loadLocationOptions();
       if (fromBase.length > 0) {
         setLocationSuggestions(fromBase.slice(0, 500));
+        if (typeof window !== "undefined") {
+          window.sessionStorage.setItem(HOME_LOCATION_CACHE_KEY, JSON.stringify(fromBase.slice(0, 500)));
+        }
         return;
       }
 
@@ -185,7 +187,11 @@ export default function Home() {
         if (city) values.add(city);
       }
 
-      setLocationSuggestions(Array.from(values).slice(0, 80));
+      const fallbackLocations = Array.from(values).slice(0, 80);
+      setLocationSuggestions(fallbackLocations);
+      if (typeof window !== "undefined") {
+        window.sessionStorage.setItem(HOME_LOCATION_CACHE_KEY, JSON.stringify(fallbackLocations));
+      }
     })();
 
     (async () => {
@@ -206,6 +212,9 @@ export default function Home() {
         return untilDate >= now;
       });
       setFeaturedListings(valid);
+      if (typeof window !== "undefined") {
+        window.sessionStorage.setItem(HOME_FEATURED_CACHE_KEY, JSON.stringify(valid));
+      }
     })();
   }, []);
 
@@ -300,6 +309,8 @@ export default function Home() {
                 src={heroImageUrl}
                 alt="Imagem de fundo do topo"
                 className="absolute inset-0 z-0 h-full w-full"
+                loading="eager"
+                fetchPriority="high"
                 style={{
                   objectFit: heroImageFit,
                   objectPosition: `${heroPositionX}% ${heroPositionY}%`,
@@ -608,6 +619,7 @@ export default function Home() {
                           src={imageUrl}
                           alt={title}
                           className="w-full h-[220px] object-cover bg-slate-100 transition-transform duration-500 group-hover:scale-[1.04]"
+                          loading="lazy"
                         />
                       ) : (
                         <div className="w-full h-[220px] bg-slate-200" />
@@ -764,89 +776,6 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="!mt-0 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <article
-            className="rounded-[20px] shadow border border-slate-200 bg-center bg-no-repeat overflow-hidden"
-            style={
-              infoBlock1BgUrl
-                ? {
-                    backgroundImage: `url(${infoBlock1BgUrl})`,
-                    backgroundSize: infoBlocksImageFit,
-                    minHeight: `${infoBlocksHeightPx}px`,
-                  }
-                : { minHeight: `${infoBlocksHeightPx}px` }
-            }
-          >
-            <div
-              className={`${infoBlock1BgUrl ? "bg-black/50" : "bg-white"} p-6`}
-              style={{ minHeight: `${infoBlocksHeightPx}px` }}
-            >
-              <div className="flex items-start gap-3">
-                <span className={`text-2xl ${infoBlock1BgUrl ? "text-white" : "text-slate-900"}`} aria-hidden>
-                  🤝
-                </span>
-                <div>
-                  <h2 className={`text-2xl font-bold mb-2 ${infoBlock1BgUrl ? "text-white" : "text-slate-950"}`}>
-                    Negociação direta
-                  </h2>
-                  <ul className={`space-y-1 text-sm ${infoBlock1BgUrl ? "text-slate-100" : "text-slate-700"}`}>
-                    <li>• Contato sem intermediários</li>
-                    <li>• Chat rápido entre comprador e proprietário</li>
-                    <li>• Mais transparência na negociação</li>
-                  </ul>
-                  <button
-                    type="button"
-                    onClick={() => router.push("/sobre-nos")}
-                    className={`mt-4 text-sm font-semibold ${infoBlock1BgUrl ? "text-white" : "text-slate-900"} hover:opacity-80`}
-                  >
-                    Saiba mais →
-                  </button>
-                </div>
-              </div>
-            </div>
-          </article>
-
-          <article
-            className="rounded-[20px] shadow border border-slate-200 bg-center bg-no-repeat overflow-hidden"
-            style={
-              infoBlock2BgUrl
-                ? {
-                    backgroundImage: `url(${infoBlock2BgUrl})`,
-                    backgroundSize: infoBlocksImageFit,
-                    minHeight: `${infoBlocksHeightPx}px`,
-                  }
-                : { minHeight: `${infoBlocksHeightPx}px` }
-            }
-          >
-            <div
-              className={`${infoBlock2BgUrl ? "bg-black/50" : "bg-white"} p-6`}
-              style={{ minHeight: `${infoBlocksHeightPx}px` }}
-            >
-              <div className="flex items-start gap-3">
-                <span className={`text-2xl ${infoBlock2BgUrl ? "text-white" : "text-slate-900"}`} aria-hidden>
-                  🏠
-                </span>
-                <div>
-                  <h2 className={`text-2xl font-bold mb-2 ${infoBlock2BgUrl ? "text-white" : "text-slate-950"}`}>
-                    Busca simples e anúncios completos
-                  </h2>
-                  <ul className={`space-y-1 text-sm ${infoBlock2BgUrl ? "text-slate-100" : "text-slate-700"}`}>
-                    <li>• Filtros rápidos de localização e preço</li>
-                    <li>• Fotos e detalhes completos do imóvel</li>
-                    <li>• Navegação fluida no desktop e no celular</li>
-                  </ul>
-                  <button
-                    type="button"
-                    onClick={() => router.push("/imoveis")}
-                    className={`mt-4 text-sm font-semibold ${infoBlock2BgUrl ? "text-white" : "text-slate-900"} hover:opacity-80`}
-                  >
-                    Saiba mais →
-                  </button>
-                </div>
-              </div>
-            </div>
-          </article>
-        </section>
       </div>
     </main>
   );

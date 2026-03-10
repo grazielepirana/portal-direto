@@ -19,6 +19,10 @@ type Listing = {
   created_at?: string;
 };
 
+function favoritesCacheKey(userId: string) {
+  return `portal_favorites_cache_v1:${userId}`;
+}
+
 function getFirstImageUrl(value: unknown): string | null {
   if (!value) return null;
 
@@ -70,6 +74,21 @@ export default function FavoritosPage() {
       setLogged(true);
       setUserId(user.id);
 
+      if (typeof window !== "undefined") {
+        const cached = window.sessionStorage.getItem(favoritesCacheKey(user.id));
+        if (cached) {
+          try {
+            const parsed = JSON.parse(cached) as Listing[];
+            if (Array.isArray(parsed)) {
+              setListings(parsed);
+              setLoading(false);
+            }
+          } catch {
+            // ignore cache errors
+          }
+        }
+      }
+
       const favoriteIds = await loadFavoriteListingIds(user.id);
       if (favoriteIds.length === 0) {
         setListings([]);
@@ -86,7 +105,11 @@ export default function FavoritosPage() {
       if (error) {
         setErrorMessage("Não foi possível carregar os favoritos.");
       } else {
-        setListings((listingsData as Listing[]) ?? []);
+        const nextListings = (listingsData as Listing[]) ?? [];
+        setListings(nextListings);
+        if (typeof window !== "undefined") {
+          window.sessionStorage.setItem(favoritesCacheKey(user.id), JSON.stringify(nextListings));
+        }
       }
       setLoading(false);
     })();
@@ -127,6 +150,9 @@ export default function FavoritosPage() {
         return;
       }
       setListings([]);
+      if (typeof window !== "undefined") {
+        window.sessionStorage.removeItem(favoritesCacheKey(userId));
+      }
     } finally {
       setClearing(false);
     }
