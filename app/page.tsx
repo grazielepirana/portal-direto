@@ -737,7 +737,7 @@ export default function Home() {
                   <Link
                     key={type.label}
                     href={`/imoveis?propertyType=${encodeURIComponent(type.value)}`}
-                    className="flex min-h-[126px] flex-col items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-2 py-3 text-center text-sm font-medium text-[#19191D] transition hover:border-[#E5E7EB] hover:bg-[#FCFCFC]"
+                    className="flex min-h-[126px] flex-col items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-2 py-3 text-center text-sm font-medium text-[#19191D] transition hover:border-slate-300 hover:bg-slate-100"
                   >
                     {renderExploreIcon(type.id)}
                     <span className="text-[18px] leading-tight">{type.label}</span>
