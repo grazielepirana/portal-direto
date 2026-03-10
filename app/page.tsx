@@ -756,13 +756,12 @@ export default function Home() {
                 <p className="mt-3 text-base leading-relaxed text-slate-700">
                   Anuncie gratuitamente e conecte-se diretamente com interessados.
                 </p>
-                <button
-                  type="button"
-                  onClick={() => router.push("/anunciar")}
+                <Link
+                  href="/anunciar"
                   className="mt-6 inline-flex h-12 items-center justify-center rounded-xl bg-[#0E9F6E] px-6 text-base font-semibold text-white transition hover:bg-[#0A8A5E]"
                 >
                   Anunciar imóvel
-                </button>
+                </Link>
               </div>
               <div className="pointer-events-none absolute right-2 bottom-0 hidden lg:block">
                 <svg viewBox="0 0 220 180" className="h-[170px] w-[210px]" aria-hidden>
