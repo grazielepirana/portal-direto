@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { DEFAULT_SITE_SETTINGS, loadSiteSettings } from "../lib/site-settings";
 import { supabase } from "../lib/supabase";
 import { loadLocationOptions } from "../lib/location-options";
@@ -733,15 +734,14 @@ export default function Home() {
               <h2 className="text-3xl font-semibold tracking-tight text-[#19191D] md:text-[40px]">Explore por tipo de imóvel</h2>
               <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
                 {exploreTypes.map((type) => (
-                  <button
+                  <Link
                     key={type.label}
-                    type="button"
-                    onClick={() => router.push(`/imoveis?propertyType=${encodeURIComponent(type.value)}`)}
+                    href={`/imoveis?propertyType=${encodeURIComponent(type.value)}`}
                     className="flex min-h-[126px] flex-col items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-2 py-3 text-center text-sm font-medium text-[#19191D] transition hover:border-[#E5E7EB] hover:bg-[#FCFCFC]"
                   >
                     {renderExploreIcon(type.id)}
                     <span className="text-[18px] leading-tight">{type.label}</span>
-                  </button>
+                  </Link>
                 ))}
               </div>
             </div>
