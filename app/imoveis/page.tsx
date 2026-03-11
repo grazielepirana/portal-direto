@@ -188,13 +188,15 @@ function ImoveisPageContent({ searchParams }: { searchParams: ReturnType<typeof 
 
   useEffect(() => {
     let isMounted = true;
-
-    (async () => {
+    async function fetchListings(showRefresh = false) {
+      if (showRefresh && isMounted) setRefreshing(true);
+      const nowIso = new Date().toISOString();
       const { data, error } = await supabase
         .from("listings")
         .select(
           "id,owner_id,kind,property_type,listing_title,image_urls,price,city,neighborhood,address,address_number,address_complement,cep,bedrooms,bathrooms,suites,area_sqm,parking_spots,condo_name,condo_is_in,condo_amenities,condo_amenities_other,condo_fee,iptu_fee,code,description,accepts_trade,is_featured,active_until,created_at"
         )
+        .or(`active_until.is.null,active_until.gte.${nowIso}`)
         .order("created_at", { ascending: false })
         .limit(300);
 
@@ -212,10 +214,27 @@ function ImoveisPageContent({ searchParams }: { searchParams: ReturnType<typeof 
       sessionStorage.setItem("portal_listings_cache_v1", JSON.stringify(nextListings));
       setLoading(false);
       setRefreshing(false);
-    })();
+    }
+
+    void fetchListings();
+
+    const listingsChannel = supabase
+      .channel("imoveis-sync")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "listings" },
+        () => {
+          if (typeof window !== "undefined") {
+            sessionStorage.removeItem("portal_listings_cache_v1");
+          }
+          void fetchListings(true);
+        }
+      )
+      .subscribe();
 
     return () => {
       isMounted = false;
+      supabase.removeChannel(listingsChannel);
     };
   }, []);
 

@@ -136,6 +136,8 @@ export default function Home() {
   }
 
   useEffect(() => {
+    let active = true;
+
     if (typeof window !== "undefined") {
       try {
         const cachedFeatured = window.sessionStorage.getItem(HOME_FEATURED_CACHE_KEY);
@@ -186,6 +188,7 @@ export default function Home() {
 
     (async () => {
       const fromBase = await loadLocationOptions();
+      if (!active) return;
       if (fromBase.length > 0) {
         setLocationSuggestions(fromBase.slice(0, 500));
         if (typeof window !== "undefined") {
@@ -200,6 +203,7 @@ export default function Home() {
         .select("address,neighborhood,city")
         .order("created_at", { ascending: false })
         .limit(400);
+      if (!active) return;
 
       const values = new Set<string>();
       for (const row of (data as Array<{ address?: string | null; neighborhood?: string | null; city?: string | null }>) ?? []) {
@@ -219,15 +223,18 @@ export default function Home() {
       }
     })();
 
-    (async () => {
+    async function fetchFeaturedListings() {
+      const nowIso = new Date().toISOString();
       const { data } = await supabase
         .from("listings")
         .select(
           "id,kind,listing_title,property_type,price,bathrooms,bedrooms,parking_spots,area_sqm,city,neighborhood,image_urls,is_featured,active_until,created_at"
         )
         .eq("is_featured", true)
+        .or(`active_until.is.null,active_until.gte.${nowIso}`)
         .order("created_at", { ascending: false })
         .limit(8);
+      if (!active) return;
 
       const now = new Date();
       const valid = ((data as FeaturedListing[]) ?? []).filter((item) => {
@@ -241,7 +248,28 @@ export default function Home() {
       if (typeof window !== "undefined") {
         window.sessionStorage.setItem(HOME_FEATURED_CACHE_KEY, JSON.stringify(uniqueValid));
       }
-    })();
+    }
+
+    void fetchFeaturedListings();
+
+    const featuredChannel = supabase
+      .channel("home-featured-sync")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "listings" },
+        () => {
+          if (typeof window !== "undefined") {
+            window.sessionStorage.removeItem(HOME_FEATURED_CACHE_KEY);
+          }
+          void fetchFeaturedListings();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      active = false;
+      supabase.removeChannel(featuredChannel);
+    };
   }, []);
 
   const visibleFeaturedListings = featuredListings.filter((item) => {
