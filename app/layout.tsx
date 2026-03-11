@@ -37,19 +37,19 @@ export default function RootLayout({
             <SiteBrand />
 
             <nav className="flex items-center gap-2 sm:gap-3">
-              <Link href="/imoveis?kind=venda" className="site-nav-link hidden font-medium lg:inline-flex">
+              <Link href="/imoveis?kind=venda" className="site-nav-link hidden font-medium md:inline-flex">
                 Comprar
               </Link>
 
-              <Link href="/imoveis?kind=locacao" className="site-nav-link hidden font-medium lg:inline-flex">
+              <Link href="/imoveis?kind=locacao" className="site-nav-link hidden font-medium md:inline-flex">
                 Alugar
               </Link>
 
-              <Link href="/chat" className="site-nav-link hidden font-medium xl:inline-flex">
+              <Link href="/chat" className="site-nav-link hidden font-medium md:inline-flex">
                 Chat
               </Link>
 
-              <Link href="/favoritos" className="site-nav-link hidden font-medium xl:inline-flex">
+              <Link href="/favoritos" className="site-nav-link hidden font-medium md:inline-flex">
                 Favoritos
               </Link>
 
