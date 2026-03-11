@@ -1,6 +1,5 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import Link from "next/link";
 import AuthButton from "./AuthButton";
 import SiteThemeSync from "./SiteThemeSync";
 import SiteFaviconSync from "./SiteFaviconSync";
@@ -37,26 +36,26 @@ export default function RootLayout({
             <SiteBrand />
 
             <nav className="flex items-center gap-2 sm:gap-3">
-              <Link href="/imoveis?kind=venda" className="site-nav-link hidden font-medium md:inline-flex">
+              <a href="/imoveis?kind=venda" className="site-nav-link hidden font-medium md:inline-flex">
                 Comprar
-              </Link>
+              </a>
 
-              <Link href="/imoveis?kind=locacao" className="site-nav-link hidden font-medium md:inline-flex">
+              <a href="/imoveis?kind=locacao" className="site-nav-link hidden font-medium md:inline-flex">
                 Alugar
-              </Link>
+              </a>
 
-              <Link href="/chat" className="site-nav-link hidden font-medium md:inline-flex">
+              <a href="/chat" className="site-nav-link hidden font-medium md:inline-flex">
                 Chat
-              </Link>
+              </a>
 
-              <Link href="/favoritos" className="site-nav-link hidden font-medium md:inline-flex">
+              <a href="/favoritos" className="site-nav-link hidden font-medium md:inline-flex">
                 Favoritos
-              </Link>
+              </a>
 
-              <Link href="/anunciar" className="cta-primary inline-flex h-10 items-center rounded-xl px-3 text-xs font-semibold transition sm:h-auto sm:px-4 sm:py-2 sm:text-sm">
+              <a href="/anunciar" className="cta-primary inline-flex h-10 items-center rounded-xl px-3 text-xs font-semibold transition sm:h-auto sm:px-4 sm:py-2 sm:text-sm">
                 <span className="sm:hidden">Cadastrar</span>
                 <span className="hidden sm:inline">Cadastrar Imóvel</span>
-              </Link>
+              </a>
 
               <AuthButton />
             </nav>
