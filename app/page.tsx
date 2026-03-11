@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { DEFAULT_SITE_SETTINGS, loadSiteSettings } from "../lib/site-settings";
@@ -118,9 +118,11 @@ export default function Home() {
     setMaxPrice("");
     setBedrooms("");
     setCondoOrCode("");
+    setShowLocationSuggestions(false);
   }
 
-  function handleSearch() {
+  function handleSearch(event?: FormEvent<HTMLFormElement>) {
+    event?.preventDefault();
     const params = new URLSearchParams();
     const minPriceNumber = parseCurrencyInputToNumber(minPrice);
     const maxPriceNumber = parseCurrencyInputToNumber(maxPrice);
@@ -133,6 +135,7 @@ export default function Home() {
     if (condoOrCode) params.set("condoOrCode", condoOrCode);
 
     router.push(`/imoveis${params.toString() ? `?${params.toString()}` : ""}`);
+    router.refresh();
   }
 
   useEffect(() => {
@@ -407,10 +410,11 @@ export default function Home() {
 
           </section>
 
-          <section
+          <form
             id="home-search"
             className="!mt-0 h-full w-full rounded-[24px] bg-white/95 p-6 backdrop-blur-sm"
             style={{ boxShadow: "0 12px 40px rgba(15,23,42,0.08)" }}
+            onSubmit={handleSearch}
           >
             <h2 className="text-2xl font-bold text-slate-900 mb-2">Busque por localização, tipo e preço</h2>
             <p className="text-slate-600 mb-6">Resultados rápidos com filtros completos.</p>
@@ -509,20 +513,21 @@ export default function Home() {
 
             <div className="mt-4 flex gap-3">
               <button
+                type="button"
                 onClick={clearFilters}
                 className="w-full h-14 rounded-[14px] border border-slate-200 px-4 font-semibold text-slate-700 hover:bg-slate-50 transition"
               >
                 Limpar
               </button>
               <button
-                onClick={handleSearch}
+                type="submit"
                 className="cta-primary w-full h-14 rounded-[14px] px-4 text-base font-semibold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]"
               >
                 Buscar imóveis
               </button>
             </div>
 
-          </section>
+          </form>
           </div>
         </div>
 
