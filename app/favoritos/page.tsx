@@ -16,6 +16,7 @@ type Listing = {
   price: number | null;
   city?: string | null;
   neighborhood?: string | null;
+  active_until?: string | null;
   created_at?: string;
 };
 
@@ -52,6 +53,13 @@ function getFirstImageUrl(value: unknown): string | null {
   return null;
 }
 
+function isActiveListing(activeUntil?: string | null) {
+  if (!activeUntil) return true;
+  const untilDate = new Date(activeUntil);
+  if (Number.isNaN(untilDate.getTime())) return true;
+  return untilDate >= new Date();
+}
+
 export default function FavoritosPage() {
   const [loading, setLoading] = useState(true);
   const [logged, setLogged] = useState(false);
@@ -80,7 +88,7 @@ export default function FavoritosPage() {
           try {
             const parsed = JSON.parse(cached) as Listing[];
             if (Array.isArray(parsed)) {
-              setListings(parsed);
+              setListings(parsed.filter((item) => isActiveListing(item.active_until)));
               setLoading(false);
             }
           } catch {
@@ -98,14 +106,17 @@ export default function FavoritosPage() {
 
       const { data: listingsData, error } = await supabase
         .from("listings")
-        .select("id,kind,property_type,listing_title,image_urls,price,city,neighborhood,created_at")
+        .select("id,kind,property_type,listing_title,image_urls,price,city,neighborhood,active_until,created_at")
         .in("id", favoriteIds)
+        .or(`active_until.is.null,active_until.gte.${new Date().toISOString()}`)
         .order("created_at", { ascending: false });
 
       if (error) {
         setErrorMessage("Não foi possível carregar os favoritos.");
       } else {
-        const nextListings = (listingsData as Listing[]) ?? [];
+        const nextListings = ((listingsData as Listing[]) ?? []).filter((item) =>
+          isActiveListing(item.active_until)
+        );
         setListings(nextListings);
         if (typeof window !== "undefined") {
           window.sessionStorage.setItem(favoritesCacheKey(user.id), JSON.stringify(nextListings));
