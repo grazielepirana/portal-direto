@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
@@ -66,6 +65,10 @@ export default function AuthButton() {
   async function handleLogout() {
     await supabase.auth.signOut();
     window.location.href = "/login";
+  }
+
+  function navigateTo(href: string) {
+    window.location.assign(href);
   }
 
   const sections = useMemo<MenuSection[]>(() => {
@@ -168,9 +171,16 @@ export default function AuthButton() {
 
   if (!email) {
     return (
-      <Link href="/login" className="cta-primary px-4 py-2 rounded-lg transition">
+      <a
+        href="/login"
+        onClick={(event) => {
+          event.preventDefault();
+          navigateTo("/login");
+        }}
+        className="cta-primary px-4 py-2 rounded-lg transition"
+      >
         Entrar
-      </Link>
+      </a>
     );
   }
 
@@ -250,7 +260,11 @@ export default function AuthButton() {
                             menuItemRefs.current[refIndex] = el;
                           }}
                           aria-current={pathname === item.href ? "page" : undefined}
-                          onClick={() => setOpenMenu(false)}
+                          onClick={(event) => {
+                            event.preventDefault();
+                            setOpenMenu(false);
+                            if (item.href) navigateTo(item.href);
+                          }}
                           className={`${sharedClass} text-slate-800 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 ${
                             pathname === item.href ? "bg-slate-100" : ""
                           }`}

@@ -1,5 +1,6 @@
 "use client";
 
+import type { MouseEvent } from "react";
 import { useEffect, useState } from "react";
 import { DEFAULT_SITE_SETTINGS, loadSiteSettings } from "../lib/site-settings";
 
@@ -26,8 +27,18 @@ export default function SiteBrand() {
       });
   }, []);
 
+  function handleNavigate(event: MouseEvent<HTMLAnchorElement>) {
+    event.preventDefault();
+    window.location.assign("/");
+  }
+
   return (
-    <a href="/" className="text-2xl font-extrabold tracking-tight" style={{ color: "var(--site-header-text)" }}>
+    <a
+      href="/"
+      onClick={handleNavigate}
+      className="text-2xl font-extrabold tracking-tight"
+      style={{ color: "var(--site-header-text)" }}
+    >
       {logoUrl ? (
         <img src={logoUrl} alt={siteName} className="w-auto object-contain" style={{ height: `${logoHeight}px` }} />
       ) : (

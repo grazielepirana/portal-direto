@@ -1,11 +1,11 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import AuthButton from "./AuthButton";
 import SiteThemeSync from "./SiteThemeSync";
 import SiteFaviconSync from "./SiteFaviconSync";
 import SiteBrand from "./SiteBrand";
 import SiteFooter from "./SiteFooter";
 import CookieBanner from "./CookieBanner";
+import HeaderNav from "./HeaderNav";
 
 export function generateMetadata(): Metadata {
   const iconUrl = "/api/site/favicon";
@@ -34,31 +34,7 @@ export default function RootLayout({
         <header className="site-header sticky top-0 z-40 border-b border-slate-200/70 backdrop-blur-md bg-white/85">
           <div className="max-w-[1200px] mx-auto flex items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
             <SiteBrand />
-
-            <nav className="flex items-center gap-2 sm:gap-3">
-              <a href="/imoveis?kind=venda" className="site-nav-link hidden font-medium md:inline-flex">
-                Comprar
-              </a>
-
-              <a href="/imoveis?kind=locacao" className="site-nav-link hidden font-medium md:inline-flex">
-                Alugar
-              </a>
-
-              <a href="/chat" className="site-nav-link hidden font-medium md:inline-flex">
-                Chat
-              </a>
-
-              <a href="/favoritos" className="site-nav-link hidden font-medium md:inline-flex">
-                Favoritos
-              </a>
-
-              <a href="/anunciar" className="cta-primary inline-flex h-10 items-center rounded-xl px-3 text-xs font-semibold transition sm:h-auto sm:px-4 sm:py-2 sm:text-sm">
-                <span className="sm:hidden">Cadastrar</span>
-                <span className="hidden sm:inline">Cadastrar Imóvel</span>
-              </a>
-
-              <AuthButton />
-            </nav>
+            <HeaderNav />
           </div>
         </header>
 
